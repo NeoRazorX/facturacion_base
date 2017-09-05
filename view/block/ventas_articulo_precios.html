@@ -46,7 +46,7 @@
                 <div class="col-sm-4">
                     <div class="form-group">
                         Precio de Coste:
-                        {if="$fsc->articulo->secompra AND FS_COST_IS_AVERAGE"}
+                        {if="$fsc->articulo->secompra && FS_COST_IS_AVERAGE"}
                         <input type="text" name="coste" id="coste" class="form-control" value="{$fsc->articulo->preciocoste()}" disabled="disabled"/>
                         <p class="help-block">
                             El precio de compra se calcula automáticamente. Si quieres editarlo puedes

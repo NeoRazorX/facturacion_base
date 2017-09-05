@@ -39,13 +39,13 @@ class atributo_valor extends \fs_model
     public $codatributo;
     public $valor;
 
-    public function __construct($a = FALSE)
+    public function __construct($data = FALSE)
     {
         parent::__construct('atributos_valores');
-        if ($a) {
-            $this->id = $this->intval($a['id']);
-            $this->codatributo = $a['codatributo'];
-            $this->valor = $a['valor'];
+        if ($data) {
+            $this->id = $this->intval($data['id']);
+            $this->codatributo = $data['codatributo'];
+            $this->valor = $data['valor'];
         } else {
             $this->id = NULL;
             $this->codatributo = NULL;

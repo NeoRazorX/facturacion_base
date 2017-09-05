@@ -124,7 +124,7 @@ class admin_empresa extends fs_controller
                     $fsvar->simple_save('install_step', $step);
                 }
 
-                if ($step == 3 AND $this->empresa->contintegrada) {
+                if ($step == 3 && $this->empresa->contintegrada) {
                     $this->new_message('Recuerda que tienes que <a href="index.php?page=contabilidad_ejercicio&cod=' .
                         $this->empresa->codejercicio . '">importar los datos del ejercicio</a>.');
                 }

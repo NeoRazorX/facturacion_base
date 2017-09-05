@@ -253,7 +253,7 @@
          <div class="col-sm-2">
             <div class='form-group{if="$fsc->factura->vencida()"} has-warning{/if}'>
                Vencimiento:
-               {if="$fsc->factura->pagada OR !$fsc->mostrar_boton_pagada"}
+               {if="$fsc->factura->pagada || !$fsc->mostrar_boton_pagada"}
                <input type="text" name="vencimiento" value="{$fsc->factura->vencimiento}" class="form-control datepicker" readonly=""/>
                {else}
                <input type="text" name="vencimiento" value="{$fsc->factura->vencimiento}" class="form-control datepicker" autocomplete="off"/>

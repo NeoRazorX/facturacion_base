@@ -407,7 +407,7 @@
 </div>
 {else}
    {loop="$fsc->extensions"}
-      {if="$value->type=='tab' AND $fsc->mostrar=='ext_'.$value->name"}
+      {if="$value->type=='tab' && $fsc->mostrar=='ext_'.$value->name"}
       <iframe src="index.php?page={$value->from}{$value->params}" width="100%" height="2000" frameborder="0"></iframe>
       {/if}
    {/loop}

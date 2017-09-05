@@ -75,38 +75,38 @@ class partida extends \fs_model
     public $sum_debe;
     public $sum_haber;
 
-    public function __construct($p = FALSE)
+    public function __construct($data = FALSE)
     {
         parent::__construct('co_partidas');
-        if ($p) {
-            $this->idpartida = $this->intval($p['idpartida']);
-            $this->idasiento = $this->intval($p['idasiento']);
-            $this->idsubcuenta = $this->intval($p['idsubcuenta']);
-            $this->codsubcuenta = $p['codsubcuenta'];
-            $this->idconcepto = $this->intval($p['idconcepto']);
-            $this->concepto = $p['concepto'];
-            $this->idcontrapartida = $p['idcontrapartida'];
-            $this->codcontrapartida = $p['codcontrapartida'];
-            $this->punteada = $this->str2bool($p['punteada']);
+        if ($data) {
+            $this->idpartida = $this->intval($data['idpartida']);
+            $this->idasiento = $this->intval($data['idasiento']);
+            $this->idsubcuenta = $this->intval($data['idsubcuenta']);
+            $this->codsubcuenta = $data['codsubcuenta'];
+            $this->idconcepto = $this->intval($data['idconcepto']);
+            $this->concepto = $data['concepto'];
+            $this->idcontrapartida = $data['idcontrapartida'];
+            $this->codcontrapartida = $data['codcontrapartida'];
+            $this->punteada = $this->str2bool($data['punteada']);
 
-            $this->tasaconv = floatval($p['tasaconv']);
-            $this->coddivisa = $p['coddivisa'];
+            $this->tasaconv = floatval($data['tasaconv']);
+            $this->coddivisa = $data['coddivisa'];
             if (is_null($this->coddivisa)) {
                 $this->coddivisa = $this->default_items->coddivisa();
             }
 
-            $this->haberme = floatval($p['haberme']);
-            $this->debeme = floatval($p['debeme']);
-            $this->recargo = floatval($p['recargo']);
-            $this->iva = floatval($p['iva']);
-            $this->baseimponible = floatval($p['baseimponible']);
-            $this->factura = $this->intval($p['factura']);
-            $this->codserie = $p['codserie'];
-            $this->tipodocumento = $p['tipodocumento'];
-            $this->documento = $p['documento'];
-            $this->cifnif = $p['cifnif'];
-            $this->debe = floatval($p['debe']);
-            $this->haber = floatval($p['haber']);
+            $this->haberme = floatval($data['haberme']);
+            $this->debeme = floatval($data['debeme']);
+            $this->recargo = floatval($data['recargo']);
+            $this->iva = floatval($data['iva']);
+            $this->baseimponible = floatval($data['baseimponible']);
+            $this->factura = $this->intval($data['factura']);
+            $this->codserie = $data['codserie'];
+            $this->tipodocumento = $data['tipodocumento'];
+            $this->documento = $data['documento'];
+            $this->cifnif = $data['cifnif'];
+            $this->debe = floatval($data['debe']);
+            $this->haber = floatval($data['haber']);
         } else {
             $this->idpartida = NULL;
             $this->idasiento = NULL;
@@ -323,7 +323,7 @@ class partida extends \fs_model
                 $saldo += floatval($po['debe']) - floatval($po['haber']);
                 $sum_debe += floatval($po['debe']);
                 $sum_haber += floatval($po['haber']);
-                if ($i >= $offset AND $i < ($offset + FS_ITEM_LIMIT)) {
+                if ($i >= $offset && $i < ($offset + FS_ITEM_LIMIT)) {
                     $aux = $partida->get($po['idpartida']);
                     if ($aux) {
                         $aux->numero = intval($po['numero']);

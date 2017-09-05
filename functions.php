@@ -57,7 +57,7 @@ if (!function_exists('fs_documento_new_numero')) {
             $sec = FALSE;
         }
 
-        if (!$sec OR $numero <= 1) {
+        if (!$sec || $numero <= 1) {
             $sql = "SELECT MAX(" . $db->sql_to_int('numero') . ") as num FROM " . $table_name;
             if (FS_NEW_CODIGO != 'NUM' && FS_NEW_CODIGO != '0-NUM') {
                 $sql .= " WHERE codejercicio = " . $sec0->var2str($codejercicio) . " AND codserie = " . $sec0->var2str($codserie) . ";";
@@ -166,7 +166,7 @@ if (!function_exists('fs_huecos_factua_cliente')) {
                          * así evitamos agotar la memoria en caso de error grave.
                          */
                         $pasos = 0;
-                        while ($num < intval($d['numero']) AND $pasos < 100) {
+                        while ($num < intval($d['numero']) && $pasos < 100) {
                             $huecolist[] = array(
                                 'codigo' => fs_documento_new_codigo(FS_FACTURA, $eje->codejercicio, $codserie, $num),
                                 'fecha' => Date('d-m-Y', strtotime($d['fecha'])),
@@ -205,8 +205,9 @@ if (!function_exists('remote_printer')) {
 
                 $terminal->tickets = '';
                 $terminal->save();
-            } else
+            } else {
                 echo 'ERROR: terminal no encontrado.';
+            }
         }
     }
 }

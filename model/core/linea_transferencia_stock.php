@@ -22,24 +22,24 @@ class linea_transferencia_stock extends \fs_model
     private $fecha;
     private $hora;
 
-    public function __construct($d = FALSE)
+    public function __construct($data = FALSE)
     {
         parent::__construct('lineastransstock');
-        if ($d) {
-            $this->idlinea = $this->intval($d['idlinea']);
-            $this->idtrans = $this->intval($d['idtrans']);
-            $this->referencia = $d['referencia'];
-            $this->cantidad = floatval($d['cantidad']);
-            $this->descripcion = $d['descripcion'];
+        if ($data) {
+            $this->idlinea = $this->intval($data['idlinea']);
+            $this->idtrans = $this->intval($data['idtrans']);
+            $this->referencia = $data['referencia'];
+            $this->cantidad = floatval($data['cantidad']);
+            $this->descripcion = $data['descripcion'];
 
             $this->fecha = NULL;
-            if (isset($d['fecha'])) {
-                $this->fecha = date('d-m-Y', strtotime($d['fecha']));
+            if (isset($data['fecha'])) {
+                $this->fecha = date('d-m-Y', strtotime($data['fecha']));
             }
 
             $this->hora = NULL;
-            if (isset($d['hora'])) {
-                $this->hora = $d['hora'];
+            if (isset($data['hora'])) {
+                $this->hora = $data['hora'];
             }
         } else {
             /// valores predeterminados

@@ -124,7 +124,7 @@ class ventas_facturas extends fbase_controller
             if (isset($_GET['delete'])) {
                 $this->delete_factura();
             } else {
-                if (!isset($_GET['mostrar']) AND ( $this->query != '' OR isset($_REQUEST['codagente']) OR isset($_REQUEST['codcliente']) OR isset($_REQUEST['codserie']))) {
+                if (!isset($_GET['mostrar']) && ( $this->query != '' || isset($_REQUEST['codagente']) || isset($_REQUEST['codcliente']) || isset($_REQUEST['codserie']))) {
                     /**
                      * si obtenermos un codagente, un codcliente o un codserie pasamos direcatemente
                      * a la pestaña de búsqueda, a menos que tengamos un mostrar, que
@@ -133,11 +133,9 @@ class ventas_facturas extends fbase_controller
                     $this->mostrar = 'buscar';
                 }
 
-                if (isset($_REQUEST['codcliente'])) {
-                    if ($_REQUEST['codcliente'] != '') {
-                        $cli0 = new cliente();
-                        $this->cliente = $cli0->get($_REQUEST['codcliente']);
-                    }
+                if (isset($_REQUEST['codcliente']) && $_REQUEST['codcliente'] != '') {
+                    $cli0 = new cliente();
+                    $this->cliente = $cli0->get($_REQUEST['codcliente']);
                 }
 
                 if (isset($_REQUEST['codagente'])) {
@@ -195,8 +193,9 @@ class ventas_facturas extends fbase_controller
                 }
             } else if ($this->mostrar == 'buscar') {
                 $this->buscar($order2);
-            } else
+            } else {
                 $this->resultados = $this->factura->all($this->offset, FS_ITEM_LIMIT, $this->order . $order2);
+            }
         }
     }
 
@@ -221,9 +220,9 @@ class ventas_facturas extends fbase_controller
                 . "&hasta=" . $this->hasta;
 
             return $url;
-        } else {
-            return parent::url();
         }
+
+        return parent::url();
     }
 
     public function paginas()
@@ -441,10 +440,12 @@ class ventas_facturas extends fbase_controller
                 }
 
                 $this->clean_last_changes();
-            } else
+            } else {
                 $this->new_error_msg("¡Imposible eliminar la factura!");
-        } else
+            }
+        } else {
             $this->new_error_msg("Factura no encontrada.");
+        }
     }
 
     public function orden()

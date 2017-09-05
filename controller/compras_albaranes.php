@@ -108,7 +108,7 @@ class compras_albaranes extends fbase_controller
             if (isset($_POST['delete'])) {
                 $this->delete_albaran();
             } else {
-                if (!isset($_GET['mostrar']) AND ( $this->query != '' OR isset($_REQUEST['codagente']) OR isset($_REQUEST['codproveedor']) OR isset($_REQUEST['codserie']))) {
+                if (!isset($_GET['mostrar']) && ( $this->query != '' || isset($_REQUEST['codagente']) || isset($_REQUEST['codproveedor']) || isset($_REQUEST['codserie']))) {
                     /**
                      * si obtenermos un codagente, un codproveedor o un codserie pasamos direcatemente
                      * a la pestaña de búsqueda, a menos que tengamos un mostrar, que
@@ -117,11 +117,9 @@ class compras_albaranes extends fbase_controller
                     $this->mostrar = 'buscar';
                 }
 
-                if (isset($_REQUEST['codproveedor'])) {
-                    if ($_REQUEST['codproveedor'] != '') {
-                        $pro0 = new proveedor();
-                        $this->proveedor = $pro0->get($_REQUEST['codproveedor']);
-                    }
+                if (isset($_REQUEST['codproveedor']) && $_REQUEST['codproveedor'] != '') {
+                    $pro0 = new proveedor();
+                    $this->proveedor = $pro0->get($_REQUEST['codproveedor']);
                 }
 
                 if (isset($_REQUEST['codagente'])) {
@@ -193,9 +191,9 @@ class compras_albaranes extends fbase_controller
                 . "&hasta=" . $this->hasta;
 
             return $url;
-        } else {
-            return parent::url();
         }
+
+        return parent::url();
     }
 
     public function paginas()
@@ -247,7 +245,7 @@ class compras_albaranes extends fbase_controller
                              * no tocamos, porque sigue estando ese otro albarán.
                              * (las facturas pueden agrupar albaranes).
                              */
-                            if ($linea->referencia AND ( is_null($linea->idalbaran) OR $linea->idalbaran == $alb1->idalbaran)) {
+                            if ($linea->referencia && ( is_null($linea->idalbaran) || $linea->idalbaran == $alb1->idalbaran)) {
                                 $art0 = $articulo->get($linea->referencia);
                                 if ($art0) {
                                     $art0->sum_stock($alb1->codalmacen, 0 - $linea->cantidad, TRUE, $linea->codcombinacion);
@@ -270,10 +268,12 @@ class compras_albaranes extends fbase_controller
 
             if ($alb1->delete()) {
                 $this->clean_last_changes();
-            } else
+            } else {
                 $this->new_error_msg("¡Imposible eliminar el " . FS_ALBARAN . "!");
-        } else
+            }
+        } else {
             $this->new_error_msg("¡" . FS_ALBARAN . " no encontrado!");
+        }
     }
 
     private function share_extension()

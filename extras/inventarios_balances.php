@@ -48,7 +48,7 @@ class inventarios_balances
         $ejercicios = $ejercicio->all();
         $random = mt_rand(0, count($ejercicios) - 1);
         foreach ($ejercicios as $num => $eje) {
-            if ($num < 2 OR $num == $random) {
+            if ($num < 2 || $num == $random) {
                 $this->generar_libro($eje);
             }
         }
@@ -75,7 +75,7 @@ class inventarios_balances
                 $pdf_doc->pdf->ezStartPageNumbers(580, 10, 10, 'left', '{PAGENUM} de {TOTALPAGENUM}');
 
                 $excluir = FALSE;
-                if (isset($eje->idasientocierre) AND isset($eje->idasientopyg)) {
+                if (isset($eje->idasientocierre) && isset($eje->idasientopyg)) {
                     $excluir = array($eje->idasientocierre, $eje->idasientopyg);
                 }
 
@@ -234,7 +234,7 @@ class inventarios_balances
                         }
 
                         /// añadimos la cuenta
-                        if ($debe != 0 OR $haber != 0) {
+                        if ($debe != 0 || $haber != 0) {
                             $cuenta = $cuenta0->get_by_codigo($i . $j . $k, $eje->codejercicio);
                             if ($cuenta) {
                                 $lineas[] = array(
@@ -416,7 +416,7 @@ class inventarios_balances
 
                 $encontrado = FALSE;
                 foreach ($balances as $bal) {
-                    if ($bal->naturaleza == 'PG' AND strstr($bal->codbalance, 'PG-A-' . $num . '-')) {
+                    if ($bal->naturaleza == 'PG' && strstr($bal->codbalance, 'PG-A-' . $num . '-')) {
                         $saldo1 = $this->get_saldo_balance('PG-A-' . $num . '-', $eje);
                         $saldo0 = $this->get_saldo_balance('PG-A-' . $num . '-', $eje0);
 
@@ -511,7 +511,7 @@ class inventarios_balances
 
                 $encontrado = FALSE;
                 foreach ($balances as $bal) {
-                    if ($bal->naturaleza == 'PG' AND strstr($bal->codbalance, 'PG-A-' . $num . '-')) {
+                    if ($bal->naturaleza == 'PG' && strstr($bal->codbalance, 'PG-A-' . $num . '-')) {
                         $saldo1 = $this->get_saldo_balance('PG-A-' . $num . '-', $eje);
 
                         /// añadimos la fila
@@ -615,14 +615,13 @@ class inventarios_balances
                 $desc1 = '';
                 $desc2 = '';
                 $desc3 = '';
-                $desc4 = '';
                 foreach ($nivel1 as $nv1) {
                     foreach ($nivel2 as $nv2) {
                         foreach ($nivel3 as $nv3) {
                             foreach ($nivel4 as $nv4) {
                                 foreach ($balances as $bal) {
-                                    if ($bal->naturaleza == $nv0 AND $bal->nivel1 == $nv1 AND $bal->nivel2 == $nv2 AND $bal->nivel3 == $nv3 AND $bal->nivel4 == $nv4) {
-                                        if ($bal->descripcion1 != $desc1 AND $bal->descripcion1 != '') {
+                                    if ($bal->naturaleza == $nv0 && $bal->nivel1 == $nv1 && $bal->nivel2 == $nv2 && $bal->nivel3 == $nv3 && $bal->nivel4 == $nv4) {
+                                        if ($bal->descripcion1 != $desc1 && $bal->descripcion1 != '') {
                                             $pdf_doc->add_table_row(
                                                 array(
                                                     'descripcion' => "\n<b>" . fs_fix_html($bal->descripcion1) . '</b>',
@@ -634,7 +633,7 @@ class inventarios_balances
                                             $desc1 = $bal->descripcion1;
                                         }
 
-                                        if ($bal->descripcion2 != $desc2 AND $bal->descripcion2 != '') {
+                                        if ($bal->descripcion2 != $desc2 && $bal->descripcion2 != '') {
                                             $pdf_doc->add_table_row(
                                                 array(
                                                     'descripcion' => ' <b>' . fs_fix_html($bal->descripcion2) . '</b>',
@@ -646,7 +645,7 @@ class inventarios_balances
                                             $desc2 = $bal->descripcion2;
                                         }
 
-                                        if ($bal->descripcion3 != $desc3 AND $bal->descripcion3 != '') {
+                                        if ($bal->descripcion3 != $desc3 && $bal->descripcion3 != '') {
                                             $pdf_doc->add_table_row(
                                                 array(
                                                     'descripcion' => '  ' . fs_fix_html($bal->descripcion3),
@@ -723,14 +722,13 @@ class inventarios_balances
                 $desc1 = '';
                 $desc2 = '';
                 $desc3 = '';
-                $desc4 = '';
                 foreach ($nivel1 as $nv1) {
                     foreach ($nivel2 as $nv2) {
                         foreach ($nivel3 as $nv3) {
                             foreach ($nivel4 as $nv4) {
                                 foreach ($balances as $bal) {
-                                    if ($bal->naturaleza == $nv0 AND $bal->nivel1 == $nv1 AND $bal->nivel2 == $nv2 AND $bal->nivel3 == $nv3 AND $bal->nivel4 == $nv4) {
-                                        if ($bal->descripcion1 != $desc1 AND $bal->descripcion1 != '') {
+                                    if ($bal->naturaleza == $nv0 && $bal->nivel1 == $nv1 && $bal->nivel2 == $nv2 && $bal->nivel3 == $nv3 && $bal->nivel4 == $nv4) {
+                                        if ($bal->descripcion1 != $desc1 && $bal->descripcion1 != '') {
                                             $pdf_doc->add_table_row(
                                                 array(
                                                     'descripcion' => "\n<b>" . fs_fix_html($bal->descripcion1) . '</b>',
@@ -741,7 +739,7 @@ class inventarios_balances
                                             $desc1 = $bal->descripcion1;
                                         }
 
-                                        if ($bal->descripcion2 != $desc2 AND $bal->descripcion2 != '') {
+                                        if ($bal->descripcion2 != $desc2 && $bal->descripcion2 != '') {
                                             $pdf_doc->add_table_row(
                                                 array(
                                                     'descripcion' => ' <b>' . fs_fix_html($bal->descripcion2) . '</b>',
@@ -752,7 +750,7 @@ class inventarios_balances
                                             $desc2 = $bal->descripcion2;
                                         }
 
-                                        if ($bal->descripcion3 != $desc3 AND $bal->descripcion3 != '') {
+                                        if ($bal->descripcion3 != $desc3 && $bal->descripcion3 != '') {
                                             $pdf_doc->add_table_row(
                                                 array(
                                                     'descripcion' => '  ' . fs_fix_html($bal->descripcion3),

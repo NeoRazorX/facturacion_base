@@ -67,7 +67,7 @@ class ventas_articulos extends fbase_controller
          */
         $this->mostrar_tab_tarifas = TRUE;
         foreach ($this->extensions as $ext) {
-            if ($ext->type == 'config' AND $ext->text == 'no_tab_tarifas') {
+            if ($ext->type == 'config' && $ext->text == 'no_tab_tarifas') {
                 $this->mostrar_tab_tarifas = FALSE;
                 break;
             }
@@ -77,7 +77,7 @@ class ventas_articulos extends fbase_controller
             $this->edit_tarifa();
         } else if (isset($_GET['delete_tarifa'])) {
             $this->delete_tarifa();
-        } else if (isset($_POST['referencia']) AND isset($_POST['codfamilia']) AND isset($_POST['codimpuesto'])) {
+        } else if (isset($_POST['referencia']) && isset($_POST['codfamilia']) && isset($_POST['codimpuesto'])) {
             $this->new_articulo($articulo);
         } else if (isset($_GET['delete'])) {
             $this->delete_articulo($articulo);
@@ -175,8 +175,9 @@ class ventas_articulos extends fbase_controller
         $tar0->maxpvp = isset($_POST['maxpvp']);
         if ($tar0->save()) {
             $this->new_message("Tarifa guardada correctamente.");
-        } else
+        } else {
             $this->new_error_msg("¡Imposible guardar la tarifa!");
+        }
     }
 
     private function delete_tarifa()
@@ -187,10 +188,12 @@ class ventas_articulos extends fbase_controller
                 $this->new_error_msg('No tienes permiso para eliminar en esta página.');
             } else if ($tar0->delete()) {
                 $this->new_message("Tarifa " . $tar0->codtarifa . " eliminada correctamente.", TRUE);
-            } else
+            } else {
                 $this->new_error_msg("¡Imposible eliminar la tarifa!");
-        } else
+            }
+        } else {
             $this->new_error_msg("¡La tarifa no existe!");
+        }
     }
 
     private function new_articulo(&$articulo)
@@ -230,8 +233,9 @@ class ventas_articulos extends fbase_controller
 
             if ($articulo->save()) {
                 header('location: ' . $articulo->url());
-            } else
+            } else {
                 $this->new_error_msg("¡Error al crear el articulo!");
+            }
         }
     }
 
@@ -243,10 +247,10 @@ class ventas_articulos extends fbase_controller
                 $this->new_error_msg('No tienes permiso para eliminar en esta página.');
             } else if ($art->delete()) {
                 $this->new_message("Articulo " . $art->referencia . " eliminado correctamente.", TRUE);
-            } else
+            } else {
                 $this->new_error_msg("¡Error al eliminarl el articulo!");
-        }
-        else {
+            }
+        } else {
             $this->new_error_msg("Articulo no encontrado.");
         }
     }

@@ -37,10 +37,10 @@ class recalcular_stock
         $this->regularizacion_stock = new \regularizacion_stock();
 
         /// forzamos la comprobación de las tablas de albaranes
-        $albc = new albaran_cliente();
-        $lin1 = new linea_albaran_cliente();
-        $albp = new albaran_proveedor();
-        $lin2 = new linea_albaran_proveedor();
+        new albaran_cliente();
+        new linea_albaran_cliente();
+        new albaran_proveedor();
+        new linea_albaran_proveedor();
     }
 
     public function get_movimientos($ref, $codalmacen = '', $desde = '', $hasta = '', $codagente = '')

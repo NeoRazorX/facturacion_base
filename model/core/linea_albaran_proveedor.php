@@ -115,7 +115,7 @@ class linea_albaran_proveedor extends \fs_model
     private $fecha;
     private static $albaranes;
 
-    public function __construct($l = FALSE)
+    public function __construct($data = FALSE)
     {
         parent::__construct('lineasalbaranesprov');
 
@@ -123,23 +123,23 @@ class linea_albaran_proveedor extends \fs_model
             self::$albaranes = array();
         }
 
-        if ($l) {
-            $this->idlinea = $this->intval($l['idlinea']);
-            $this->idlineapedido = $this->intval($l['idlineapedido']);
-            $this->idalbaran = $this->intval($l['idalbaran']);
-            $this->idpedido = $this->intval($l['idpedido']);
-            $this->referencia = $l['referencia'];
-            $this->codcombinacion = $l['codcombinacion'];
-            $this->descripcion = $l['descripcion'];
-            $this->cantidad = floatval($l['cantidad']);
-            $this->dtopor = floatval($l['dtopor']);
-            $this->codimpuesto = $l['codimpuesto'];
-            $this->iva = floatval($l['iva']);
-            $this->pvptotal = floatval($l['pvptotal']);
-            $this->pvpsindto = floatval($l['pvpsindto']);
-            $this->pvpunitario = floatval($l['pvpunitario']);
-            $this->irpf = floatval($l['irpf']);
-            $this->recargo = floatval($l['recargo']);
+        if ($data) {
+            $this->idlinea = $this->intval($data['idlinea']);
+            $this->idlineapedido = $this->intval($data['idlineapedido']);
+            $this->idalbaran = $this->intval($data['idalbaran']);
+            $this->idpedido = $this->intval($data['idpedido']);
+            $this->referencia = $data['referencia'];
+            $this->codcombinacion = $data['codcombinacion'];
+            $this->descripcion = $data['descripcion'];
+            $this->cantidad = floatval($data['cantidad']);
+            $this->dtopor = floatval($data['dtopor']);
+            $this->codimpuesto = $data['codimpuesto'];
+            $this->iva = floatval($data['iva']);
+            $this->pvptotal = floatval($data['pvptotal']);
+            $this->pvpsindto = floatval($data['pvpsindto']);
+            $this->pvpunitario = floatval($data['pvpunitario']);
+            $this->irpf = floatval($data['irpf']);
+            $this->recargo = floatval($data['recargo']);
         } else {
             $this->idlinea = NULL;
             $this->idlineapedido = NULL;
@@ -253,7 +253,7 @@ class linea_albaran_proveedor extends \fs_model
 
     public function articulo_url()
     {
-        if (is_null($this->referencia) OR $this->referencia == '') {
+        if (is_null($this->referencia) || $this->referencia == '') {
             return "index.php?page=ventas_articulos";
         }
 

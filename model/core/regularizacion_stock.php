@@ -55,24 +55,24 @@ class regularizacion_stock extends \fs_model
      */
     public $nick;
 
-    public function __construct($r = FALSE)
+    public function __construct($data = FALSE)
     {
         parent::__construct('lineasregstocks');
-        if ($r) {
-            $this->id = $this->intval($r['id']);
-            $this->idstock = $this->intval($r['idstock']);
-            $this->cantidadini = floatval($r['cantidadini']);
-            $this->cantidadfin = floatval($r['cantidadfin']);
-            $this->codalmacendest = $r['codalmacendest'];
-            $this->fecha = date('d-m-Y', strtotime($r['fecha']));
+        if ($data) {
+            $this->id = $this->intval($data['id']);
+            $this->idstock = $this->intval($data['idstock']);
+            $this->cantidadini = floatval($data['cantidadini']);
+            $this->cantidadfin = floatval($data['cantidadfin']);
+            $this->codalmacendest = $data['codalmacendest'];
+            $this->fecha = date('d-m-Y', strtotime($data['fecha']));
 
             $this->hora = '00:00:00';
-            if (!is_null($r['hora'])) {
-                $this->hora = date('H:i:s', strtotime($r['hora']));
+            if (!is_null($data['hora'])) {
+                $this->hora = date('H:i:s', strtotime($data['hora']));
             }
 
-            $this->motivo = $r['motivo'];
-            $this->nick = $r['nick'];
+            $this->motivo = $data['motivo'];
+            $this->nick = $data['nick'];
         } else {
             $this->id = NULL;
             $this->idstock = NULL;

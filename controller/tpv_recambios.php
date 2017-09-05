@@ -107,18 +107,20 @@ class tpv_recambios extends fbase_controller
                             $this->caja->dinero_fin = floatval($_POST['d_inicial']);
                             if ($this->caja->save()) {
                                 $this->new_message("Caja iniciada con " . $this->show_precio($this->caja->dinero_inicial));
-                            } else
+                            } else {
                                 $this->new_error_msg("¡Imposible guardar los datos de caja!");
-                        } else
+                            }
+                        } else {
                             $this->new_error_msg('El terminal ya no está disponible.');
-                    }
-                    else if (isset($_GET['terminal'])) {
+                        }
+                    } else if (isset($_GET['terminal'])) {
                         $this->terminal = $terminal0->get($_GET['terminal']);
                         if ($this->terminal) {
                             $this->terminal->abrir_cajon();
                             $this->terminal->save();
-                        } else
+                        } else {
                             $this->new_error_msg('Terminal no encontrado.');
+                        }
                     }
                 }
 
@@ -223,7 +225,7 @@ class tpv_recambios extends fbase_controller
 
         /// ejecutamos las funciones de las extensiones
         foreach ($this->extensions as $ext) {
-            if ($ext->type == 'function' AND $ext->params == 'new_search') {
+            if ($ext->type == 'function' && $ext->params == 'new_search') {
                 $name = $ext->text;
                 $name($this->db, $this->results);
             }
@@ -246,24 +248,22 @@ class tpv_recambios extends fbase_controller
             $this->results[$i]->cantidad = 1;
 
             $this->results[$i]->stockalm = $value->stockfis;
-            if ($this->multi_almacen AND isset($_REQUEST['codalmacen'])) {
+            if ($this->multi_almacen && isset($_REQUEST['codalmacen'])) {
                 $this->results[$i]->stockalm = $stock->total_from_articulo($this->results[$i]->referencia, $_REQUEST['codalmacen']);
             }
         }
 
         if (isset($_REQUEST['codcliente'])) {
             $cliente = $this->cliente->get($_REQUEST['codcliente']);
-            if ($cliente) {
-                if ($cliente->codgrupo) {
-                    $grupo0 = new grupo_clientes();
-                    $tarifa0 = new tarifa();
+            if ($cliente && $cliente->codgrupo) {
+                $grupo0 = new grupo_clientes();
+                $tarifa0 = new tarifa();
 
-                    $grupo = $grupo0->get($cliente->codgrupo);
-                    if ($grupo) {
-                        $tarifa = $tarifa0->get($grupo->codtarifa);
-                        if ($tarifa) {
-                            $tarifa->set_precios($this->results);
-                        }
+                $grupo = $grupo0->get($cliente->codgrupo);
+                if ($grupo) {
+                    $tarifa = $tarifa0->get($grupo->codtarifa);
+                    if ($tarifa) {
+                        $tarifa->set_precios($this->results);
                     }
                 }
             }
@@ -436,7 +436,7 @@ class tpv_recambios extends fbase_controller
                             $linea->referencia = $articulo->referencia;
                             $linea->descripcion = $_POST['desc_' . $i];
 
-                            if (!$serie->siniva OR $this->cliente_s->regimeniva != 'Exento') {
+                            if (!$serie->siniva || $this->cliente_s->regimeniva != 'Exento') {
                                 $linea->codimpuesto = $articulo->codimpuesto;
                                 $linea->iva = floatval($_POST['iva_' . $i]);
                                 $linea->recargo = floatval($_POST['recargo_' . $i]);
@@ -517,27 +517,28 @@ class tpv_recambios extends fbase_controller
                         } else {
                             $this->new_error_msg("¡Imposible actualizar la caja!");
                         }
-                    } else
+                    } else {
                         $this->new_error_msg("¡Imposible actualizar la <a href='" . $factura->url() . "'>factura</a>!");
-                }
-                else if ($factura->delete()) {
+                    }
+                } else if ($factura->delete()) {
                     $this->new_message("Factura eliminada correctamente.");
-                } else
+                } else {
                     $this->new_error_msg("¡Imposible eliminar la <a href='" . $factura->url() . "'>factura</a>!");
-            } else
+                }
+            } else {
                 $this->new_error_msg("¡Imposible guardar la factura!");
+            }
         }
     }
 
     private function abrir_caja()
     {
-        if ($this->user->admin) {
-            if ($this->terminal) {
-                $this->terminal->abrir_cajon();
-                $this->terminal->save();
-            }
-        } else
+        if ($this->user->admin && $this->terminal) {
+            $this->terminal->abrir_cajon();
+            $this->terminal->save();
+        } else {
             $this->new_error_msg('Sólo un administrador puede abrir la caja.');
+        }
     }
 
     private function cerrar_caja()
@@ -567,8 +568,9 @@ class tpv_recambios extends fbase_controller
                 /// recargamos la página
                 header('location: ' . $this->url());
             }
-        } else
+        } else {
             $this->new_error_msg("¡Imposible cerrar la caja!");
+        }
     }
 
     private function reimprimir_ticket()
@@ -577,17 +579,19 @@ class tpv_recambios extends fbase_controller
         $fac0 = FALSE;
 
         if ($_GET['reticket'] == '') {
-            foreach ($factura->all() as $fac) {
+            foreach ($factura->all(0, FS_ITEM_LIMIT, 'idfactura DESC') as $fac) {
                 $fac0 = $fac;
                 break;
             }
-        } else
+        } else {
             $fac0 = $factura->get_by_codigo($_GET['reticket']);
+        }
 
         if ($fac0) {
             $this->imprimir_ticket($fac0, 1, FALSE);
-        } else
+        } else {
             $this->new_error_msg("Ticket no encontrado.");
+        }
     }
 
     /**

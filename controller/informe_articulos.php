@@ -78,15 +78,15 @@ class informe_articulos extends fbase_controller
             $this->stats = $this->stats();
 
             /// forzamos la comprobación de las tablas de lineas de facturas
-            $linea_fac_cli = new linea_factura_cliente();
-            $linea_fac_pro = new linea_factura_proveedor();
+            new linea_factura_cliente();
+            new linea_factura_proveedor();
 
             $this->top_ventas = $this->top_articulo_faccli();
             $this->sin_vender = $this->sin_vender();
             $this->top_compras = $this->top_articulo_facpro();
         } else if ($this->pestanya == 'stock') {
             /// forzamos la comprobación de la tabla stock
-            $stock = new stock();
+            new stock();
 
             $this->tipo_stock = 'todo';
             if (isset($_GET['tipo'])) {
@@ -97,7 +97,7 @@ class informe_articulos extends fbase_controller
 
             if ($this->tipo_stock == 'reg') {
                 /// forzamos la comprobación de la tabla stocks
-                $reg = new regularizacion_stock();
+                new regularizacion_stock();
 
                 $this->resultados = $this->regularizaciones_stock($this->offset);
             } else if (isset($_GET['download'])) {
@@ -300,7 +300,7 @@ class informe_articulos extends fbase_controller
     {
         /// buscamos el resultado en caché
         $toplist = $this->cache->get_array('faccli_top_articulos');
-        if (!$toplist OR isset($_POST['desde'])) {
+        if (!$toplist || isset($_POST['desde'])) {
             $toplist = array();
             $articulo = new articulo();
             $sql = "SELECT l.referencia, SUM(l.cantidad) as unidades, SUM(l.pvptotal/f.tasaconv) as total"
@@ -362,7 +362,7 @@ class informe_articulos extends fbase_controller
     private function top_articulo_facpro()
     {
         $toplist = $this->cache->get('facpro_top_articulos');
-        if (!$toplist OR isset($_POST['desde'])) {
+        if (!$toplist || isset($_POST['desde'])) {
             $articulo = new articulo();
             $sql = "SELECT l.referencia, SUM(l.cantidad) as compras FROM lineasfacturasprov l, facturasprov f"
                 . " WHERE l.idfactura = f.idfactura AND l.referencia IS NOT NULL"

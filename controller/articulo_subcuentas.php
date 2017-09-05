@@ -57,7 +57,7 @@ class articulo_subcuentas extends fs_controller
                 $this->articulo->codsubcuentairpfcom = $_POST['codsubcuentairpfcom'];
                 $aprops = array('codsubcuentaventa' => $_POST['codsubcuentaventa']);
 
-                if ($this->articulo->save() AND $ap->array_save($this->articulo->referencia, $aprops)) {
+                if ($this->articulo->save() && $ap->array_save($this->articulo->referencia, $aprops)) {
                     $this->new_message('Datos guardados correctamente.');
                 } else {
                     $this->new_error_msg('Error al guardar las subcuentas.');

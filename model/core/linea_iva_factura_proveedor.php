@@ -81,19 +81,19 @@ class linea_iva_factura_proveedor extends \fs_model
      */
     public $neto;
 
-    public function __construct($l = FALSE)
+    public function __construct($data = FALSE)
     {
         parent::__construct('lineasivafactprov');
-        if ($l) {
-            $this->idlinea = $this->intval($l['idlinea']);
-            $this->idfactura = $this->intval($l['idfactura']);
-            $this->neto = floatval($l['neto']);
-            $this->codimpuesto = $l['codimpuesto'];
-            $this->iva = floatval($l['iva']);
-            $this->totaliva = floatval($l['totaliva']);
-            $this->recargo = floatval($l['recargo']);
-            $this->totalrecargo = floatval($l['totalrecargo']);
-            $this->totallinea = floatval($l['totallinea']);
+        if ($data) {
+            $this->idlinea = $this->intval($data['idlinea']);
+            $this->idfactura = $this->intval($data['idfactura']);
+            $this->neto = floatval($data['neto']);
+            $this->codimpuesto = $data['codimpuesto'];
+            $this->iva = floatval($data['iva']);
+            $this->totaliva = floatval($data['totaliva']);
+            $this->recargo = floatval($data['recargo']);
+            $this->totalrecargo = floatval($data['totalrecargo']);
+            $this->totallinea = floatval($data['totallinea']);
         } else {
             $this->idlinea = NULL;
             $this->idfactura = NULL;

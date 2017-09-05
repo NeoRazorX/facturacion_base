@@ -89,8 +89,9 @@ class contabilidad_subcuenta extends fbase_controller
             return parent::url();
         } else if ($this->subcuenta) {
             return $this->subcuenta->url();
-        } else
-            return $this->ppage->url();
+        }
+        
+        return $this->ppage->url();
     }
 
     public function paginas()
@@ -109,8 +110,9 @@ class contabilidad_subcuenta extends fbase_controller
         foreach ($this->resultados as $pa) {
             if (isset($_POST['punteada'])) {
                 $valor = in_array($pa->idpartida, $_POST['punteada']);
-            } else
+            } else {
                 $valor = FALSE;
+            }
 
             if ($pa->punteada != $valor) {
                 $pa->punteada = $valor;

@@ -80,7 +80,7 @@
                         {loop="$fsc->serie->all()"}
                         {if="$value->codserie==$fsc->cliente_s->codserie"}
                         <option value="{$value->codserie}" selected="">{$value->descripcion}</option>
-                        {elseif="$value->is_default() AND is_null($fsc->cliente_s->codserie)"}
+                        {elseif="$value->is_default() && is_null($fsc->cliente_s->codserie)"}
                         <option value="{$value->codserie}" selected="">{$value->descripcion}</option>
                         {else}
                         <option value="{$value->codserie}">{$value->descripcion}</option>

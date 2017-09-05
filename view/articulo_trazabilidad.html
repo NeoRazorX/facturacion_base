@@ -103,7 +103,7 @@
       </thead>
       {loop="$fsc->trazas"}
       <form action="{$fsc->url()}" method="post" class="form">
-         <tr{if="$value->fecha_entrada AND $value->fecha_salida"} class="success"{/if}>
+         <tr{if="$value->fecha_entrada && $value->fecha_salida"} class="success"{/if}>
             <td>
                <input type="hidden" name="id" value="{$value->id}"/>
                <input class="form-control" type="text" name="numserie" value="{$value->numserie}" maxlength="50" autocomplete="off"/>
@@ -112,21 +112,21 @@
                <input class="form-control" type="text" name="lote" value="{$value->lote}" maxlength="50" autocomplete="off"/>
             </td>
             <td class="text-right">
-               {if="$value->idlalbcompra OR $value->idlfaccompra"}
+               {if="$value->idlalbcompra || $value->idlfaccompra"}
                <a href="{$value->documento_compra_url()}" target="_blank" class="btn btn-sm btn-default" title="Ver documento de entrada">
                   <span class="glyphicon glyphicon-eye-open"></span>
                </a>
                {/if}
             </td>
             <td>
-               {if="$value->idlalbcompra OR $value->idlfaccompra"}
+               {if="$value->idlalbcompra || $value->idlfaccompra"}
                <div class="form-control">{$value->fecha_entrada}</div>
                {else}
                <input type="text" name="fecha_entrada" value="{$value->fecha_entrada}" class="form-control datepicker" autocomplete="off"/>
                {/if}
             </td>
             <td class="text-right">
-               {if="$value->idlalbventa OR $value->idlfacventa"}
+               {if="$value->idlalbventa || $value->idlfacventa"}
                <a href="{$value->documento_venta_url()}" target="_blank" class="btn btn-sm btn-default" title="Ver documento de salida">
                   <span class="glyphicon glyphicon-eye-open"></span>
                </a>

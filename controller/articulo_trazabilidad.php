@@ -46,7 +46,7 @@ class articulo_trazabilidad extends fbase_controller
 
         if ($this->articulo) {
             if (isset($_POST['numserie'])) {
-                if ($_POST['numserie'] != '' OR $_POST['lote'] != '') {
+                if ($_POST['numserie'] != '' || $_POST['lote'] != '') {
                     $this->edit_traza();
                 } else {
                     $this->new_error_msg('Debes escribir un número de serie o un lote o ambos,'
