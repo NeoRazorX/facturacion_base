@@ -699,6 +699,8 @@
                                     <i class="fa fa-balance-scale" aria-hidden="true"></i>
                                  </span>
                                  <input type="text" name="codsubcuenta" value="{$value->codsubcuenta}" class="form-control" maxlength="15" placeholder="subcuenta" autocomplete="off"/>
+                                 <!-- Campo oculto para validacion del autocomplete  -->
+                                 <input type="hidden" name="validarsubcuenta" value="0">
                               </div>
                               <p class="help-block">
                                  Subcuenta asociada para esta cuenta bancaria.
@@ -793,6 +795,8 @@
                         <i class="fa fa-balance-scale" aria-hidden="true"></i>
                      </span>
                      <input type="text" name="codsubcuenta" class="form-control" maxlength="15" placeholder="subcuenta" autocomplete="off"/>
+                     <!-- Campo oculto para validacion del autocomplete  -->
+                     <input type="hidden" name="validarsubcuenta" value="0">
                   </div>
                   <p class="help-block">
                      Subcuenta asociada para esta cuenta bancaria.
@@ -808,5 +812,35 @@
       </div>
    </div>
 </form>
+
+<!--  Script que permite el autocomplete de la subcuenta  -->
+<script>
+//Autocomplete en el campo contabilidad
+   $("input[name='codsubcuenta']").each(function () {
+      $(this).autocomplete({
+           serviceUrl: 'index.php?page=admin_empresa',
+           paramName: 'subcuenta',
+           onSelect: function (data){
+               $(this).val(data.data);
+               $('input[name="validarsubcuenta"]').val('1');
+           }
+      });
+   });
+// Validar que se leccione una subcuenta
+   $('input[name="codsubcuenta"]').on("keydown", function(e) {
+      if ($('input[name="validarsubcuenta"]').val() == '1' ) {
+         if(e.keyCode == 8 || e.keyCode == 46) {
+            $('input[name="codsubcuenta"]').val('');
+            $('input[name="validarsubcuenta"]').val('0');
+         }
+      }
+   });
+// Validar que se leccione una subcuenta
+   $('input[name="codsubcuenta"]').blur(function() { 
+      if ($('input[name="validarsubcuenta"]').val() == '0' ) {
+         $('input[name="codsubcuenta"]').val('');
+      }
+   });
+</script>
 
 {include="footer"}
