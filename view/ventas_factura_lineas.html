@@ -3,6 +3,47 @@
 {$dto3=$fsc->calc_due(array($fsc->factura->dtopor1,$fsc->factura->dtopor2,$fsc->factura->dtopor3))}
 {$dto4=$fsc->calc_due(array($fsc->factura->dtopor1,$fsc->factura->dtopor2,$fsc->factura->dtopor3,$fsc->factura->dtopor4))}
 {$dto5=$fsc->calc_due(array($fsc->factura->dtopor1,$fsc->factura->dtopor2,$fsc->factura->dtopor3,$fsc->factura->dtopor4,$fsc->factura->dtopor5))}
+<script type="text/javascript">
+$(document).ready(function () {
+    var show = [];
+    {loop="$lineas"}
+        l_dto2 = {$value->dtopor2};
+        if (isNaN(l_dto2)) {
+            l_dto2 = 0;
+        }
+        l_dto3 = {$value->dtopor3};
+        if (isNaN(l_dto3)) {
+            l_dto3 = 0;
+        }
+        l_dto4 = {$value->dtopor4};
+        if (isNaN(l_dto4)) {
+            l_dto4 = 0;
+        }
+
+        if ((l_dto2 == 0 && l_dto3 == 0 && l_dto4 == 0)) {
+            show[{$counter}] = false;
+        } else {
+            show[{$counter}] = true;
+        }
+    {/loop}
+
+    // Descuentos de líneas del documento
+    Array.prototype.contains = function(elem) {
+        for (var i in this) {
+            if (this[i] == elem) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    if(show.contains(true)) {
+        $(".dtosl").show();
+    } else {
+        $(".dtosl").hide();
+    }
+});
+</script>
 <div class="table-responsive">
     <table class="table table-hover">
         <thead>
