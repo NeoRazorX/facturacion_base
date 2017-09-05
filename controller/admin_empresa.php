@@ -188,6 +188,11 @@ class admin_empresa extends fs_controller
         }
 
         $this->logo();
+
+        // Llamando la funcion que realiza el autocomplete
+        if (isset($_GET['subcuenta'])) {
+            $this->buscar_subcuenta($_GET['subcuenta']);
+        }
     }
 
     private function mail_test()
@@ -297,5 +302,28 @@ class admin_empresa extends fs_controller
             'sendmail' => 'SendMail',
             'smtp' => 'SMTP'
         );
+    }
+
+    //Funcion que realice el autocomplete de la subcuentas. 
+    private function buscar_subcuenta($aux)
+    {
+        /// desactivamos la plantilla HTML
+        $this->template = FALSE;
+
+        $subcuenta = new subcuenta();
+        $eje0 = new ejercicio();
+        $ejercicio = $eje0->get_by_fecha($this->today());
+        $json = array();
+        foreach ($subcuenta->search_by_ejercicio($ejercicio->codejercicio, $aux) as $subc) {
+            $json[] = array(
+                'value' => $subc->codsubcuenta.' - '.$subc->descripcion,
+                'data' => $subc->codsubcuenta,
+                'saldo' => $subc->saldo,
+                'link' => $subc->url()
+            );
+        }
+
+        header('Content-Type: application/json');
+        echo json_encode(array('query' => $aux, 'suggestions' => $json));
     }
 }
