@@ -344,7 +344,7 @@ class ventas_albaran extends fbase_controller
                                     // Acumulamos por tipos de IVAs, que es el desglose de pie de página
                                     
                                     // Descuento Unificado Equivalente
-                                    $due_totales = $this->calc_due(array($this->presupuesto->dtopor1,$this->presupuesto->dtopor2,$this->presupuesto->dtopor3,$this->presupuesto->dtopor4,$this->presupuesto->dtopor5));
+                                    $due_totales = $this->calc_due(array($this->albaran->dtopor1,$this->albaran->dtopor2,$this->albaran->dtopor3,$this->albaran->dtopor4,$this->albaran->dtopor5));
                                     // Hacemos el recalculo del PVP por línea, con el descuento adicional de fin de documento
                                     $pvpcondto = $due_totales * $lineas[$k]->pvptotal;
                                     
@@ -441,7 +441,7 @@ class ventas_albaran extends fbase_controller
                                 // Acumulamos por tipos de IVAs, que es el desglose de pie de página
 
                                 // Descuento Unificado Equivalente
-                                $due_totales = $this->calc_due(array($this->presupuesto->dtopor1,$this->presupuesto->dtopor2,$this->presupuesto->dtopor3,$this->presupuesto->dtopor4,$this->presupuesto->dtopor5));
+                                $due_totales = $this->calc_due(array($this->albaran->dtopor1,$this->albaran->dtopor2,$this->albaran->dtopor3,$this->albaran->dtopor4,$this->albaran->dtopor5));
                                 // Hacemos el recalculo del PVP por línea, con el descuento adicional de fin de documento
                                 $pvpcondto = $due_totales * $linea->pvptotal;
 

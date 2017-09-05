@@ -29,6 +29,8 @@ var fin_busqueda1 = true;
 var fin_busqueda2 = true;
 var siniva = false;
 var irpf = 0;
+var dtosl = false;
+var dtost = false;
 var solo_con_stock = true;
 
 function usar_cliente(codcliente)
@@ -300,7 +302,7 @@ function recalcular()
     console.log("RE: " + fs_round(total_recargo, fs_nf0));
     console.log("IRPF: " + fs_round(total_irpf, fs_nf0));
     console.log("Total: " + fs_round(neto + total_iva - total_irpf + total_recargo, fs_nf0));
-    
+   
     // Descuentos de líneas del documento
     Array.prototype.contains = function(elem) {
         for (var i in this) {
@@ -312,27 +314,23 @@ function recalcular()
     }
     
     if(show.contains(true)) {
+        dtosl = true;
         $(".dtosl").show();
     } else {
-        // Si está indefinido asignamos false, ya que es la primera vez
-        if(typeof cliente.dtosl === 'undefined'){
-            cliente.dtosl = false;
-        }
-        if (cliente.dtosl) {
+        if (dtosl) {
+            dtosl = true;
             $(".dtosl").show();
         } else {
+            dtosl = false;
             $(".dtosl").hide();
         }
     }
-    
     // Descuentos totales del documento
-    // Si está indefinido asignamos false, ya que es la primera vez
-    if (typeof cliente.dtost === 'undefined') {
-        cliente.dtost = false;
-    }
-    if (netosindto != netocondto || cliente.dtost) {
+    if (netosindto != netocondto || dtost) {
+        dtost = true;
         $(".dtost").show();
     } else {
+        dtost = false;
         $(".dtost").hide();
     }
 
@@ -590,7 +588,7 @@ function add_articulo(ref, desc, pvp, dto, codimpuesto, cantidad, codcombinacion
     }
 
     desc = Base64.decode(desc);
-    $("#lineas_doc").append("<tr id=\"linea_" + numlineas + "\">\n\
+    $("#lineas_doc").append("<tr id=\"linea_" + numlineas + "\" data-ref=\"" + ref + "\">\n\
       <td><input type=\"hidden\" name=\"idlinea_" + numlineas + "\" value=\"-1\"/>\n\
          <input type=\"hidden\" name=\"referencia_" + numlineas + "\" value=\"" + ref + "\"/>\n\
          <input type=\"hidden\" name=\"codcombinacion_" + numlineas + "\" value=\"" + codcombinacion + "\"/>\n\
@@ -646,7 +644,7 @@ function add_articulo_atributos(ref, desc, pvp, dto, codimpuesto, cantidad)
 
 function add_linea_libre()
 {
-    $("#lineas_doc").append("<tr id=\"linea_" + numlineas + "\">\n\
+    $("#lineas_doc").append("<tr id=\"linea_" + numlineas + "\" data-ref=\"\" >\n\
       <td><input type=\"hidden\" name=\"idlinea_" + numlineas + "\" value=\"-1\"/>\n\
          <input type=\"hidden\" name=\"referencia_" + numlineas + "\"/>\n\
          <input type=\"hidden\" name=\"codcombinacion_" + numlineas + "\"/>\n\
@@ -885,8 +883,10 @@ $(document).ready(function () {
 
     show = false;
     if(!show) {
+        dtosl = false;
         $('.dtosl').hide();
     } else {
+        dtosl = true;
         $('.dtosl').show();
     }
     $("#i_new_line").click(function () {
