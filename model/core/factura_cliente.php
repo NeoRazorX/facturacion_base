@@ -2,6 +2,7 @@
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2017       Francesc Pineda Segarra  shawe.ewahs@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -40,128 +41,260 @@ class factura_cliente extends \fs_model
 
     /**
      * ID del asiento de pago relacionado, si lo hay.
-     * @var integer 
+     * @var integer
      */
     public $idasientop;
 
     /**
      * ID de la factura que rectifica.
-     * @var integer 
+     * @var integer
      */
     public $idfacturarect;
 
     /**
      * Código único de la factura. Para humanos.
-     * @var string 
+     * @var string
      */
     public $codigo;
 
     /**
      * Número de la factura.
      * Único dentro de la serie+ejercicio.
-     * @var string 
+     * @var string
      */
     public $numero;
 
     /**
      * Número opcional a disposición del usuario.
-     * @var string 
+     * @var string
      */
     public $numero2;
 
     /**
      * Código de la factura que rectifica.
-     * @var string 
+     * @var string
      */
     public $codigorect;
 
     /**
      * Ejercicio relacionado. El que corresponde a la fecha.
-     * @var string 
+     * @var string
      */
     public $codejercicio;
 
     /**
      * Serie relacionada.
-     * @var string 
+     * @var string
      */
     public $codserie;
 
     /**
      * Almacén del que sale la mercancía.
-     * @var string 
+     * @var string
      */
     public $codalmacen;
 
     /**
      * Forma de pago.
-     * @var string 
+     * @var string
      */
     public $codpago;
 
     /**
      * Divisa de la factura.
-     * @var string 
+     * @var string
      */
     public $coddivisa;
+
+    /**
+     * TODO
+     * @var
+     */
     public $fecha;
+
+    /**
+     * TODO
+     * @var
+     */
     public $hora;
 
     /**
      * Código identificador del cliente de la factura.
-     * @var string 
+     * @var string
      */
     public $codcliente;
+
+    /**
+     * TODO
+     * @var
+     */
     public $nombrecliente;
+
+    /**
+     * TODO
+     * @var
+     */
     public $cifnif;
+
+    /**
+     * TODO
+     * @var
+     */
     public $direccion;
+
+    /**
+     * TODO
+     * @var
+     */
     public $ciudad;
+
+    /**
+     * TODO
+     * @var
+     */
     public $provincia;
+
+    /**
+     * TODO
+     * @var
+     */
     public $apartado;
     /// datos de transporte
     public $envio_codtrans;
+
+    /**
+     * TODO
+     * @var
+     */
     public $envio_codigo;
+
+    /**
+     * TODO
+     * @var
+     */
     public $envio_nombre;
+
+    /**
+     * TODO
+     * @var
+     */
     public $envio_apellidos;
+
+    /**
+     * TODO
+     * @var
+     */
     public $envio_apartado;
+
+    /**
+     * TODO
+     * @var
+     */
     public $envio_direccion;
+
+    /**
+     * TODO
+     * @var
+     */
     public $envio_codpostal;
+
+    /**
+     * TODO
+     * @var
+     */
     public $envio_ciudad;
+
+    /**
+     * TODO
+     * @var
+     */
     public $envio_provincia;
+
+    /**
+     * TODO
+     * @var
+     */
     public $envio_codpais;
 
     /**
      * ID de la dirección en dirclientes.
      * Modelo direccion_cliente.
-     * @var string 
+     * @var string
      */
     public $coddir;
+
+    /**
+     * TODO
+     * @var
+     */
     public $codpostal;
+
+    /**
+     * TODO
+     * @var
+     */
     public $codpais;
 
     /**
      * Empleado que ha creado la factura.
      * Modelo agente.
-     * @var string 
+     * @var string
      */
     public $codagente;
 
     /**
-     * Suma de los pvptotal de las líneas.
-     * Es el total antes de impuestos.
-     * @var double 
+     * Importe total antes de descuentos e impuestos.
+     * Es la suma del pvptotal de las líneas.
+     * @var float
+     */
+    public $netosindto;
+
+    /**
+     * Importe total antes de impuestos.
+     * Es la suma del pvptotal de las líneas.
+     * @var float
      */
     public $neto;
 
     /**
+     * Descuento porcentual 1
+     * @var float
+     */
+    public $dtopor1;
+    
+    /**
+     * Descuento porcentual 2
+     * @var float
+     */
+    public $dtopor2;
+    
+    /**
+     * Descuento porcentual 3
+     * @var float
+     */
+    public $dtopor3;
+    
+    /**
+     * Descuento porcentual 4
+     * @var float
+     */
+    public $dtopor4;
+    
+    /**
+     * Descuento porcentual 5
+     * @var float
+     */
+    public $dtopor5;
+
+    /**
      * Suma total del IVA de las líneas.
-     * @var double 
+     * @var float
      */
     public $totaliva;
 
     /**
      * Suma total de la factura, con impuestos.
-     * @var double 
+     * @var float
      */
     public $total;
 
@@ -169,42 +302,57 @@ class factura_cliente extends \fs_model
      * Total expresado en euros, por si no fuese la divisa de la factura.
      * totaleuros = total/tasaconv
      * No hace falta rellenarlo, al hacer save() se calcula el valor.
-     * @var double 
+     * @var float
      */
     public $totaleuros;
 
     /**
-     * % de retención IRPF de la factura.
-     * Puede variar en cada línea.
-     * @var double 
+     * % de retención IRPF de la factura. Se obtiene de la serie.
+     * Cada línea puede tener un % distinto.
+     * @var float
      */
     public $irpf;
 
     /**
-     * Suma total de retenciones IRPF de las líneas.
-     * @var double 
+     * Suma total de las retenciones IRPF de las líneas de la factura.
+     * @var float
      */
     public $totalirpf;
 
     /**
-     * % comisión del empleado (agente).
-     * @var double 
+     * % de comisión del empleado (agente).
+     * @var float
      */
     public $porcomision;
 
     /**
      * Tasa de conversión a Euros de la divisa de la factura.
-     * @var double 
+     * @var float
      */
     public $tasaconv;
 
     /**
-     * Suma del recargo de equivalencia de las líneas.
-     * @var double 
+     * Suma total del recargo de equivalencia de las líneas.
+     * @var float
      */
     public $totalrecargo;
+
+    /**
+     * Observacioens del la factura
+     * @var float
+     */
     public $observaciones;
+
+    /**
+     * TODO
+     * @var
+     */
     public $pagada;
+
+    /**
+     * TODO
+     * @var
+     */
     public $anulada;
 
     /**
@@ -268,9 +416,15 @@ class factura_cliente extends \fs_model
             $this->codpostal = $data['codpostal'];
             $this->codpais = $data['codpais'];
             $this->codagente = $data['codagente'];
+            $this->netosindto = isset($data['netosindto']) ? floatval($data['netosindto']) : 0.0;
             $this->neto = floatval($data['neto']);
-            $this->totaliva = floatval($data['totaliva']);
+            $this->dtopor1 = isset($data['dtopor1']) ? floatval($data['dtopor1']) : 0.0;
+            $this->dtopor2 = isset($data['dtopor2']) ? floatval($data['dtopor2']) : 0.0;
+            $this->dtopor3 = isset($data['dtopor3']) ? floatval($data['dtopor3']) : 0.0;
+            $this->dtopor4 = isset($data['dtopor4']) ? floatval($data['dtopor4']) : 0.0;
+            $this->dtopor5 = isset($data['dtopor5']) ? floatval($data['dtopor5']) : 0.0;
             $this->total = floatval($data['total']);
+            $this->totaliva = floatval($data['totaliva']);
             $this->totaleuros = floatval($data['totaleuros']);
             $this->irpf = floatval($data['irpf']);
             $this->totalirpf = floatval($data['totalirpf']);
@@ -331,9 +485,15 @@ class factura_cliente extends \fs_model
             $this->codpostal = NULL;
             $this->codpais = NULL;
             $this->codagente = NULL;
+            $this->netosindto = 0.0;
             $this->neto = 0.0;
-            $this->totaliva = 0.0;
+            $this->dtopor1 = 0.0;
+            $this->dtopor2 = 0.0;
+            $this->dtopor3 = 0.0;
+            $this->dtopor4 = 0.0;
+            $this->dtopor5 = 0.0;
             $this->total = 0.0;
+            $this->totaliva = 0.0;
             $this->totaleuros = 0.0;
             $this->irpf = 0.0;
             $this->totalirpf = 0.0;
@@ -550,106 +710,53 @@ class factura_cliente extends \fs_model
         if (empty($lineasi)) {
             $lineas = $this->get_lineas();
             if (!empty($lineas)) {
+                // Descuento total adicional del total del documento
+                $t_dto_due = (1-((1-$this->dtopor1/100)*(1-$this->dtopor2/100)*(1-$this->dtopor3/100)*(1-$this->dtopor4/100)*(1-$this->dtopor5/100)))*100;
+                $due_totales = (1-$t_dto_due/100);
                 foreach ($lineas as $l) {
                     $i = 0;
                     $encontrada = FALSE;
                     while ($i < count($lineasi)) {
                         if ($l->iva == $lineasi[$i]->iva && $l->recargo == $lineasi[$i]->recargo) {
                             $encontrada = TRUE;
-                            $lineasi[$i]->neto += $l->pvptotal;
-                            $lineasi[$i]->totaliva += ($l->pvptotal * $l->iva) / 100.0;
-                            $lineasi[$i]->totalrecargo += ($l->pvptotal * $l->recargo) / 100.0;
+                            $netosindto = $l->pvptotal;                 // Precio neto por línea
+                            $netocondto = $netosindto * $due_totales;   // Precio neto - % desc sobre total
+                            $lineasi[$i]->neto += $netocondto;
+                            $lineasi[$i]->totaliva += $netocondto * $l->iva / 100.0;
+                            $lineasi[$i]->totalrecargo += $netocondto * $l->recargo / 100.0;
                         }
                         $i++;
                     }
                     if (!$encontrada) {
+                        $netosindto = $l->pvptotal;                 // Precio neto por línea
+                        $netocondto = $netosindto * $due_totales;   // Precio neto - % desc sobre total
                         $lineasi[$i] = new \linea_iva_factura_cliente();
                         $lineasi[$i]->idfactura = $this->idfactura;
                         $lineasi[$i]->codimpuesto = $l->codimpuesto;
                         $lineasi[$i]->iva = $l->iva;
                         $lineasi[$i]->recargo = $l->recargo;
-                        $lineasi[$i]->neto = $l->pvptotal;
-                        $lineasi[$i]->totaliva = ($l->pvptotal * $l->iva) / 100.0;
-                        $lineasi[$i]->totalrecargo = ($l->pvptotal * $l->recargo) / 100.0;
+                        $lineasi[$i]->neto = $netocondto;
+                        $lineasi[$i]->totaliva = $netocondto * $l->iva / 100.0;
+                        $lineasi[$i]->totalrecargo = $netocondto * $l->recargo / 100.0;
                     }
                 }
 
                 /// redondeamos y guardamos
                 if (count($lineasi) == 1) {
-                    $lineasi[0]->neto = round($lineasi[0]->neto, FS_NF0);
-                    $lineasi[0]->totaliva = round($lineasi[0]->totaliva, FS_NF0);
-                    $lineasi[0]->totaliva = round($lineasi[0]->totaliva, FS_NF0);
+                    $lineasi[0]->neto = $lineasi[0]->neto;
+                    $lineasi[0]->totaliva = $lineasi[0]->totaliva;
                     $lineasi[0]->totallinea = $lineasi[0]->neto + $lineasi[0]->totaliva + $lineasi[0]->totalrecargo;
                     $lineasi[0]->save();
                 } else {
-                    /*
-                     * Como el neto y el iva se redondean en la factura, al dividirlo
-                     * en líneas de iva podemos encontrarnos con un descuadre que
-                     * hay que calcular y solucionar.
-                     */
                     $t_neto = 0;
                     $t_iva = 0;
                     foreach ($lineasi as $li) {
-                        $li->neto = bround($li->neto, FS_NF0);
-                        $li->totaliva = bround($li->totaliva, FS_NF0);
+                        $li->neto = $li->neto;
+                        $li->totaliva = $li->totaliva;
                         $li->totallinea = $li->neto + $li->totaliva;
-
+                        
                         $t_neto += $li->neto;
                         $t_iva += $li->totaliva;
-                    }
-
-                    if (!$this->floatcmp($this->neto, $t_neto)) {
-                        /*
-                         * Sumamos o restamos un céntimo a los netos más altos
-                         * hasta que desaparezca el descuadre
-                         */
-                        $diferencia = round(($this->neto - $t_neto) * 100);
-                        usort($lineasi, function($a, $b) {
-                            if ($a->totallinea == $b->totallinea) {
-                                return 0;
-                            } else if ($a->totallinea < 0) {
-                                return ($a->totallinea < $b->totallinea) ? -1 : 1;
-                            }
-                            return ($a->totallinea < $b->totallinea) ? 1 : -1;
-                        });
-
-                        foreach ($lineasi as $i => $value) {
-                            if ($diferencia > 0) {
-                                $lineasi[$i]->neto += .01;
-                                $diferencia--;
-                            } else if ($diferencia < 0) {
-                                $lineasi[$i]->neto -= .01;
-                                $diferencia++;
-                            } else
-                                break;
-                        }
-                    }
-
-                    if (!$this->floatcmp($this->totaliva, $t_iva)) {
-                        /*
-                         * Sumamos o restamos un céntimo a los importes más altos
-                         * hasta que desaparezca el descuadre
-                         */
-                        $diferencia = round(($this->totaliva - $t_iva) * 100);
-                        usort($lineasi, function($a, $b) {
-                            if ($a->totaliva == $b->totaliva) {
-                                return 0;
-                            } else if ($a->totallinea < 0) {
-                                return ($a->totaliva < $b->totaliva) ? -1 : 1;
-                            }
-                            return ($a->totaliva < $b->totaliva) ? 1 : -1;
-                        });
-
-                        foreach ($lineasi as $i => $value) {
-                            if ($diferencia > 0) {
-                                $lineasi[$i]->totaliva += .01;
-                                $diferencia--;
-                            } else if ($diferencia < 0) {
-                                $lineasi[$i]->totaliva -= .01;
-                                $diferencia++;
-                            } else
-                                break;
-                        }
                     }
 
                     foreach ($lineasi as $i => $value) {
@@ -831,6 +938,11 @@ class factura_cliente extends \fs_model
         return FALSE;
     }
 
+    /**
+     * Comprobaciones extra de la factura, devuelve TRUE si está todo correcto
+     * @param boolean $duplicados
+     * @return boolean
+     */
     public function full_test($duplicados = TRUE)
     {
         $status = TRUE;
@@ -867,41 +979,67 @@ class factura_cliente extends \fs_model
         }
 
         /// comprobamos las líneas
+        $netos = array();
+        $netosindto = 0;
+        $netocondto = 0;
+        $subtotal = 0;
         $neto = 0;
         $iva = 0;
         $irpf = 0;
         $recargo = 0;
+        $total = 0;
+        
+        // Descuento total adicional del total del documento
+        $t_dto_due = (1-((1-$this->dtopor1/100)*(1-$this->dtopor2/100)*(1-$this->dtopor3/100)*(1-$this->dtopor4/100)*(1-$this->dtopor5/100)))*100;
+        $due_totales = (1-$t_dto_due/100);
+            
         foreach ($this->get_lineas() as $l) {
             if (!$l->test()) {
                 $status = FALSE;
             }
-
-            $neto += $l->pvptotal;
-            $iva += $l->pvptotal * $l->iva / 100;
-            $irpf += $l->pvptotal * $l->irpf / 100;
-            $recargo += $l->pvptotal * $l->recargo / 100;
+            $codimpuesto = ($l->codimpuesto === null ) ? 0 : $l->codimpuesto;
+            if (!array_key_exists($codimpuesto, $netos)) {
+                $netos[$codimpuesto] = array(
+                    'subtotal' => 0,    // Subtotal (Sumatorio de netos de línea)
+                    'base' => 0,        // Base imponible
+                    'iva' => 0,         // Total IVA
+                    'irpf' => 0,        // Total IRPF
+                    'recargo' => 0      // Total Recargo
+                );
+            }
+            // Acumulamos por tipos de IVAs, que es el desglose de pie de página
+            $netosindto = $l->pvptotal;                 // Precio neto por línea
+            $netocondto = $netosindto * $due_totales;   // Precio neto - % desc sobre total
+            $netos[$codimpuesto]['subtotal'] += $netosindto;
+            $netos[$codimpuesto]['base'] += $netocondto;
+            $netos[$codimpuesto]['iva'] += $netocondto * ($l->iva / 100);
+            $netos[$codimpuesto]['irpf'] += $netocondto * ($this->irpf / 100);
+            $netos[$codimpuesto]['recargo'] += $netocondto * ($l->recargo / 100);
         }
 
-        $neto = round($neto, FS_NF0);
-        $iva = round($iva, FS_NF0);
-        $irpf = round($irpf, FS_NF0);
-        $recargo = round($recargo, FS_NF0);
-        $total = $neto + $iva - $irpf + $recargo;
+        foreach ($netos as $codimp => $ne) {
+            $subtotal += $ne['subtotal'];               // Subtotal (Sumatorio de netos de línea)
+            $neto += $ne['base'];                       // Sumatorio de bases imponibles
+            $iva += $ne['iva'];                         // Sumatorio de IVAs
+            $irpf += $ne['irpf'];                       // Sumatorio de IRPFs
+            $recargo += $ne['recargo'];                 // Sumatorio de REs
+            $total = $neto + $iva - $irpf + $recargo;   // Sumatorio del total
+        }
 
         if (!$this->floatcmp($this->neto, $neto, FS_NF0, TRUE)) {
-            $this->new_error_msg("Valor neto de la factura " . $this->codigo . " incorrecto. Valor correcto: " . $neto);
+            $this->new_error_msg("Valor neto de la " . FS_FACTURA . " " . $this->codigo . " incorrecto. Valor correcto: " . $neto . " y tiene el valor " . $this->neto);
             $status = FALSE;
-        } else if (!$this->floatcmp($this->totaliva, $iva, FS_NF0, TRUE)) {
-            $this->new_error_msg("Valor totaliva de la factura " . $this->codigo . " incorrecto. Valor correcto: " . $iva);
+        } elseif (!$this->floatcmp($this->totaliva, $iva, FS_NF0, TRUE)) {
+            $this->new_error_msg("Valor totaliva de la " . FS_FACTURA . " " . $this->codigo . " incorrecto. Valor correcto: " . $iva . " y tiene el valor " . $this->totaliva);
             $status = FALSE;
-        } else if (!$this->floatcmp($this->totalirpf, $irpf, FS_NF0, TRUE)) {
-            $this->new_error_msg("Valor totalirpf de la factura " . $this->codigo . " incorrecto. Valor correcto: " . $irpf);
+        } elseif (!$this->floatcmp($this->totalirpf, $irpf, FS_NF0, TRUE)) {
+            $this->new_error_msg("Valor totalirpf de la " . FS_FACTURA . " " . $this->codigo . " incorrecto. Valor correcto: " . $irpf . " y tiene el valor " . $this->totalirpf);
             $status = FALSE;
-        } else if (!$this->floatcmp($this->totalrecargo, $recargo, FS_NF0, TRUE)) {
-            $this->new_error_msg("Valor totalrecargo de la factura " . $this->codigo . " incorrecto. Valor correcto: " . $recargo);
+        } elseif (!$this->floatcmp($this->totalrecargo, $recargo, FS_NF0, TRUE)) {
+            $this->new_error_msg("Valor totalrecargo de la " . FS_FACTURA . " " . $this->codigo . " incorrecto. Valor correcto: " . $recargo . " y tiene el valor " . $this->totalrecargo);
             $status = FALSE;
-        } else if (!$this->floatcmp($this->total, $total, FS_NF0, TRUE)) {
-            $this->new_error_msg("Valor total de la factura " . $this->codigo . " incorrecto. Valor correcto: " . $total);
+        } elseif (!$this->floatcmp($this->total, $total, FS_NF0, TRUE)) {
+            $this->new_error_msg("Valor total de la " . FS_FACTURA . " " . $this->codigo . " incorrecto. Valor correcto: " . $total . " y tiene el valor " . $this->total);
             $status = FALSE;
         }
 
@@ -968,6 +1106,10 @@ class factura_cliente extends \fs_model
         return $status;
     }
 
+    /**
+     * Guarda los datos en la base de datos
+     * @return boolean
+     */
     public function save()
     {
         if ($this->test()) {
@@ -998,7 +1140,13 @@ class factura_cliente extends \fs_model
                     ", codpostal = " . $this->var2str($this->codpostal) .
                     ", codpais = " . $this->var2str($this->codpais) .
                     ", codagente = " . $this->var2str($this->codagente) .
+                    ", netosindto = " . $this->var2str($this->netosindto) .
                     ", neto = " . $this->var2str($this->neto) .
+                    ", dtopor1 = " . $this->var2str($this->dtopor1) .
+                    ", dtopor2 = " . $this->var2str($this->dtopor2) .
+                    ", dtopor3 = " . $this->var2str($this->dtopor3) .
+                    ", dtopor4 = " . $this->var2str($this->dtopor4) .
+                    ", dtopor5 = " . $this->var2str($this->dtopor5) .
                     ", totaliva = " . $this->var2str($this->totaliva) .
                     ", total = " . $this->var2str($this->total) .
                     ", totaleuros = " . $this->var2str($this->totaleuros) .
@@ -1034,10 +1182,11 @@ class factura_cliente extends \fs_model
             $sql = "INSERT INTO " . $this->table_name . " (idasiento,idasientop,idfacturarect,codigo,numero,
                codigorect,codejercicio,codserie,codalmacen,codpago,coddivisa,fecha,codcliente,
                nombrecliente,cifnif,direccion,ciudad,provincia,apartado,coddir,codpostal,codpais,
-               codagente,neto,totaliva,total,totaleuros,irpf,totalirpf,porcomision,tasaconv,
-               totalrecargo,pagada,anulada,observaciones,hora,numero2,vencimiento,femail,codtrans,
-               codigoenv,nombreenv,apellidosenv,apartadoenv,direccionenv,codpostalenv,ciudadenv,provinciaenv,
-               codpaisenv,idimprenta,numdocs) VALUES (" . $this->var2str($this->idasiento) .
+               codagente,netosindto,neto,dtopor1,dtopor2,dtopor3,dtopor4,dtopor5,totaliva,total,totaleuros,
+               irpf,totalirpf,porcomision,tasaconv,totalrecargo,pagada,anulada,observaciones,hora,numero2,
+               vencimiento,femail,codtrans,codigoenv,nombreenv,apellidosenv,apartadoenv,direccionenv,
+               codpostalenv,ciudadenv,provinciaenv,codpaisenv,idimprenta,numdocs) VALUES ("
+                    . $this->var2str($this->idasiento) .
                 "," . $this->var2str($this->idasientop) .
                 "," . $this->var2str($this->idfacturarect) .
                 "," . $this->var2str($this->codigo) .
@@ -1060,7 +1209,13 @@ class factura_cliente extends \fs_model
                 "," . $this->var2str($this->codpostal) .
                 "," . $this->var2str($this->codpais) .
                 "," . $this->var2str($this->codagente) .
+                "," . $this->var2str($this->netosindto) .
                 "," . $this->var2str($this->neto) .
+                "," . $this->var2str($this->dtopor1) .
+                "," . $this->var2str($this->dtopor2) .
+                "," . $this->var2str($this->dtopor3) .
+                "," . $this->var2str($this->dtopor4) .
+                "," . $this->var2str($this->dtopor5) .
                 "," . $this->var2str($this->totaliva) .
                 "," . $this->var2str($this->total) .
                 "," . $this->var2str($this->totaleuros) .
@@ -1098,6 +1253,11 @@ class factura_cliente extends \fs_model
         return FALSE;
     }
 
+    /**
+     * Elimina la factura de la base de datos.
+     * Devuelve FALSE en caso de fallo.
+     * @return boolean
+     */
     public function delete()
     {
         $bloquear = FALSE;
@@ -1351,6 +1511,7 @@ class factura_cliente extends \fs_model
 
     public function cron_job()
     {
-        
+        /// asignamos netosindto a neto a todos los que estén a 0
+        $this->db->exec("UPDATE " . $this->table_name . " SET netosindto = neto WHERE netosindto = 0;");
     }
 }

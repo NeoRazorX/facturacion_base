@@ -381,9 +381,15 @@ class nueva_venta extends fbase_controller
         /// buscamos el grupo de clientes y la tarifa
         if (isset($_REQUEST['codcliente'])) {
             $cliente = $this->cliente->get($_REQUEST['codcliente']);
-            if ($cliente && $cliente->codgrupo) {
+            $tarifa0 = new tarifa();
+
+            if ($cliente && $cliente->codtarifa) {
+                $tarifa = $tarifa0->get($cliente->codtarifa);
+                if ($tarifa) {
+                    $tarifa->set_precios($this->results);
+                }
+            } else if ($cliente && $cliente->codgrupo) {
                 $grupo0 = new grupo_clientes();
-                $tarifa0 = new tarifa();
 
                 $grupo = $grupo0->get($cliente->codgrupo);
                 if ($grupo) {
@@ -544,7 +550,6 @@ class nueva_venta extends fbase_controller
             }
 
             $albaran->codagente = $this->agente->codagente;
-            $albaran->numero2 = $_POST['numero2'];
             $albaran->observaciones = $_POST['observaciones'];
             $albaran->porcomision = $this->agente->porcomision;
 
@@ -572,6 +577,9 @@ class nueva_venta extends fbase_controller
             $albaran->envio_direccion = $_POST['envio_direccion'];
             $albaran->envio_apartado = $_POST['envio_apartado'];
 
+            /// Se coloca antes del save para poder obtener todos los datos necesarios para procesar el numero2
+            fs_generar_numero2($albaran);
+
             if ($albaran->save()) {
                 $trazabilidad = FALSE;
 
@@ -598,8 +606,13 @@ class nueva_venta extends fbase_controller
                         $linea->pvpunitario = floatval($_POST['pvp_' . $i]);
                         $linea->cantidad = floatval($_POST['cantidad_' . $i]);
                         $linea->dtopor = floatval($_POST['dto_' . $i]);
+                        $linea->dtopor2 = floatval($_POST['dto2_' . $i]);
+                        $linea->dtopor3 = floatval($_POST['dto3_' . $i]);
+                        $linea->dtopor4 = floatval($_POST['dto4_' . $i]);
                         $linea->pvpsindto = ($linea->pvpunitario * $linea->cantidad);
-                        $linea->pvptotal = floatval($_POST['neto_' . $i]);
+                        // Descuento Unificado Equivalente
+                        $due_linea = $this->calc_due(array($linea->dtopor,$linea->dtopor2,$linea->dtopor3,$linea->dtopor4));
+                        $linea->pvptotal = $linea->cantidad * $linea->pvpunitario * $due_linea;
 
                         $articulo = $art0->get($_POST['referencia_' . $i]);
                         if ($articulo) {
@@ -630,10 +643,20 @@ class nueva_venta extends fbase_controller
                                 }
                             }
 
-                            $albaran->neto += $linea->pvptotal;
-                            $albaran->totaliva += ($linea->pvptotal * $linea->iva / 100);
-                            $albaran->totalirpf += ($linea->pvptotal * $linea->irpf / 100);
-                            $albaran->totalrecargo += ($linea->pvptotal * $linea->recargo / 100);
+                            $albaran->dtopor1 = floatval($_POST['adtopor1']);
+                            $albaran->dtopor2 = floatval($_POST['adtopor2']);
+                            $albaran->dtopor3 = floatval($_POST['adtopor3']);
+                            $albaran->dtopor4 = floatval($_POST['adtopor4']);
+                            $albaran->dtopor5 = floatval($_POST['adtopor5']);
+                            
+                            // Descuento Unificado Equivalente
+                            $due_totales = $this->calc_due(array($albaran->dtopor1,$albaran->dtopor2,$albaran->dtopor3,$albaran->dtopor4,$albaran->dtopor5));
+                            
+                            $albaran->netosindto += $linea->pvptotal;
+                            $albaran->neto += $linea->pvptotal * $due_totales;
+                            $albaran->totaliva += ($linea->pvptotal * $due_totales * ($linea->iva / 100));
+                            $albaran->totalirpf += ($linea->pvptotal * $due_totales * ($linea->irpf / 100));
+                            $albaran->totalrecargo += ($linea->pvptotal * $due_totales * ($linea->recargo / 100));
 
                             if ($linea->irpf > $albaran->irpf) {
                                 $albaran->irpf = $linea->irpf;
@@ -646,11 +669,6 @@ class nueva_venta extends fbase_controller
                 }
 
                 if ($continuar) {
-                    /// redondeamos
-                    $albaran->neto = round($albaran->neto, FS_NF0);
-                    $albaran->totaliva = round($albaran->totaliva, FS_NF0);
-                    $albaran->totalirpf = round($albaran->totalirpf, FS_NF0);
-                    $albaran->totalrecargo = round($albaran->totalrecargo, FS_NF0);
                     $albaran->total = $albaran->neto + $albaran->totaliva - $albaran->totalirpf + $albaran->totalrecargo;
 
                     if (abs(floatval($_POST['atotal']) - $albaran->total) >= .02) {
@@ -658,6 +676,11 @@ class nueva_venta extends fbase_controller
                             " frente a " . $albaran->total . "). Debes informar del error.");
                         $albaran->delete();
                     } else if ($albaran->save()) {
+                        /**
+                         * Función de ejecución de tareas post guardado correcto del albaran
+                         */
+                        fs_documento_post_save($albaran);
+
                         $this->new_message("<a href='" . $albaran->url() . "'>" . ucfirst(FS_ALBARAN) . "</a> guardado correctamente.");
                         $this->new_change(ucfirst(FS_ALBARAN) . ' Cliente ' . $albaran->codigo, $albaran->url(), TRUE);
 
@@ -762,7 +785,6 @@ class nueva_venta extends fbase_controller
 
             $factura->codagente = $this->agente->codagente;
             $factura->observaciones = $_POST['observaciones'];
-            $factura->numero2 = $_POST['numero2'];
             $factura->porcomision = $this->agente->porcomision;
 
             if ($forma_pago->genrecibos == 'Pagados') {
@@ -795,6 +817,9 @@ class nueva_venta extends fbase_controller
             $factura->envio_direccion = $_POST['envio_direccion'];
             $factura->envio_apartado = $_POST['envio_apartado'];
 
+            /// Se coloca antes del save para poder obtener todos los datos necesarios para procesar el numero2
+            fs_generar_numero2($factura);
+
             $regularizacion = new regularizacion_iva();
             if ($regularizacion->get_fecha_inside($factura->fecha)) {
                 $this->new_error_msg("El " . FS_IVA . " de ese periodo ya ha sido regularizado."
@@ -825,8 +850,13 @@ class nueva_venta extends fbase_controller
                         $linea->pvpunitario = floatval($_POST['pvp_' . $i]);
                         $linea->cantidad = floatval($_POST['cantidad_' . $i]);
                         $linea->dtopor = floatval($_POST['dto_' . $i]);
+                        $linea->dtopor2 = floatval($_POST['dto2_' . $i]);
+                        $linea->dtopor3 = floatval($_POST['dto3_' . $i]);
+                        $linea->dtopor4 = floatval($_POST['dto4_' . $i]);
                         $linea->pvpsindto = ($linea->pvpunitario * $linea->cantidad);
-                        $linea->pvptotal = floatval($_POST['neto_' . $i]);
+                        // Descuento Unificado Equivalente
+                        $due_linea = $this->calc_due(array($linea->dtopor,$linea->dtopor2,$linea->dtopor3,$linea->dtopor4));
+                        $linea->pvptotal = $linea->cantidad * $linea->pvpunitario * $due_linea;
 
                         $articulo = $art0->get($_POST['referencia_' . $i]);
                         if ($articulo) {
@@ -857,10 +887,20 @@ class nueva_venta extends fbase_controller
                                 }
                             }
 
-                            $factura->neto += $linea->pvptotal;
-                            $factura->totaliva += ($linea->pvptotal * $linea->iva / 100);
-                            $factura->totalirpf += ($linea->pvptotal * $linea->irpf / 100);
-                            $factura->totalrecargo += ($linea->pvptotal * $linea->recargo / 100);
+                            $factura->dtopor1 = floatval($_POST['adtopor1']);
+                            $factura->dtopor2 = floatval($_POST['adtopor2']);
+                            $factura->dtopor3 = floatval($_POST['adtopor3']);
+                            $factura->dtopor4 = floatval($_POST['adtopor4']);
+                            $factura->dtopor5 = floatval($_POST['adtopor5']);
+                            
+                            // Descuento Unificado Equivalente
+                            $due_totales = $this->calc_due(array($factura->dtopor1,$factura->dtopor2,$factura->dtopor3,$factura->dtopor4,$factura->dtopor5));
+                            
+                            $factura->netosindto += $linea->pvptotal;
+                            $factura->neto += $linea->pvptotal * $due_totales;
+                            $factura->totaliva += ($linea->pvptotal * $due_totales * ($linea->iva / 100));
+                            $factura->totalirpf += ($linea->pvptotal * $due_totales * ($linea->irpf / 100));
+                            $factura->totalrecargo += ($linea->pvptotal * $due_totales * ($linea->recargo / 100));
 
                             if ($linea->irpf > $factura->irpf) {
                                 $factura->irpf = $linea->irpf;
@@ -873,11 +913,6 @@ class nueva_venta extends fbase_controller
                 }
 
                 if ($continuar) {
-                    /// redondeamos
-                    $factura->neto = round($factura->neto, FS_NF0);
-                    $factura->totaliva = round($factura->totaliva, FS_NF0);
-                    $factura->totalirpf = round($factura->totalirpf, FS_NF0);
-                    $factura->totalrecargo = round($factura->totalrecargo, FS_NF0);
                     $factura->total = $factura->neto + $factura->totaliva - $factura->totalirpf + $factura->totalrecargo;
 
                     if (abs(floatval($_POST['atotal']) - $factura->total) >= .02) {
@@ -886,6 +921,12 @@ class nueva_venta extends fbase_controller
                         $factura->delete();
                     } else if ($factura->save()) {
                         $this->generar_asiento($factura);
+
+                        /**
+                         * Función de ejecución de tareas post guardado correcto de la factura
+                         */
+                        fs_documento_post_save($factura);
+
                         $this->new_message("<a href='" . $factura->url() . "'>Factura</a> guardada correctamente.");
                         $this->new_change('Factura Cliente ' . $factura->codigo, $factura->url(), TRUE);
 
@@ -894,8 +935,9 @@ class nueva_venta extends fbase_controller
                         } else if ($_POST['redir'] == 'TRUE') {
                             header('Location: ' . $factura->url());
                         }
-                    } else
+                    } else {
                         $this->new_error_msg("¡Imposible actualizar la <a href='" . $factura->url() . "'>Factura</a>!");
+                    }
                 } else {
                     /// actualizamos el stock
                     foreach ($factura->get_lineas() as $linea) {
@@ -1017,7 +1059,6 @@ class nueva_venta extends fbase_controller
 
             $presupuesto->codagente = $this->agente->codagente;
             $presupuesto->observaciones = $_POST['observaciones'];
-            $presupuesto->numero2 = $_POST['numero2'];
             $presupuesto->porcomision = $this->agente->porcomision;
 
             $presupuesto->codcliente = $cliente->codcliente;
@@ -1044,6 +1085,9 @@ class nueva_venta extends fbase_controller
             $presupuesto->envio_direccion = $_POST['envio_direccion'];
             $presupuesto->envio_apartado = $_POST['envio_apartado'];
 
+            /// Se coloca antes del save para poder obtener todos los datos necesarios para procesar el numero2
+            fs_generar_numero2($presupuesto);
+
             if ($presupuesto->save()) {
                 $art0 = new articulo();
                 $n = floatval($_POST['numlineas']);
@@ -1069,8 +1113,13 @@ class nueva_venta extends fbase_controller
                         $linea->pvpunitario = floatval($_POST['pvp_' . $i]);
                         $linea->cantidad = floatval($_POST['cantidad_' . $i]);
                         $linea->dtopor = floatval($_POST['dto_' . $i]);
+                        $linea->dtopor2 = floatval($_POST['dto2_' . $i]);
+                        $linea->dtopor3 = floatval($_POST['dto3_' . $i]);
+                        $linea->dtopor4 = floatval($_POST['dto4_' . $i]);
                         $linea->pvpsindto = ($linea->pvpunitario * $linea->cantidad);
-                        $linea->pvptotal = floatval($_POST['neto_' . $i]);
+                        // Descuento Unificado Equivalente
+                        $due_linea = $this->calc_due(array($linea->dtopor,$linea->dtopor2,$linea->dtopor3,$linea->dtopor4));
+                        $linea->pvptotal = $linea->cantidad * $linea->pvpunitario * $due_linea;
 
                         $articulo = $art0->get($_POST['referencia_' . $i]);
                         if ($articulo) {
@@ -1081,10 +1130,20 @@ class nueva_venta extends fbase_controller
                         }
 
                         if ($linea->save()) {
-                            $presupuesto->neto += $linea->pvptotal;
-                            $presupuesto->totaliva += ($linea->pvptotal * $linea->iva / 100);
-                            $presupuesto->totalirpf += ($linea->pvptotal * $linea->irpf / 100);
-                            $presupuesto->totalrecargo += ($linea->pvptotal * $linea->recargo / 100);
+                            $presupuesto->dtopor1 = floatval($_POST['adtopor1']);
+                            $presupuesto->dtopor2 = floatval($_POST['adtopor2']);
+                            $presupuesto->dtopor3 = floatval($_POST['adtopor3']);
+                            $presupuesto->dtopor4 = floatval($_POST['adtopor4']);
+                            $presupuesto->dtopor5 = floatval($_POST['adtopor5']);
+                            
+                            // Descuento Unificado Equivalente
+                            $due_totales = $this->calc_due(array($presupuesto->dtopor1,$presupuesto->dtopor2,$presupuesto->dtopor3,$presupuesto->dtopor4,$presupuesto->dtopor5));
+                            
+                            $presupuesto->netosindto += $linea->pvptotal;
+                            $presupuesto->neto += $linea->pvptotal * $due_totales;
+                            $presupuesto->totaliva += ($linea->pvptotal * $due_totales * ($linea->iva / 100));
+                            $presupuesto->totalirpf += ($linea->pvptotal * $due_totales * ($linea->irpf / 100));
+                            $presupuesto->totalrecargo += ($linea->pvptotal * $due_totales * ($linea->recargo / 100));
 
                             if ($linea->irpf > $presupuesto->irpf) {
                                 $presupuesto->irpf = $linea->irpf;
@@ -1097,11 +1156,6 @@ class nueva_venta extends fbase_controller
                 }
 
                 if ($continuar) {
-                    /// redondeamos
-                    $presupuesto->neto = round($presupuesto->neto, FS_NF0);
-                    $presupuesto->totaliva = round($presupuesto->totaliva, FS_NF0);
-                    $presupuesto->totalirpf = round($presupuesto->totalirpf, FS_NF0);
-                    $presupuesto->totalrecargo = round($presupuesto->totalrecargo, FS_NF0);
                     $presupuesto->total = $presupuesto->neto + $presupuesto->totaliva - $presupuesto->totalirpf + $presupuesto->totalrecargo;
 
                     if (abs(floatval($_POST['atotal']) - $presupuesto->total) >= .02) {
@@ -1109,6 +1163,11 @@ class nueva_venta extends fbase_controller
                             $presupuesto->total . " frente a " . $_POST['atotal'] . "). Debes informar del error.");
                         $presupuesto->delete();
                     } else if ($presupuesto->save()) {
+                        /**
+                         * Función de ejecución de tareas post guardado correcto del presupuesto
+                         */
+                        fs_documento_post_save($presupuesto);
+
                         $this->new_message("<a href='" . $presupuesto->url() . "'>" . ucfirst(FS_PRESUPUESTO) . "</a> guardado correctamente.");
                         $this->new_change(ucfirst(FS_PRESUPUESTO) . ' a Cliente ' . $presupuesto->codigo, $presupuesto->url(), TRUE);
 
@@ -1198,7 +1257,6 @@ class nueva_venta extends fbase_controller
 
             $pedido->codagente = $this->agente->codagente;
             $pedido->observaciones = $_POST['observaciones'];
-            $pedido->numero2 = $_POST['numero2'];
             $pedido->porcomision = $this->agente->porcomision;
 
             $pedido->codcliente = $cliente->codcliente;
@@ -1225,6 +1283,9 @@ class nueva_venta extends fbase_controller
             $pedido->envio_direccion = $_POST['envio_direccion'];
             $pedido->envio_apartado = $_POST['envio_apartado'];
 
+            /// Se coloca antes del save para poder obtener todos los datos necesarios para procesar el numero2
+            fs_generar_numero2($pedido);
+
             if ($pedido->save()) {
                 $art0 = new articulo();
                 $n = floatval($_POST['numlineas']);
@@ -1250,8 +1311,13 @@ class nueva_venta extends fbase_controller
                         $linea->pvpunitario = floatval($_POST['pvp_' . $i]);
                         $linea->cantidad = floatval($_POST['cantidad_' . $i]);
                         $linea->dtopor = floatval($_POST['dto_' . $i]);
+                        $linea->dtopor2 = floatval($_POST['dto2_' . $i]);
+                        $linea->dtopor3 = floatval($_POST['dto3_' . $i]);
+                        $linea->dtopor4 = floatval($_POST['dto4_' . $i]);
                         $linea->pvpsindto = ($linea->pvpunitario * $linea->cantidad);
-                        $linea->pvptotal = floatval($_POST['neto_' . $i]);
+                        // Descuento Unificado Equivalente
+                        $due_linea = $this->calc_due(array($linea->dtopor,$linea->dtopor2,$linea->dtopor3,$linea->dtopor4));
+                        $linea->pvptotal = $linea->cantidad * $linea->pvpunitario * $due_linea;
 
                         $articulo = $art0->get($_POST['referencia_' . $i]);
                         if ($articulo) {
@@ -1262,10 +1328,20 @@ class nueva_venta extends fbase_controller
                         }
 
                         if ($linea->save()) {
-                            $pedido->neto += $linea->pvptotal;
-                            $pedido->totaliva += ($linea->pvptotal * $linea->iva / 100);
-                            $pedido->totalirpf += ($linea->pvptotal * $linea->irpf / 100);
-                            $pedido->totalrecargo += ($linea->pvptotal * $linea->recargo / 100);
+                            $pedido->dtopor1 = floatval($_POST['adtopor1']);
+                            $pedido->dtopor2 = floatval($_POST['adtopor2']);
+                            $pedido->dtopor3 = floatval($_POST['adtopor3']);
+                            $pedido->dtopor4 = floatval($_POST['adtopor4']);
+                            $pedido->dtopor5 = floatval($_POST['adtopor5']);
+                            
+                            // Descuento Unificado Equivalente
+                            $due_totales = $this->calc_due(array($pedido->dtopor1,$pedido->dtopor2,$pedido->dtopor3,$pedido->dtopor4,$pedido->dtopor5));
+                            
+                            $pedido->netosindto += $linea->pvptotal;
+                            $pedido->neto += $linea->pvptotal * $due_totales;
+                            $pedido->totaliva += ($linea->pvptotal * $due_totales * ($linea->iva / 100));
+                            $pedido->totalirpf += ($linea->pvptotal * $due_totales * ($linea->irpf / 100));
+                            $pedido->totalrecargo += ($linea->pvptotal * $due_totales * ($linea->recargo / 100));
 
                             if ($linea->irpf > $pedido->irpf) {
                                 $pedido->irpf = $linea->irpf;
@@ -1278,18 +1354,18 @@ class nueva_venta extends fbase_controller
                 }
 
                 if ($continuar) {
-                    /// redondeamos
-                    $pedido->neto = round($pedido->neto, FS_NF0);
-                    $pedido->totaliva = round($pedido->totaliva, FS_NF0);
-                    $pedido->totalirpf = round($pedido->totalirpf, FS_NF0);
-                    $pedido->totalrecargo = round($pedido->totalrecargo, FS_NF0);
                     $pedido->total = $pedido->neto + $pedido->totaliva - $pedido->totalirpf + $pedido->totalrecargo;
 
                     if (abs(floatval($_POST['atotal']) - $pedido->total) >= .02) {
-                        $this->new_error_msg("El total difiere entre el controlador y la vista (" .
-                            $pedido->total . " frente a " . $_POST['atotal'] . "). Debes informar del error.");
+                        $this->new_error_msg("El total difiere entre el controlador y la vista ("
+                            . $pedido->total . " frente a " . $_POST['atotal'] . "). Debes informar del error.");
                         $pedido->delete();
                     } else if ($pedido->save()) {
+                        /**
+                         * Función de ejecución de tareas post guardado correcto del pedido
+                         */
+                        fs_documento_post_save($pedido);
+
                         $this->new_message("<a href='" . $pedido->url() . "'>" . ucfirst(FS_PEDIDO) . "</a> guardado correctamente.");
                         $this->new_change(ucfirst(FS_PEDIDO) . " a Cliente " . $pedido->codigo, $pedido->url(), TRUE);
 

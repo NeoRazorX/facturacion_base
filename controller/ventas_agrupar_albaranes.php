@@ -107,8 +107,9 @@ class ventas_agrupar_albaranes extends fbase_controller
                     $this->new_message("Sin resultados.");
                 }
             }
-        } else
+        } else {
             $this->share_extensions();
+        }
     }
 
     private function agrupar()
@@ -138,8 +139,9 @@ class ventas_agrupar_albaranes extends fbase_controller
                 foreach ($albaranes as $alb) {
                     $this->generar_factura(array($alb));
                 }
-            } else
+            } else {
                 $this->generar_factura($albaranes);
+            }
         }
     }
 
@@ -156,11 +158,14 @@ class ventas_agrupar_albaranes extends fbase_controller
         $factura->codalmacen = $albaranes[0]->codalmacen;
         $factura->coddivisa = $albaranes[0]->coddivisa;
         $factura->tasaconv = $albaranes[0]->tasaconv;
+
         /// comprobamos si se ha cambiado la forma de pago
         if (isset($_REQUEST['codpago'])) {
             $factura->codpago = $_REQUEST['codpago'];
-        } else
+        } else {
             $factura->codpago = $albaranes[0]->codpago;
+        }
+
         $factura->codserie = $albaranes[0]->codserie;
         $factura->irpf = $albaranes[0]->irpf;
         $factura->numero2 = $albaranes[0]->numero2;
@@ -247,6 +252,8 @@ class ventas_agrupar_albaranes extends fbase_controller
             }
         }
 
+        fs_generar_numero2($factura);
+
         $regularizacion = new regularizacion_iva();
 
         if (!$eje0) {
@@ -303,21 +310,24 @@ class ventas_agrupar_albaranes extends fbase_controller
 
                 if ($continuar) {
                     $this->generar_asiento($factura);
+                    fs_documento_post_save($factura);
                 } else {
                     if ($factura->delete()) {
                         $this->new_error_msg("La factura se ha borrado.");
-                    } else
+                    } else {
                         $this->new_error_msg("¡Imposible borrar la factura!");
+                    }
                 }
-            }
-            else {
+            } else {
                 if ($factura->delete()) {
                     $this->new_error_msg("La factura se ha borrado.");
-                } else
+                } else {
                     $this->new_error_msg("¡Imposible borrar la factura!");
+                }
             }
-        } else
+        } else {
             $this->new_error_msg("¡Imposible guardar la factura!");
+        }
     }
 
     private function generar_asiento(&$factura)

@@ -101,8 +101,9 @@ class compras_agrupar_albaranes extends fbase_controller
                     $this->new_message("Sin resultados.");
                 }
             }
-        } else
+        } else {
             $this->share_extensions();
+        }
     }
 
     private function agrupar()
@@ -132,8 +133,9 @@ class compras_agrupar_albaranes extends fbase_controller
                 foreach ($albaranes as $alb) {
                     $this->generar_factura(array($alb));
                 }
-            } else
+            } else {
                 $this->generar_factura($albaranes);
+            }
         }
     }
 
@@ -186,11 +188,11 @@ class compras_agrupar_albaranes extends fbase_controller
 
         /// comprobamos la forma de pago para saber si hay que marcar la factura como pagada
         $formapago = $this->forma_pago->get($factura->codpago);
-        if ($formapago) {
-            if ($formapago->genrecibos == 'Pagados') {
-                $factura->pagada = TRUE;
-            }
+        if ($formapago && $formapago->genrecibos == 'Pagados') {
+            $factura->pagada = TRUE;
         }
+
+        fs_generar_numero2($factura);
 
         $regularizacion = new regularizacion_iva();
 
@@ -246,21 +248,24 @@ class compras_agrupar_albaranes extends fbase_controller
 
                 if ($continuar) {
                     $this->generar_asiento($factura);
+                    fs_documento_post_save($factura);
                 } else {
                     if ($factura->delete()) {
                         $this->new_error_msg("La factura se ha borrado.");
-                    } else
+                    } else {
                         $this->new_error_msg("¡Imposible borrar la factura!");
+                    }
                 }
-            }
-            else {
+            } else {
                 if ($factura->delete()) {
                     $this->new_error_msg("La factura se ha borrado.");
-                } else
+                } else {
                     $this->new_error_msg("¡Imposible borrar la factura!");
+                }
             }
-        } else
+        } else {
             $this->new_error_msg("¡Imposible guardar la factura!");
+        }
     }
 
     private function generar_asiento(&$factura)

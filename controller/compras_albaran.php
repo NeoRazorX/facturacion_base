@@ -99,11 +99,11 @@ class compras_albaran extends fbase_controller
             if (isset($_POST['facturar']) && isset($_POST['petid']) && $this->albaran->ptefactura) {
                 if ($this->duplicated_petition($_POST['petid'])) {
                     $this->new_error_msg('Petición duplicada. Evita hacer doble clic sobre los botones.');
-                } else
+                } else {
                     $this->generar_factura();
+                }
             }
-        }
-        else {
+        } else {
             $this->new_error_msg("¡" . ucfirst(FS_ALBARAN) . " de compra no encontrado!", 'error', FALSE, FALSE);
         }
     }
@@ -114,14 +114,13 @@ class compras_albaran extends fbase_controller
             return parent::url();
         } else if ($this->albaran) {
             return $this->albaran->url();
-        } else
-            return $this->page->url();
+        }
+
+        return $this->page->url();
     }
 
     private function modificar()
     {
-        $error = FALSE;
-        $this->albaran->numproveedor = $_POST['numproveedor'];
         $this->albaran->observaciones = $_POST['observaciones'];
 
         /// ¿El albarán es editable o ya ha sido facturado?
@@ -199,11 +198,9 @@ class compras_albaran extends fbase_controller
                 foreach ($lineas as $l) {
                     $encontrada = FALSE;
                     for ($num = 0; $num <= $numlineas; $num++) {
-                        if (isset($_POST['idlinea_' . $num])) {
-                            if ($l->idlinea == intval($_POST['idlinea_' . $num])) {
-                                $encontrada = TRUE;
-                                break;
-                            }
+                        if (isset($_POST['idlinea_' . $num]) && $l->idlinea == intval($_POST['idlinea_' . $num])) {
+                            $encontrada = TRUE;
+                            break;
                         }
                     }
                     if (!$encontrada) {
@@ -213,8 +210,9 @@ class compras_albaran extends fbase_controller
                             if ($art0) {
                                 $art0->sum_stock($this->albaran->codalmacen, 0 - $l->cantidad, TRUE, $l->codcombinacion);
                             }
-                        } else
+                        } else {
                             $this->new_error_msg("¡Imposible eliminar la línea del artículo " . $l->referencia . "!");
+                        }
                     }
                 }
 
@@ -270,8 +268,9 @@ class compras_albaran extends fbase_controller
                                             $art0->sum_stock($this->albaran->codalmacen, $lineas[$k]->cantidad - $cantidad_old, TRUE, $lineas[$k]->codcombinacion);
                                         }
                                     }
-                                } else
+                                } else {
                                     $this->new_error_msg("¡Imposible modificar la línea del artículo " . $value->referencia . "!");
+                                }
 
                                 break;
                             }
@@ -323,8 +322,9 @@ class compras_albaran extends fbase_controller
                                 if ($linea->irpf > $this->albaran->irpf) {
                                     $this->albaran->irpf = $linea->irpf;
                                 }
-                            } else
+                            } else {
                                 $this->new_error_msg("¡Imposible guardar la línea del artículo " . $linea->referencia . "!");
+                            }
                         }
                     }
                 }
@@ -343,14 +343,16 @@ class compras_albaran extends fbase_controller
             }
         }
 
-        if ($this->albaran->save()) {
-            if (!$error) {
-                $this->new_message(ucfirst(FS_ALBARAN) . " modificado correctamente.");
-            }
+        fs_generar_numero2($this->albaran);
 
+        if ($this->albaran->save()) {
+            fs_documento_post_save($this->albaran);
+
+            $this->new_message(ucfirst(FS_ALBARAN) . " modificado correctamente.");
             $this->new_change(ucfirst(FS_ALBARAN) . ' Proveedor ' . $this->albaran->codigo, $this->albaran->url());
-        } else
+        } else {
             $this->new_error_msg("¡Imposible modificar el " . FS_ALBARAN . "!");
+        }
     }
 
     private function generar_factura()
@@ -388,11 +390,11 @@ class compras_albaran extends fbase_controller
         /// comprobamos la forma de pago para saber si hay que marcar la factura como pagada
         $forma0 = new forma_pago();
         $formapago = $forma0->get($factura->codpago);
-        if ($formapago) {
-            if ($formapago->genrecibos == 'Pagados') {
-                $factura->pagada = TRUE;
-            }
+        if ($formapago && $formapago->genrecibos == 'Pagados') {
+            $factura->pagada = TRUE;
         }
+
+        fs_generar_numero2($factura);
 
         $regularizacion = new regularizacion_iva();
 
@@ -434,22 +436,25 @@ class compras_albaran extends fbase_controller
                 $this->albaran->ptefactura = FALSE;
                 if ($this->albaran->save()) {
                     $this->generar_asiento($factura);
+                    fs_documento_post_save($factura);
                 } else {
                     $this->new_error_msg("¡Imposible vincular el " . FS_ALBARAN . " con la nueva factura!");
                     if ($factura->delete()) {
                         $this->new_error_msg("La factura se ha borrado.");
-                    } else
+                    } else {
                         $this->new_error_msg("¡Imposible borrar la factura!");
+                    }
                 }
-            }
-            else {
+            } else {
                 if ($factura->delete()) {
                     $this->new_error_msg("La factura se ha borrado.");
-                } else
+                } else {
                     $this->new_error_msg("¡Imposible borrar la factura!");
+                }
             }
-        } else
+        } else {
             $this->new_error_msg("¡Imposible guardar la factura!");
+        }
     }
 
     private function generar_asiento(&$factura)

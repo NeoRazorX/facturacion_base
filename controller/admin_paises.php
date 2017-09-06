@@ -23,6 +23,7 @@ class admin_paises extends fbase_controller
 {
 
     public $pais;
+    public $resultados;
 
     public function __construct()
     {
@@ -40,6 +41,8 @@ class admin_paises extends fbase_controller
         } else if (isset($_GET['delete'])) {
             $this->eliminar_pais();
         }
+        
+        $this->resultados = $this->pais->all();
     }
 
     private function editar_pais()
@@ -56,8 +59,9 @@ class admin_paises extends fbase_controller
 
         if ($pais->save()) {
             $this->new_message("País " . $pais->nombre . " guardado correctamente.");
-        } else
+        } else {
             $this->new_error_msg("¡Imposible guardar el país!");
+        }
     }
 
     private function eliminar_pais()
@@ -71,10 +75,12 @@ class admin_paises extends fbase_controller
             if ($pais) {
                 if ($pais->delete()) {
                     $this->new_message("País " . $pais->nombre . " eliminado correctamente.");
-                } else
+                } else {
                     $this->new_error_msg("¡Imposible eliminar el país!");
-            } else
+                }
+            } else {
                 $this->new_error_msg("¡País no encontrado!");
+            }
         }
     }
 }

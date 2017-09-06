@@ -1,0 +1,208 @@
+{$dto1=$fsc->calc_due(array($fsc->factura->dtopor1))}
+{$dto2=$fsc->calc_due(array($fsc->factura->dtopor1,$fsc->factura->dtopor2))}
+{$dto3=$fsc->calc_due(array($fsc->factura->dtopor1,$fsc->factura->dtopor2,$fsc->factura->dtopor3))}
+{$dto4=$fsc->calc_due(array($fsc->factura->dtopor1,$fsc->factura->dtopor2,$fsc->factura->dtopor3,$fsc->factura->dtopor4))}
+{$dto5=$fsc->calc_due(array($fsc->factura->dtopor1,$fsc->factura->dtopor2,$fsc->factura->dtopor3,$fsc->factura->dtopor4,$fsc->factura->dtopor5))}
+<script type="text/javascript">
+$(document).ready(function () {
+    var show = [];
+    {loop="$lineas"}
+        l_dto2 = {$value->dtopor2};
+        if (isNaN(l_dto2)) {
+            l_dto2 = 0;
+        }
+        l_dto3 = {$value->dtopor3};
+        if (isNaN(l_dto3)) {
+            l_dto3 = 0;
+        }
+        l_dto4 = {$value->dtopor4};
+        if (isNaN(l_dto4)) {
+            l_dto4 = 0;
+        }
+
+        if ((l_dto2 == 0 && l_dto3 == 0 && l_dto4 == 0)) {
+            show[{$counter}] = false;
+        } else {
+            show[{$counter}] = true;
+        }
+    {/loop}
+
+    // Descuentos de líneas del documento
+    Array.prototype.contains = function(elem) {
+        for (var i in this) {
+            if (this[i] == elem) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    if(show.contains(true)) {
+        $(".dtosl").show();
+    } else {
+        $(".dtosl").hide();
+    }
+});
+</script>
+<div class="table-responsive">
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th class="text-left"><span class="text-capitalize">{#FS_ALBARAN#}</span></th>
+                <th class="text-left">Artículo</th>
+                <th class="text-right" width="70">Cantidad</th>
+                <th class="text-right" width="80">Precio</th>
+                <th class="text-right" width="70">Dto %</th>
+                <th class="text-right dtosl" width="70">Dto 2 %</th>
+                <th class="text-right dtosl" width="70">Dto 3 %</th>
+                <th class="text-right dtosl" width="70">Dto 4 %</th>
+                <th class="text-right" width="80">Neto</th>
+                <th class="text-right" width="70">{#FS_IVA#}</th>
+                <th class="text-right recargo" width="70">RE</th>
+                <th class="text-right irpf" width="70">{#FS_IRPF#}</th>
+                <th class="text-right" width="90">Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {loop="$lineas"}
+            <tr{if="$value->cantidad<=0"} class="warning"{/if}>
+                <td>
+                    {if="$value->idalbaran"}
+                    <a href="{$value->albaran_url()}">{$value->albaran_codigo()}</a>
+                    {$value->albaran_numero()}
+                    {else}
+                    -
+                    {/if}
+                </td>
+                <td>
+                    <a target="_blank" href="{$value->articulo_url()}">{$value->referencia}</a> {$value->descripcion()}
+                </td>
+                <td class="text-right">{$value->cantidad}</td>
+                <td class="text-right">{$fsc->show_precio($value->pvpunitario, $fsc->factura->coddivisa, TRUE, FS_NF0_ART)}</td>
+                <td class="text-right">{$fsc->show_numero($value->dtopor, 2)} %</td>
+                <td class="text-right dtosl">{$fsc->show_numero($value->dtopor2, 2)} %</td>
+                <td class="text-right dtosl">{$fsc->show_numero($value->dtopor3, 2)} %</td>
+                <td class="text-right dtosl">{$fsc->show_numero($value->dtopor4, 2)} %</td>
+                <td class="text-right">{$fsc->show_precio($value->pvptotal, $fsc->factura->coddivisa)}</td>
+                <td class="text-right">{$fsc->show_numero($value->iva, 2)} %</td>
+                <td class="text-right recargo">{$fsc->show_numero($value->recargo, 2)} %</td>
+                <td class="text-right irpf">{$fsc->show_numero($value->irpf, 2)} %</td>
+                <td class="text-right">{$fsc->show_precio($value->total_iva(), $fsc->factura->coddivisa)}</td>
+            </tr>
+            {else}
+            <tr class="warning">
+                <td colspan="13">
+                    <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                    &nbsp; No hay líneas.
+                </td>
+            </tr>
+            {/loop}
+        </tbody>
+    </table>
+    <table class="table table-hover">
+        <tfoot>
+            <tr>
+                {if="$fsc->factura->coddivisa!=$fsc->empresa->coddivisa"}
+                <td colspan='{if="$fsc->factura->netosindto==$fsc->factura->neto"}6{else}1{/if}' class="text-right warning">
+                    <b>{$fsc->factura->coddivisa}:</b>
+                </td>
+                {/if}
+                <td class="text-right dtost">
+                    <b>Neto<br/><br/>{$fsc->show_precio($fsc->factura->netosindto, $fsc->factura->coddivisa)}</b>
+                </td>
+                <td class="text-right dtost">
+                    <b>Dto. 1<br/>{$fsc->factura->dtopor1}%<br/>
+                    {if="$fsc->factura->dtopor1!=0"}
+                    {$fsc->show_precio($fsc->factura->netosindto*(1-$dto1), $fsc->factura->coddivisa)}
+                    {else}
+                    {$fsc->show_precio(0, $fsc->factura->coddivisa)}
+                    {/if}
+                    </b>
+                </td>
+                <td class="text-right dtost">
+                    <b>Dto. 2<br/>{$fsc->factura->dtopor2}%<br/>
+                    {if="$fsc->factura->dtopor2!=0"}
+                    {$fsc->show_precio($fsc->factura->netosindto*($dto1-$dto2), $fsc->factura->coddivisa)}
+                    {else}
+                    {$fsc->show_precio(0, $fsc->factura->coddivisa)}
+                    {/if}
+                    </b>
+                </td>
+                <td class="text-right dtost">
+                    <b>Dto. 3<br/>{$fsc->factura->dtopor3}%<br/>
+                    {if="$fsc->factura->dtopor3!=0"}
+                    {$fsc->show_precio($fsc->factura->netosindto*($dto2-$dto3), $fsc->factura->coddivisa)}
+                    {else}
+                    {$fsc->show_precio(0, $fsc->factura->coddivisa)}
+                    {/if}
+                    </b>
+                </td>
+                <td class="text-right dtost">
+                    <b>Dto. 4<br/>{$fsc->factura->dtopor4}%<br/>
+                    {if="$fsc->factura->dtopor4!=0"}
+                    {$fsc->show_precio($fsc->factura->netosindto*($dto3-$dto4), $fsc->factura->coddivisa)}
+                    {else}
+                    {$fsc->show_precio(0, $fsc->factura->coddivisa)}
+                    {/if}
+                    </b>
+                </td>
+                <td class="text-right dtost">
+                    <b>Dto. 5<br/>{$fsc->factura->dtopor5}%<br/>
+                    {if="$fsc->factura->dtopor5!=0"}
+                    {$fsc->show_precio($fsc->factura->netosindto*($dto4-$dto5), $fsc->factura->coddivisa)}
+                    {else}
+                    {$fsc->show_precio(0, $fsc->factura->coddivisa)}
+                    {/if}
+                    </b>
+                </td>
+                <td class="text-right">
+                    <b>Base<br/><br/>{$fsc->show_precio($fsc->factura->neto, $fsc->factura->coddivisa)}</b>
+                </td>
+                <td class="text-right">
+                    <b>{#FS_IVA#}<br/><br/>{$fsc->show_precio($fsc->factura->totaliva, $fsc->factura->coddivisa)}</b>
+                </td>
+                <td class="text-right recargo">
+                    <b>Recargo<br/><br/>{$fsc->show_precio($fsc->factura->totalrecargo, $fsc->factura->coddivisa)}</b>
+                </td>
+                <td class="text-right irpf">
+                    <b>{#FS_IRPF#}<br/><br/>-{$fsc->show_precio($fsc->factura->totalirpf, $fsc->factura->coddivisa)}</b>
+                </td>
+                <td class="text-right">
+                    <b>Total<br/><br/>{$fsc->show_precio($fsc->factura->total, $fsc->factura->coddivisa)}</b>
+                </td>
+            </tr>
+            {if="$fsc->factura->coddivisa!=$fsc->empresa->coddivisa"}
+            <tr class="warning">
+                <td colspan='{if="$fsc->factura->netosindto==$fsc->factura->neto"}6{else}1{/if}' class="text-right"><b>{$fsc->empresa->coddivisa}:</td>
+                <td class="dtost"></td>
+                <td class="dtost"></td>
+                <td class="dtost"></td>
+                <td class="dtost"></td>
+                <td class="dtost"></td>
+                <td class="dtost"></td>
+                <td></td>
+                <td></td>
+                <td class="recargo"></td>
+                <td class="irpf"></td>
+                <td class="text-right"><b>{$fsc->show_precio($fsc->euro_convert($fsc->factura->totaleuros, $fsc->factura->coddivisa, $fsc->factura->tasaconv))}</b></td>
+            </tr>
+            {/if}
+        </tfoot>
+    </table>
+</div>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12">
+            {if="!in_array('editar_facturas', $GLOBALS['plugins'])"}
+            <p class="help-block text-right">
+                Puedes editar las líneas de las facturas usando el plugin
+                <a href="https://www.facturascripts.com/plugin/editar_facturas" target="_blank">editar facturas</a>.
+            </p>
+            {/if}
+            <div class="form-group">
+                Observaciones:
+                <textarea class="form-control" name="observaciones" rows="6">{$fsc->factura->observaciones}</textarea>
+            </div>
+        </div>
+    </div>
+</div>

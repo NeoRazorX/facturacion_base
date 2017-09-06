@@ -144,24 +144,20 @@ class linea_iva_factura_cliente extends \fs_model
             if (!$li->test()) {
                 $status = FALSE;
             }
-
+            
             $li_neto += $li->neto;
             $li_iva += $li->totaliva;
             $li_recargo += $li->totalrecargo;
         }
-
-        $li_neto = round($li_neto, FS_NF0);
-        $li_iva = round($li_iva, FS_NF0);
-        $li_recargo = round($li_recargo, FS_NF0);
-
+        
         if (!$this->floatcmp($neto, $li_neto, FS_NF0, TRUE)) {
-            $this->new_error_msg("La suma de los netos de las líneas de IVA debería ser: " . $neto);
+            $this->new_error_msg("La suma de los netos de las líneas de IVA debería ser: " . $neto . " y tiene el valor " . $li_neto);
             $status = FALSE;
         } else if (!$this->floatcmp($totaliva, $li_iva, FS_NF0, TRUE)) {
-            $this->new_error_msg("La suma de los totales de iva de las líneas de IVA debería ser: " . $totaliva);
+            $this->new_error_msg("La suma de los totales de iva de las líneas de IVA debería ser: " . $totaliva . " y tiene el valor " . $li_iva);
             $status = FALSE;
         } else if (!$this->floatcmp($totalrecargo, $li_recargo, FS_NF0, TRUE)) {
-            $this->new_error_msg("La suma de los totalrecargo de las líneas de IVA debería ser: " . $totalrecargo);
+            $this->new_error_msg("La suma de los totalrecargo de las líneas de IVA debería ser: " . $totalrecargo . " y tiene el valor " . $li_recargo);
             $status = FALSE;
         }
 

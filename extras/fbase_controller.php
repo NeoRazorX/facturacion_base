@@ -200,4 +200,32 @@ class fbase_controller extends fs_controller
 
         return 0;
     }
+    
+    /**
+     * Devuelve el escalar del descuento unificado equivalente
+     * Por ejemplo: recibe descuentos = [50, 10] y devuelve 0.45
+     * 
+     * @param array $descuentos contiene un array de float.
+     * @return float
+     */
+    public function calc_due($descuentos)
+    {
+        return (1 - $this->calc_desc_due($descuentos) / 100);
+    }
+    
+    /**
+     * Devuelve el descuento unificado equivalente
+     * Por ejemplo: recibe descuentos = [50, 10] y devuelve 55
+     * 
+     * @param array $descuentos contiene un array de float.
+     * @return float
+     */
+    public function calc_desc_due($descuentos)
+    {
+        $dto = 1;
+        foreach($descuentos as $descuento) {
+            $dto *= (1 - $descuento / 100);
+        }
+        return (1 - $dto) * 100;
+    }
 }

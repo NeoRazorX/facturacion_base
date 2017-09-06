@@ -1,106 +1,103 @@
 {include="header"}
 
 <script type="text/javascript">
-   function delete_pais(url)
-   {
-      bootbox.confirm({
-         message: '¿Realmente desea eliminar este país?',
-         title: '<b>Atención</b>',
-         callback: function(result) {
-            if (result) {
-               window.location.href = url;
+    function delete_pais(url) {
+        bootbox.confirm({
+            message: '¿Realmente desea eliminar este país?',
+            title: '<b>Atención</b>',
+            callback: function (result) {
+                if (result) {
+                    window.location.href = url;
+                }
             }
-         }
-      });
-   }
+        });
+    }
 </script>
 
-<!--{$paises=$fsc->pais->all()}-->
-
 <div class="container-fluid">
-   <div class="row">
-      <div class="col-sm-12">
-         <div class="page-header">
-            <h1>
-               <i class="fa fa-globe" aria-hidden="true"></i>&nbsp;Países
-               <span class="badge">{function="count($paises)"}</span>
-               <a class="btn btn-xs btn-default" href="{$fsc->url()}" title="Recargar la página">
-                  <span class="glyphicon glyphicon-refresh"></span>
-               </a>
-               <span class="btn-group">
-               {loop="$fsc->extensions"}
-                  {if="$value->type=='button'"}
-                  <a href="index.php?page={$value->from}{$value->params}" class="btn btn-xs btn-default">{$value->text}</a>
-                  {/if}
-               {/loop}
-               </span>
-            </h1>
-            <p class="help-block">
-               El país predeterminado es el de la empresa. Puedes cambiarlo desde
-               Admin &gt; Empresa.
-            </p>
-         </div>
-         <div class="table-responsive">
-            <table class="table table-hover">
-               <thead>
-                  <tr>
-                     <th class="text-left" width="190">
-                        <a href="http://es.wikipedia.org/wiki/ISO_3166-1#C.C3.B3digos_ISO_3166-1" target="_blank">Código Alfa-3</a>
-                     </th>
-                     <th class="text-left" width="190">
-                        <a href="http://es.wikipedia.org/wiki/ISO_3166-1#C.C3.B3digos_ISO_3166-1" target="_blank">Código Alfa-2</a>
-                     </th>
-                     <th class="text-left">Nombre</th>
-                     <th class="text-right" width="120">Acciones</th>
-                  </tr>
-               </thead>
-               {loop="$paises"}
-               <form action="{$fsc->url()}" method="post" class="form" role="form">
-                  <tr{if="$value->codpais==$fsc->empresa->codpais"} class="warning"{/if}>
-                     <td>
-                        <input type="hidden" name="scodpais" value="{$value->codpais}"/>
-                        <div class="form-control">{$value->codpais}</div>
-                     </td>
-                     <td><input class="form-control" type="text" name="scodiso" value="{$value->codiso}" autocomplete="off"/></td>
-                     <td><input class="form-control" type="text" name="snombre" value="{$value->nombre}" autocomplete="off"/></td>
-                     <td class="text-right">
-                        <div class="btn-group">
-                           {if="$fsc->allow_delete"}
-                              {if="$value->codpais==$fsc->empresa->codpais"}
-                              <a class="btn btn-sm btn-warning" onclick="bootbox.alert({message: 'No puedes eliminar el pais de la empresa.',title: '<b>Atención</b>'});" title="Eliminar">
-                                 <span class="glyphicon glyphicon-lock"></span>
-                              </a>
-                              {else}
-                              <a class="btn btn-sm btn-danger" onclick="delete_pais('{$fsc->url()}&delete={$value->codpais}')" title="Eliminar">
-                                 <span class="glyphicon glyphicon-trash"></span>
-                              </a>
-                              {/if}
-                           {/if}
-                           <button class="btn btn-sm btn-primary" type="submit" title="Guardar">
-                              <span class="glyphicon glyphicon-floppy-disk"></span>
-                           </button>
-                        </div>
-                     </td>
-                  </tr>
-               </form>
-               {/loop}
-               <form class="form" role="form" name="f_nuevo_pais" action ="{$fsc->url()}" method="post">
-                  <tr class="info">
-                     <td><input class="form-control" type="text" name="scodpais" maxlength="20" placeholder="Nuevo código Alfa-3" autocomplete="off"/></td>
-                     <td><input class="form-control" type="text" name="scodiso" placeholder="Código Alfa-2" autocomplete="off"/></td>
-                     <td><input class="form-control" type="text" name="snombre" placeholder="Nuevo país..." autocomplete="off"/></td>
-                     <td class="text-right">
-                        <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();" title="Nuevo">
-                           <span class="glyphicon glyphicon-plus-sign"></span>
-                           <span class="hidden-sm">&nbsp;Nuevo</span>
-                        </button>
-                     </td>
-                  </tr>
-               </form>
-            </table>
-         </div>
-      </div>
-   </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="page-header">
+                <h1>
+                    <i class="fa fa-globe" aria-hidden="true"></i>&nbsp;Países
+                    <span class="badge">{function="count($fsc->resultados)"}</span>
+                    <a class="btn btn-xs btn-default" href="{$fsc->url()}" title="Recargar la página">
+                        <span class="glyphicon glyphicon-refresh"></span>
+                    </a>
+                    <span class="btn-group">
+                        {loop="$fsc->extensions"}
+                        {if="$value->type=='button'"}
+                        <a href="index.php?page={$value->from}{$value->params}" class="btn btn-xs btn-default">{$value->text}</a>
+                        {/if}
+                        {/loop}
+                    </span>
+                </h1>
+                <p class="help-block">
+                    El país predeterminado es el de la empresa. Puedes cambiarlo desde
+                    Admin &gt; Empresa.
+                </p>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th class="text-left" width="190">
+                                <a href="http://es.wikipedia.org/wiki/ISO_3166-1#C.C3.B3digos_ISO_3166-1" target="_blank">Código Alfa-3</a>
+                            </th>
+                            <th class="text-left" width="190">
+                                <a href="http://es.wikipedia.org/wiki/ISO_3166-1#C.C3.B3digos_ISO_3166-1" target="_blank">Código Alfa-2</a>
+                            </th>
+                            <th class="text-left">Nombre</th>
+                            <th class="text-right" width="120">Acciones</th>
+                        </tr>
+                    </thead>
+                    {loop="$fsc->resultados"}
+                    <form action="{$fsc->url()}" method="post" class="form" role="form">
+                        <tr{if="$value->codpais==$fsc->empresa->codpais"} class="warning"{/if}>
+                            <td>
+                                <input type="hidden" name="scodpais" value="{$value->codpais}"/>
+                                <div class="form-control">{$value->codpais}</div>
+                            </td>
+                            <td><input class="form-control" type="text" name="scodiso" value="{$value->codiso}" autocomplete="off"/></td>
+                            <td><input class="form-control" type="text" name="snombre" value="{$value->nombre}" autocomplete="off"/></td>
+                            <td class="text-right">
+                                <div class="btn-group">
+                                    {if="$fsc->allow_delete"}
+                                    {if="$value->codpais==$fsc->empresa->codpais"}
+                                    <a class="btn btn-sm btn-warning" onclick="bootbox.alert({message: 'No puedes eliminar el pais de la empresa.', title: '<b>Atención</b>'});" title="Eliminar">
+                                        <span class="glyphicon glyphicon-lock"></span>
+                                    </a>
+                                    {else}
+                                    <a class="btn btn-sm btn-danger" onclick="delete_pais('{$fsc->url()}&delete={$value->codpais}')" title="Eliminar">
+                                        <span class="glyphicon glyphicon-trash"></span>
+                                    </a>
+                                    {/if}
+                                    {/if}
+                                    <button class="btn btn-sm btn-primary" type="submit" title="Guardar">
+                                        <span class="glyphicon glyphicon-floppy-disk"></span>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </form>
+                    {/loop}
+                    <form class="form" role="form" name="f_nuevo_pais" action ="{$fsc->url()}" method="post">
+                        <tr class="info">
+                            <td><input class="form-control" type="text" name="scodpais" maxlength="20" placeholder="Nuevo código Alfa-3" autocomplete="off"/></td>
+                            <td><input class="form-control" type="text" name="scodiso" placeholder="Código Alfa-2" autocomplete="off"/></td>
+                            <td><input class="form-control" type="text" name="snombre" placeholder="Nuevo país..." autocomplete="off"/></td>
+                            <td class="text-right">
+                                <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled = true;this.form.submit();" title="Nuevo">
+                                    <span class="glyphicon glyphicon-plus-sign"></span>
+                                    <span class="hidden-sm">&nbsp;Nuevo</span>
+                                </button>
+                            </td>
+                        </tr>
+                    </form>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
 
 {include="footer"}

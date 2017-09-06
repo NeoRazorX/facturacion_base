@@ -91,41 +91,39 @@ class ventas_factura_devolucion extends fs_controller
 
             $guardar = FALSE;
             foreach ($this->factura->get_lineas() as $value) {
-                if (isset($_POST['devolver_' . $value->idlinea])) {
-                    if (floatval($_POST['devolver_' . $value->idlinea]) > 0) {
-                        $guardar = TRUE;
-                    }
+                if (isset($_POST['devolver_' . $value->idlinea]) && floatval($_POST['devolver_' . $value->idlinea]) > 0) {
+                    $guardar = TRUE;
                 }
             }
-
+            
+            fs_generar_numero2($frec);
+            
             if ($guardar) {
                 if ($frec->save()) {
                     $art0 = new articulo();
 
                     foreach ($this->factura->get_lineas() as $value) {
-                        if (isset($_POST['devolver_' . $value->idlinea])) {
-                            if (floatval($_POST['devolver_' . $value->idlinea]) > 0) {
-                                $linea = clone $value;
-                                $linea->idlinea = NULL;
-                                $linea->idfactura = $frec->idfactura;
-                                $linea->idalbaran = NULL;
-                                $linea->cantidad = 0 - floatval($_POST['devolver_' . $value->idlinea]);
-                                $linea->pvpsindto = $linea->cantidad * $linea->pvpunitario;
-                                $linea->pvptotal = $linea->cantidad * $linea->pvpunitario * (100 - $linea->dtopor) / 100;
-                                if ($linea->save()) {
-                                    $articulo = $art0->get($linea->referencia);
-                                    if ($articulo) {
-                                        $articulo->sum_stock($frec->codalmacen, 0 - $linea->cantidad, FALSE, $linea->codcombinacion);
-                                    }
+                        if (isset($_POST['devolver_' . $value->idlinea]) && floatval($_POST['devolver_' . $value->idlinea]) > 0) {
+                            $linea = clone $value;
+                            $linea->idlinea = NULL;
+                            $linea->idfactura = $frec->idfactura;
+                            $linea->idalbaran = NULL;
+                            $linea->cantidad = 0 - floatval($_POST['devolver_' . $value->idlinea]);
+                            $linea->pvpsindto = $linea->cantidad * $linea->pvpunitario;
+                            $linea->pvptotal = $linea->cantidad * $linea->pvpunitario * (100 - $linea->dtopor) / 100;
+                            if ($linea->save()) {
+                                $articulo = $art0->get($linea->referencia);
+                                if ($articulo) {
+                                    $articulo->sum_stock($frec->codalmacen, 0 - $linea->cantidad, FALSE, $linea->codcombinacion);
+                                }
 
-                                    $frec->neto += $linea->pvptotal;
-                                    $frec->totaliva += ($linea->pvptotal * $linea->iva / 100);
-                                    $frec->totalirpf += ($linea->pvptotal * $linea->irpf / 100);
-                                    $frec->totalrecargo += ($linea->pvptotal * $linea->recargo / 100);
+                                $frec->neto += $linea->pvptotal;
+                                $frec->totaliva += ($linea->pvptotal * $linea->iva / 100);
+                                $frec->totalirpf += ($linea->pvptotal * $linea->irpf / 100);
+                                $frec->totalrecargo += ($linea->pvptotal * $linea->recargo / 100);
 
-                                    if ($linea->irpf > $frec->irpf) {
-                                        $frec->irpf = $linea->irpf;
-                                    }
+                                if ($linea->irpf > $frec->irpf) {
+                                    $frec->irpf = $linea->irpf;
                                 }
                             }
                         }
@@ -140,6 +138,8 @@ class ventas_factura_devolucion extends fs_controller
                     $frec->pagada = TRUE;
                     if ($frec->save()) {
                         $this->generar_asiento($frec);
+                        fs_documento_post_save($frec);
+                        
                         $this->new_message(FS_FACTURA_RECTIFICATIVA . ' creada correctamente.');
                     }
                 } else {
