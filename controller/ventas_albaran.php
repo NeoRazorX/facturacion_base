@@ -51,7 +51,6 @@ class ventas_albaran extends fbase_controller
         $this->ppage = $this->page->get('ventas_albaranes');
         $this->agente = FALSE;
 
-        $this->agencia = new agencia_transporte();
         $albaran = new albaran_cliente();
         $this->albaran = FALSE;
         $this->almacen = new almacen();
@@ -66,6 +65,7 @@ class ventas_albaran extends fbase_controller
         $this->nuevo_albaran_url = FALSE;
         $this->pais = new pais();
         $this->serie = new serie();
+        $this->agencia = new agencia_transporte();
 
         /// ¿El usuario tiene permiso para eliminar la factura?
         $this->allow_delete_fac = $this->user->allow_delete_on('ventas_factura');
@@ -130,6 +130,19 @@ class ventas_albaran extends fbase_controller
 
     private function modificar()
     {
+        $netos = array();
+        $netosdto = array();
+        $ivas = array();
+        $irpfs = array();
+        $recargos = array();
+        $netosindto = 0;
+        $netocondto = 0;
+        $neto = 0;
+        $iva = 0;
+        $irpf = 0;
+        $recargo = 0;
+        
+        $error = FALSE;
         $this->albaran->observaciones = $_POST['observaciones'];
 
         /// ¿Es editable o ya ha sido facturado?
@@ -236,6 +249,12 @@ class ventas_albaran extends fbase_controller
             if (isset($_POST['numlineas'])) {
                 $numlineas = intval($_POST['numlineas']);
 
+                $this->albaran->netosindto = 0;
+                $this->albaran->dtopor1 = 0;
+                $this->albaran->dtopor2 = 0;
+                $this->albaran->dtopor3 = 0;
+                $this->albaran->dtopor4 = 0;
+                $this->albaran->dtopor5 = 0;
                 $this->albaran->neto = 0;
                 $this->albaran->totaliva = 0;
                 $this->albaran->totalirpf = 0;
@@ -284,8 +303,13 @@ class ventas_albaran extends fbase_controller
                                 $lineas[$k]->cantidad = floatval($_POST['cantidad_' . $num]);
                                 $lineas[$k]->pvpunitario = floatval($_POST['pvp_' . $num]);
                                 $lineas[$k]->dtopor = floatval($_POST['dto_' . $num]);
-                                $lineas[$k]->pvpsindto = ($value->cantidad * $value->pvpunitario);
-                                $lineas[$k]->pvptotal = ($value->cantidad * $value->pvpunitario * (100 - $value->dtopor) / 100);
+                                $lineas[$k]->dtopor2 = floatval($_POST['dto2_' . $num]);
+                                $lineas[$k]->dtopor3 = floatval($_POST['dto3_' . $num]);
+                                $lineas[$k]->dtopor4 = floatval($_POST['dto4_' . $num]);
+                                $lineas[$k]->pvpsindto = $value->cantidad * $value->pvpunitario;
+                                // Descuento Unificado Equivalente
+                                $due_linea = $this->calc_due(array($lineas[$k]->dtopor,$lineas[$k]->dtopor2,$lineas[$k]->dtopor3,$lineas[$k]->dtopor4));
+                                $lineas[$k]->pvptotal = $lineas[$k]->cantidad * $lineas[$k]->pvpunitario * $due_linea;
                                 $lineas[$k]->descripcion = $_POST['desc_' . $num];
 
                                 $lineas[$k]->codimpuesto = NULL;
@@ -303,10 +327,35 @@ class ventas_albaran extends fbase_controller
                                 }
 
                                 if ($lineas[$k]->save()) {
-                                    $this->albaran->neto += $value->pvptotal;
-                                    $this->albaran->totaliva += $value->pvptotal * $value->iva / 100;
-                                    $this->albaran->totalirpf += $value->pvptotal * $value->irpf / 100;
-                                    $this->albaran->totalrecargo += $value->pvptotal * $value->recargo / 100;
+                                    if (!array_key_exists($lineas[$k]->codimpuesto, $netos)) {
+                                        $netos[$lineas[$k]->codimpuesto] = 0;
+                                        $netosdto[$lineas[$k]->codimpuesto] = 0;
+                                        $ivas[$lineas[$k]->codimpuesto] = 0;
+                                        $irpfs[$lineas[$k]->codimpuesto] = 0;
+                                        $recargos[$lineas[$k]->codimpuesto] = 0;
+                                    }
+                                    $this->albaran->dtopor1 = floatval($_POST['adtopor1']);
+                                    $this->albaran->dtopor2 = floatval($_POST['adtopor2']);
+                                    $this->albaran->dtopor3 = floatval($_POST['adtopor3']);
+                                    $this->albaran->dtopor4 = floatval($_POST['adtopor4']);
+                                    $this->albaran->dtopor5 = floatval($_POST['adtopor5']);
+                                    // Acumulamos por tipos de IVAs, que es el desglose de pie de página
+                                    
+                                    // Descuento Unificado Equivalente
+                                    $due_totales = $this->calc_due(array($this->albaran->dtopor1,$this->albaran->dtopor2,$this->albaran->dtopor3,$this->albaran->dtopor4,$this->albaran->dtopor5));
+                                    // Hacemos el recalculo del PVP por línea, con el descuento adicional de fin de documento
+                                    $pvpcondto = $due_totales * $lineas[$k]->pvptotal;
+                                    
+                                    // Netos
+                                    $netos[$lineas[$k]->codimpuesto] += $lineas[$k]->pvptotal;
+                                    // Bases
+                                    $netosdto[$lineas[$k]->codimpuesto] += $pvpcondto;
+                                    // IVA
+                                    $ivas[$lineas[$k]->codimpuesto] += $pvpcondto * ($lineas[$k]->iva /100);
+                                    // IRPF
+                                    $irpfs[$lineas[$k]->codimpuesto] += $pvpcondto * ($lineas[$k]->irpf /100);
+                                    // RE
+                                    $recargos[$lineas[$k]->codimpuesto] += $pvpcondto * ($lineas[$k]->recargo /100);
 
                                     if ($value->irpf > $this->albaran->irpf) {
                                         $this->albaran->irpf = $value->irpf;
@@ -347,8 +396,13 @@ class ventas_albaran extends fbase_controller
                             $linea->cantidad = floatval($_POST['cantidad_' . $num]);
                             $linea->pvpunitario = floatval($_POST['pvp_' . $num]);
                             $linea->dtopor = floatval($_POST['dto_' . $num]);
-                            $linea->pvpsindto = ($linea->cantidad * $linea->pvpunitario);
-                            $linea->pvptotal = ($linea->cantidad * $linea->pvpunitario * (100 - $linea->dtopor) / 100);
+                            $linea->dtopor2 = floatval($_POST['dto2_' . $num]);
+                            $linea->dtopor3 = floatval($_POST['dto3_' . $num]);
+                            $linea->dtopor4 = floatval($_POST['dto4_' . $num]);
+                            $linea->pvpsindto = $linea->cantidad * $linea->pvpunitario;
+                            $l_dto_due = (1-((1-$linea->dtopor/100)*(1-$linea->dtopor2/100)*(1-$linea->dtopor3/100)*(1-$linea->dtopor4/100)))*100;
+                            $due_lineas = (1-$l_dto_due / 100);
+                            $linea->pvptotal = $linea->cantidad * $linea->pvpunitario * $due_lineas;
 
                             $art0 = $articulo->get($_POST['referencia_' . $num]);
                             if ($art0) {
@@ -364,10 +418,42 @@ class ventas_albaran extends fbase_controller
                                     $art0->sum_stock($this->albaran->codalmacen, 0 - $linea->cantidad, FALSE, $linea->codcombinacion);
                                 }
 
-                                $this->albaran->neto += $linea->pvptotal;
-                                $this->albaran->totaliva += $linea->pvptotal * $linea->iva / 100;
-                                $this->albaran->totalirpf += $linea->pvptotal * $linea->irpf / 100;
-                                $this->albaran->totalrecargo += $linea->pvptotal * $linea->recargo / 100;
+                                if (!array_key_exists($linea->codimpuesto, $netos)) {
+                                    // Neto
+                                    $netos[$linea->codimpuesto] = 0;
+                                    // Base
+                                    $netosdto[$linea->codimpuesto] = 0;
+                                    // IVA
+                                    $ivas[$linea->codimpuesto] = 0;
+                                    // IRPF
+                                    $irpfs[$linea->codimpuesto] = 0;
+                                    // RE
+                                    $recargos[$linea->codimpuesto] = 0;
+                                }
+
+                                $this->albaran->netosindto += $netosindto;
+                                $this->albaran->dtopor1 = floatval($_POST['adtopor1']);
+                                $this->albaran->dtopor2 = floatval($_POST['adtopor2']);
+                                $this->albaran->dtopor3 = floatval($_POST['adtopor3']);
+                                $this->albaran->dtopor4 = floatval($_POST['adtopor4']);
+                                $this->albaran->dtopor5 = floatval($_POST['adtopor5']);
+                                // Acumulamos por tipos de IVAs, que es el desglose de pie de página
+
+                                // Descuento Unificado Equivalente
+                                $due_totales = $this->calc_due(array($this->albaran->dtopor1,$this->albaran->dtopor2,$this->albaran->dtopor3,$this->albaran->dtopor4,$this->albaran->dtopor5));
+                                // Hacemos el recalculo del PVP por línea, con el descuento adicional de fin de documento
+                                $pvpcondto = $due_totales * $linea->pvptotal;
+
+                                // Neto
+                                $netos[$linea->codimpuesto] += $linea->pvptotal;
+                                // Base
+                                $netosdto[$linea->codimpuesto] += $pvpcondto;
+                                // IVA
+                                $ivas[$linea->codimpuesto] += $pvpcondto * ($linea->iva /100);
+                                // IRPF
+                                $irpfs[$linea->codimpuesto] += $pvpcondto * ($linea->irpf /100);
+                                // RE
+                                $recargos[$linea->codimpuesto] += $pvpcondto * ($linea->recargo /100);
 
                                 if ($linea->irpf > $this->albaran->irpf) {
                                     $this->albaran->irpf = $linea->irpf;
@@ -378,12 +464,23 @@ class ventas_albaran extends fbase_controller
                         }
                     }
                 }
+                
+                foreach ($netos as $pos => $ne) {
+                    // Neto total de la línea (Neto)
+                    $netosindto += $netos[$pos];
+                    // Neto total de la línea, con el descuento total del documento (Base imponible)
+                    $netocondto += $netosdto[$pos];
+                    $iva += $ivas[$pos];
+                    $irpf += $irpfs[$pos];
+                    $recargo += $recargos[$pos];
+                }
 
                 /// redondeamos
-                $this->albaran->neto = round($this->albaran->neto, FS_NF0);
-                $this->albaran->totaliva = round($this->albaran->totaliva, FS_NF0);
-                $this->albaran->totalirpf = round($this->albaran->totalirpf, FS_NF0);
-                $this->albaran->totalrecargo = round($this->albaran->totalrecargo, FS_NF0);
+                $this->albaran->netosindto = $netosindto;
+                $this->albaran->neto = $netocondto;
+                $this->albaran->totaliva = $iva;
+                $this->albaran->totalirpf = $irpf;
+                $this->albaran->totalrecargo = $recargo;
                 $this->albaran->total = $this->albaran->neto + $this->albaran->totaliva - $this->albaran->totalirpf + $this->albaran->totalrecargo;
 
                 if (abs(floatval($_POST['atotal']) - $this->albaran->total) >= .02) {
@@ -451,6 +548,12 @@ class ventas_albaran extends fbase_controller
         $factura->codpostal = $this->albaran->codpostal;
         $factura->codserie = $this->albaran->codserie;
         $factura->direccion = $this->albaran->direccion;
+        $factura->netosindto = $this->albaran->netosindto;
+        $factura->dtopor1 = $this->albaran->dtopor1;
+        $factura->dtopor2 = $this->albaran->dtopor2;
+        $factura->dtopor3 = $this->albaran->dtopor3;
+        $factura->dtopor4 = $this->albaran->dtopor4;
+        $factura->dtopor5 = $this->albaran->dtopor5;
         $factura->neto = $this->albaran->neto;
         $factura->nombrecliente = $this->albaran->nombrecliente;
         $factura->observaciones = $this->albaran->observaciones;
@@ -525,6 +628,9 @@ class ventas_albaran extends fbase_controller
                 $n->codimpuesto = $l->codimpuesto;
                 $n->descripcion = $l->descripcion;
                 $n->dtopor = $l->dtopor;
+                $n->dtopor2 = $l->dtopor2;
+                $n->dtopor3 = $l->dtopor3;
+                $n->dtopor4 = $l->dtopor4;
                 $n->irpf = $l->irpf;
                 $n->iva = $l->iva;
                 $n->pvpsindto = $l->pvpsindto;

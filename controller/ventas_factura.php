@@ -378,6 +378,12 @@ class ventas_factura extends fbase_controller
             $factura->codserie = $_POST['codserie'];
             $factura->set_fecha_hora($this->today(), $this->hour());
             $factura->observaciones = $_POST['motivo'];
+            $factura->netosindto = 0 - $factura->netosindto;
+            $factura->dtopor1 = $factura->dtopor1;
+            $factura->dtopor2 = $factura->dtopor2;
+            $factura->dtopor3 = $factura->dtopor3;
+            $factura->dtopor4 = $factura->dtopor4;
+            $factura->dtopor5 = $factura->dtopor5;
             $factura->neto = 0 - $factura->neto;
             $factura->totalirpf = 0 - $factura->totalirpf;
             $factura->totaliva = 0 - $factura->totaliva;

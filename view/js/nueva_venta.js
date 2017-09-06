@@ -29,6 +29,8 @@ var fin_busqueda1 = true;
 var fin_busqueda2 = true;
 var siniva = false;
 var irpf = 0;
+var dtosl = false;
+var dtost = false;
 var solo_con_stock = true;
 
 function usar_cliente(codcliente)
@@ -123,15 +125,50 @@ function recalcular()
     var l_uds = 0;
     var l_pvp = 0;
     var l_dto = 0;
+    var l_dto2 = 0;
+    var l_dto3 = 0;
+    var l_dto4 = 0;
+    var show = [];
     var l_neto = 0;
     var l_iva = 0;
     var l_irpf = 0;
     var l_recargo = 0;
+    var netosindto = 0;
+    var netocondto = 0;
     var neto = 0;
     var total_iva = 0;
     var total_irpf = 0;
     var total_recargo = 0;
+    var adto1 = 0;
+    var adto2 = 0;
+    var adto3 = 0;
+    var adto4 = 0;
+    var adto5 = 0;
+    var dto_totales = 0;
+    var dto_linea = 0;
 
+    adto1 = parseFloat($("#adtopor1").val());
+    if (isNaN(adto1)) {
+        adto1 = 0;
+    }
+    adto2 = parseFloat($("#adtopor2").val());
+    if (isNaN(adto2)) {
+        adto2 = 0;
+    }
+    adto3 = parseFloat($("#adtopor3").val());
+    if (isNaN(adto3)) {
+        adto3 = 0;
+    }
+    adto4 = parseFloat($("#adtopor4").val());
+    if (isNaN(adto4)) {
+        adto4 = 0;
+    }
+    adto5 = parseFloat($("#adtopor5").val());
+    if (isNaN(adto5)) {
+        adto5 = 0;
+    }
+
+    dto_totales = calc_due([adto1, adto2, adto3, adto4, adto5]);
     for (var i = 0; i < numlineas; i++) {
         if ($("#linea_" + i).length > 0) {
             /// cambiamos coma por punto
@@ -144,6 +181,15 @@ function recalcular()
             if ($("#dto_" + i).val().search(",") >= 0) {
                 $("#dto_" + i).val($("#dto_" + i).val().replace(",", "."));
             }
+            if ($("#dto2_" + i).val() >= 0) {
+                $("#dto2_" + i).val($("#dto2_" + i).val().replace(",", "."));
+            }
+            if ($("#dto3_" + i).val() >= 0) {
+                $("#dto3_" + i).val($("#dto3_" + i).val().replace(",", "."));
+            }
+            if ($("#dto4_" + i).val() >= 0) {
+                $("#dto4_" + i).val($("#dto4_" + i).val().replace(",", "."));
+            }
             if ($("#iva_" + i).val().search(",") >= 0) {
                 $("#iva_" + i).val($("#iva_" + i).val().replace(",", "."));
             }
@@ -153,23 +199,65 @@ function recalcular()
             if ($("#recargo_" + i).val().search(",") >= 0) {
                 $("#recargo_" + i).val($("#recargo_" + i).val().replace(",", "."));
             }
-
+            
             l_uds = parseFloat($("#cantidad_" + i).val());
+            if (isNaN(l_uds)) {
+                l_uds = 0;
+            }
             l_pvp = parseFloat($("#pvp_" + i).val());
+            if (isNaN(l_pvp)) {
+                l_pvp = 0;
+            }
             l_dto = parseFloat($("#dto_" + i).val());
-            l_neto = l_uds * l_pvp * (100 - l_dto) / 100;
+            if (isNaN(l_dto)) {
+                l_dto = 0;
+            }
+            l_dto2 = parseFloat($("#dto2_" + i).val());
+            if (isNaN(l_dto2)) {
+                l_dto2 = 0;
+            }
+            l_dto3 = parseFloat($("#dto3_" + i).val());
+            if (isNaN(l_dto3)) {
+                l_dto3 = 0;
+            }
+            l_dto4 = parseFloat($("#dto4_" + i).val());
+            if (isNaN(l_dto4)) {
+                l_dto4 = 0;
+            }
+            
+            if ((l_dto2 == 0 && l_dto3 == 0 && l_dto4 == 0)) {
+                show[i] = false;
+            } else {
+                show[i] = true;
+            }
+            
+            dto_linea = calc_due([l_dto, l_dto2, l_dto3, l_dto4]);
+            
+            // Total neto antes de descuentos globales
+            netosindto += l_uds * l_pvp * dto_linea;
+            l_neto = l_uds * l_pvp * dto_linea;
+
             l_iva = parseFloat($("#iva_" + i).val());
             l_irpf = parseFloat($("#irpf_" + i).val());
+            if (isNaN(l_irpf)) {
+                l_irpf = 0;
+            }
             l_recargo = parseFloat($("#recargo_" + i).val());
-
+            if (isNaN(l_recargo)) {
+                l_recargo = 0;
+            }
+            
             $("#neto_" + i).val(l_neto);
             if (numlineas == 1) {
-                $("#total_" + i).val(fs_round(l_neto, fs_nf0) + fs_round(l_neto * (l_iva - l_irpf + l_recargo) / 100, fs_nf0));
+                $("#total_" + i).val(l_neto + l_neto * (l_iva - l_irpf + l_recargo) / 100);
             } else {
                 $("#total_" + i).val(number_format(l_neto + (l_neto * (l_iva - l_irpf + l_recargo) / 100), fs_nf0, '.', ''));
             }
+            l_neto = l_uds * l_pvp * dto_linea;
 
-            neto += l_neto;
+            // ESTOS YA SON VALORES FINALES, SE REDONDEAN AHORA
+            // Total neto despues de descuentos globales
+            netocondto += l_neto;
             total_iva += l_neto * l_iva / 100;
             total_irpf += l_neto * l_irpf / 100;
             total_recargo += l_neto * l_recargo / 100;
@@ -183,15 +271,68 @@ function recalcular()
         }
     }
 
-    neto = fs_round(neto, fs_nf0);
-    total_iva = fs_round(total_iva, fs_nf0);
-    total_irpf = fs_round(total_irpf, fs_nf0);
-    total_recargo = fs_round(total_recargo, fs_nf0);
-    $("#aneto").html(neto);
-    $("#aiva").html(total_iva);
-    $("#are").html(total_recargo);
-    $("#airpf").html(total_irpf);
+    netocondto = netosindto * dto_totales;
+    neto = netocondto;
+    total_iva = total_iva * dto_totales;
+    total_recargo = total_recargo * dto_totales;
+    total_irpf = total_irpf * dto_totales;
+    
+    $("#anetosindto").html(fs_round(netosindto, fs_nf0));
+    $("#aneto").html(fs_round(netocondto, fs_nf0));
+    $("#aiva").html(fs_round(total_iva, fs_nf0));
+    $("#are").html(fs_round(total_recargo, fs_nf0));
+    $("#airpf").html(fs_round(total_irpf, fs_nf0));
     $("#atotal").val(fs_round(neto + total_iva - total_irpf + total_recargo, fs_nf0));
+
+    // ELIMINAR DESPUÉS DE REVISAR
+    console.log("Valores antes de redondeo: ");
+    console.log("Subtotal: " + netosindto);
+    console.log("Descuento sobre el total: " + netosindto);
+    console.log("Base imponible: " + netocondto);
+    console.log("Impuestos: " + total_iva);
+    console.log("RE: " + total_recargo);
+    console.log("IRPF: " + total_irpf);
+    console.log("Total: " + (neto + total_iva - total_irpf + total_recargo));
+    console.log("");
+    console.log("Valores despues de redondeo: ");
+    console.log("Subtotal: " + fs_round(netosindto, fs_nf0));
+    console.log("Descuento sobre el total: " + fs_round(netosindto, fs_nf0));
+    console.log("Base imponible: " + fs_round(netocondto, fs_nf0));
+    console.log("Impuestos: " + fs_round(total_iva, fs_nf0));
+    console.log("RE: " + fs_round(total_recargo, fs_nf0));
+    console.log("IRPF: " + fs_round(total_irpf, fs_nf0));
+    console.log("Total: " + fs_round(neto + total_iva - total_irpf + total_recargo, fs_nf0));
+   
+    // Descuentos de líneas del documento
+    Array.prototype.contains = function(elem) {
+        for (var i in this) {
+            if (this[i] == elem) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    if(show.contains(true)) {
+        dtosl = true;
+        $(".dtosl").show();
+    } else {
+        if (dtosl) {
+            dtosl = true;
+            $(".dtosl").show();
+        } else {
+            dtosl = false;
+            $(".dtosl").hide();
+        }
+    }
+    // Descuentos totales del documento
+    if (netosindto != netocondto || dtost) {
+        dtost = true;
+        $(".dtost").show();
+    } else {
+        dtost = false;
+        $(".dtost").hide();
+    }
 
     if (total_recargo == 0 && !cliente.recargo) {
         $(".recargo").hide();
@@ -211,6 +352,9 @@ function ajustar_neto(i)
     var l_uds = 0;
     var l_pvp = 0;
     var l_dto = 0;
+    var l_dto2 = 0;
+    var l_dto3 = 0;
+    var l_dto4 = 0;
     var l_neto = 0;
 
     if ($("#linea_" + i).length > 0) {
@@ -220,8 +364,17 @@ function ajustar_neto(i)
         }
 
         l_uds = parseFloat($("#cantidad_" + i).val());
+        if (isNaN(l_uds)) {
+            l_uds = 0;
+        }
         l_pvp = parseFloat($("#pvp_" + i).val());
+        if (isNaN(l_pvp)) {
+            l_pvp = 0;
+        }
         l_dto = parseFloat($("#dto_" + i).val());
+        l_dto2 = parseFloat($("#dto2_" + i).val());
+        l_dto3 = parseFloat($("#dto3_" + i).val());
+        l_dto4 = parseFloat($("#dto4_" + i).val());
         l_neto = parseFloat($("#neto_" + i).val());
         if (isNaN(l_neto)) {
             l_neto = 0;
@@ -235,7 +388,20 @@ function ajustar_neto(i)
                 l_dto = 0;
             }
 
-            l_dto = fs_round(l_dto, 2);
+            l_dto2 = l_dto2;
+            if (isNaN(l_dto2)) {
+                l_dto2 = 0;
+            }
+
+            l_dto3 = l_dto3;
+            if (isNaN(l_dto3)) {
+                l_dto3 = 0;
+            }
+
+            l_dto4 = l_dto4;
+            if (isNaN(l_dto4)) {
+                l_dto4 = 0;
+            }
         } else {
             l_dto = 0;
             l_pvp = 100 * l_neto / (l_uds * (100 - l_dto));
@@ -248,6 +414,9 @@ function ajustar_neto(i)
 
         $("#pvp_" + i).val(l_pvp);
         $("#dto_" + i).val(l_dto);
+        $("#dto2_" + i).val(l_dto2);
+        $("#dto3_" + i).val(l_dto3);
+        $("#dto4_" + i).val(l_dto4);
     }
 
     recalcular();
@@ -271,11 +440,41 @@ function ajustar_total(i)
         }
 
         l_uds = parseFloat($("#cantidad_" + i).val());
+        if (isNaN(l_uds)) {
+            l_uds = 0;
+        } else if (l_uds < 0) {
+            l_uds = Math.abs(l_uds);
+        }
         l_pvp = parseFloat($("#pvp_" + i).val());
+        if (isNaN(l_pvp)) {
+            l_pvp = 0;
+        } else if (l_pvp < 0) {
+            l_pvp = Math.abs(l_pvp);
+        }
         l_dto = parseFloat($("#dto_" + i).val());
+        if (isNaN(l_dto)) {
+            l_dto = 0;
+        } else if (l_dto < 0) {
+            l_dto = Math.abs(l_dto);
+        }
         l_iva = parseFloat($("#iva_" + i).val());
+        if (isNaN(l_iva)) {
+            l_iva = 0;
+        } else if (l_iva < 0) {
+            l_iva = Math.abs(l_iva);
+        }
         l_recargo = parseFloat($("#recargo_" + i).val());
+        if (isNaN(l_recargo)) {
+            l_recargo = 0;
+        } else if (l_recargo < 0) {
+            l_recargo = Math.abs(l_recargo);
+        }
         l_irpf = parseFloat($("#irpf_" + i).val());
+        if (isNaN(l_irpf)) {
+            l_irpf = 0;
+        } else if (l_irpf < 0) {
+            l_irpf = Math.abs(l_irpf);
+        }
 
         l_total = parseFloat($("#total_" + i).val());
         if (isNaN(l_total)) {
@@ -336,6 +535,17 @@ function ajustar_iva(num)
     recalcular();
 }
 
+function aux_all_dtos(dto2, dto3, dto4)
+{
+    var html = '<td class="dtosl"><input type="text" id="dto2_' + numlineas + '" name="dto2_' + numlineas + 
+        '" value="' + dto2 + '" class="form-control text-right" onkeyup="recalcular()" onclick="this.select()" autocomplete="off"/></td>';
+    html += '<td class="dtosl"><input type="text" id="dto3_' + numlineas + '" name="dto3_' + numlineas + 
+        '" value="' + dto3 + '" class="form-control text-right" onkeyup="recalcular()" onclick="this.select()" autocomplete="off"/></td>';
+    html += '<td class="dtosl"><input type="text" id="dto4_' + numlineas + '" name="dto4_' + numlineas + 
+        '" value="' + dto4 + '" class="form-control text-right" onkeyup="recalcular()" onclick="this.select()" autocomplete="off"/></td>';
+    return html;
+}
+
 function aux_all_impuestos(num, codimpuesto)
 {
     var iva = 0;
@@ -371,14 +581,14 @@ function aux_all_impuestos(num, codimpuesto)
     return html;
 }
 
-function add_articulo(ref, desc, pvp, dto, codimpuesto, cantidad, codcombinacion)
+function add_articulo(ref, desc, pvp, dto, codimpuesto, cantidad, codcombinacion, dto2 = 0, dto3 = 0, dto4 = 0)
 {
     if (typeof codcombinacion == 'undefined') {
         codcombinacion = '';
     }
 
     desc = Base64.decode(desc);
-    $("#lineas_albaran").append("<tr id=\"linea_" + numlineas + "\">\n\
+    $("#lineas_doc").append("<tr id=\"linea_" + numlineas + "\" data-ref=\"" + ref + "\">\n\
       <td><input type=\"hidden\" name=\"idlinea_" + numlineas + "\" value=\"-1\"/>\n\
          <input type=\"hidden\" name=\"referencia_" + numlineas + "\" value=\"" + ref + "\"/>\n\
          <input type=\"hidden\" name=\"codcombinacion_" + numlineas + "\" value=\"" + codcombinacion + "\"/>\n\
@@ -392,6 +602,7 @@ function add_articulo(ref, desc, pvp, dto, codimpuesto, cantidad, codcombinacion
             "\" onkeyup=\"recalcular()\" onclick=\"this.select()\" autocomplete=\"off\"/></td>\n\
       <td><input type=\"text\" id=\"dto_" + numlineas + "\" name=\"dto_" + numlineas + "\" value=\"" + dto +
             "\" class=\"form-control text-right\" onkeyup=\"recalcular()\" onchange=\"recalcular()\" onclick=\"this.select()\" autocomplete=\"off\"/></td>\n\
+    " + aux_all_dtos(dto2, dto3, dto4) + "\n\
       <td><input type=\"text\" class=\"form-control text-right\" id=\"neto_" + numlineas + "\" name=\"neto_" + numlineas +
             "\" onchange=\"ajustar_neto(" + numlineas + ")\" onclick=\"this.select()\" autocomplete=\"off\"/></td>\n\
       " + aux_all_impuestos(numlineas, codimpuesto) + "\n\
@@ -433,7 +644,7 @@ function add_articulo_atributos(ref, desc, pvp, dto, codimpuesto, cantidad)
 
 function add_linea_libre()
 {
-    $("#lineas_albaran").append("<tr id=\"linea_" + numlineas + "\">\n\
+    $("#lineas_doc").append("<tr id=\"linea_" + numlineas + "\" data-ref=\"\" >\n\
       <td><input type=\"hidden\" name=\"idlinea_" + numlineas + "\" value=\"-1\"/>\n\
          <input type=\"hidden\" name=\"referencia_" + numlineas + "\"/>\n\
          <input type=\"hidden\" name=\"codcombinacion_" + numlineas + "\"/>\n\
@@ -447,6 +658,7 @@ function add_linea_libre()
           onkeyup=\"recalcular()\" onclick=\"this.select()\" autocomplete=\"off\"/></td>\n\
       <td><input type=\"text\" id=\"dto_" + numlineas + "\" name=\"dto_" + numlineas + "\" value=\"0\" class=\"form-control text-right\"\n\
           onkeyup=\"recalcular()\" onclick=\"this.select()\" autocomplete=\"off\"/></td>\n\
+      " + aux_all_dtos() + "\n\
       <td><input type=\"text\" class=\"form-control text-right\" id=\"neto_" + numlineas + "\" name=\"neto_" + numlineas +
             "\" onchange=\"ajustar_neto(" + numlineas + ")\" onclick=\"this.select()\" autocomplete=\"off\"/></td>\n\
       " + aux_all_impuestos(numlineas, default_impuesto) + "\n\
@@ -629,7 +841,54 @@ function show_pvp_iva(pvp, codimpuesto, coddivisa)
     return show_precio(pvp + pvp * iva / 100, coddivisa);
 }
 
+/**
+ * Devuelve el escalar del descuento unificado equivalente
+ * Por ejemplo: recibe descuentos = [50, 10] y devuelve 0.45
+ * 
+ * @param Array descuentos
+ * @return float
+ */
+function calc_due(descuentos)
+{
+    return (1 - calc_desc_due(descuentos) / 100);
+}
+
+/**
+ * Devuelve el descuento unificado equivalente
+ * Por ejemplo: recibe descuentos = [50, 10] y devuelve 55
+ * 
+ * @param Array descuentos
+ * @return float
+ */
+function calc_desc_due(descuentos)
+{
+    var dto = 1;
+    for (var i = 0; i < descuentos.length; ++i){
+        if (descuentos[i] == 0) {
+            dto *= 1
+        } else {
+            dto *= (1 - descuentos[i] / 100);
+        }
+        
+    }
+    return (1 - dto) * 100;
+}
+
 $(document).ready(function () {
+    /**
+     * Renombramos el id "lineas_albaran" a "lineas_doc", para asegurar que no deja de funcionar
+     * hasta que todos los plugins gratuitos y de pago hayan aplicado el cambio.
+     */
+    $("#lineas_albaran").attr('id', 'lineas_doc');
+
+    show = false;
+    if(!show) {
+        dtosl = false;
+        $('.dtosl').hide();
+    } else {
+        dtosl = true;
+        $('.dtosl').show();
+    }
     $("#i_new_line").click(function () {
         $("#i_new_line").val("");
         $("#nav_articulos li").each(function () {

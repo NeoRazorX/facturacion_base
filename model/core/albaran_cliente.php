@@ -2,6 +2,7 @@
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2017       Francesc Pineda Segarra  shawe.ewahs@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -41,7 +42,7 @@ class albaran_cliente extends \fs_model
     public $idfactura;
 
     /**
-     * Identificador único de cara a humanos.
+     * Código identificador único. Para humanos.
      * @var string
      */
     public $codigo;
@@ -59,25 +60,25 @@ class albaran_cliente extends \fs_model
     public $codejercicio;
 
     /**
-     * Cliente del albarán.
+     * Código del cliente del albarán.
      * @var string
      */
     public $codcliente;
 
     /**
-     * Empleado que ha creado este albarán. Modelo agente.
+     * Empleado que ha creado este albarán.
      * @var string
      */
     public $codagente;
 
     /**
-     * Forma de pago de este albarán.
+     * Forma de pago asociada.
      * @var string
      */
     public $codpago;
 
     /**
-     * Divisa de este albarán.
+     * Divisa del albarán.
      * @var string
      */
     public $coddivisa;
@@ -95,7 +96,8 @@ class albaran_cliente extends \fs_model
     public $codpais;
 
     /**
-     * ID de la dirección del cliente. Modelo direccion_cliente.
+     * ID de la dirección del cliente.
+     * Modelo direccion_cliente.
      * @var string
      */
     public $coddir;
@@ -107,8 +109,8 @@ class albaran_cliente extends \fs_model
     public $codpostal;
 
     /**
-     * Número de albarán.
-     * Es único dentro de la serie+ejercicio.
+     * Número del albarán.
+     * Único dentro de la serie+ejercicio.
      * @var string
      */
     public $numero;
@@ -118,41 +120,108 @@ class albaran_cliente extends \fs_model
      * @var string
      */
     public $numero2;
-    public $nombrecliente;
-    public $cifnif;
-    public $direccion;
-    public $ciudad;
-    public $provincia;
-    public $apartado;
-    public $fecha;
-    public $hora;
-    /// datos de transporte
-    public $envio_codtrans;
-    public $envio_codigo;
-    public $envio_nombre;
-    public $envio_apellidos;
-    public $envio_apartado;
-    public $envio_direccion;
-    public $envio_codpostal;
-    public $envio_ciudad;
-    public $envio_provincia;
-    public $envio_codpais;
 
     /**
-     * Suma del pvptotal de líneas. Total del albarán antes de impuestos.
-     * @var double
+     * TODO
+     * @var
+     */
+    public $nombrecliente;
+
+    /**
+     * TODO
+     * @var
+     */
+    public $cifnif;
+
+    /**
+     * TODO
+     * @var
+     */
+    public $direccion;
+
+    /**
+     * TODO
+     * @var
+     */
+    public $ciudad;
+
+    /**
+     * TODO
+     * @var
+     */
+    public $provincia;
+
+    /**
+     * TODO
+     * @var
+     */
+    public $apartado;
+
+    /**
+     * TODO
+     * @var
+     */
+    public $fecha;
+
+    /**
+     * TODO
+     * @var
+     */
+    public $hora;
+
+    /**
+     * Importe total antes de descuentos e impuestos.
+     * Es la suma del pvptotal de las líneas.
+     * @var float
+     */
+    public $netosindto;
+
+    /**
+     * Importe total antes de impuestos.
+     * Es la suma del pvptotal de las líneas.
+     * @var float
      */
     public $neto;
 
     /**
+     * Descuento porcentual 1
+     * @var float
+     */
+    public $dtopor1;
+    
+    /**
+     * Descuento porcentual 2
+     * @var float
+     */
+    public $dtopor2;
+    
+    /**
+     * Descuento porcentual 3
+     * @var float
+     */
+    public $dtopor3;
+    
+    /**
+     * Descuento porcentual 4
+     * @var float
+     */
+    public $dtopor4;
+    
+    /**
+     * Descuento porcentual 5
+     * @var float
+     */
+    public $dtopor5;
+
+    /**
      * Importe total del albarán, con impuestos.
-     * @var double
+     * @var float
      */
     public $total;
 
     /**
      * Suma total del IVA de las líneas.
-     * @var double
+     * @var float
      */
     public $totaliva;
 
@@ -160,40 +229,45 @@ class albaran_cliente extends \fs_model
      * Total expresado en euros, por si no fuese la divisa del albarán.
      * totaleuros = total/tasaconv
      * No hace falta rellenarlo, al hacer save() se calcula el valor.
-     * @var double
+     * @var float
      */
     public $totaleuros;
 
     /**
      * % de retención IRPF del albarán. Se obtiene de la serie.
      * Cada línea puede tener un % distinto.
-     * @var double
+     * @var float
      */
     public $irpf;
 
     /**
      * Suma total de las retenciones IRPF de las líneas.
-     * @var double
+     * @var float
      */
     public $totalirpf;
 
     /**
-     * % de comisión del empleado.
-     * @var double
+     * % de comisión del empleado (agente).
+     * @var float
      */
     public $porcomision;
 
     /**
      * Tasa de conversión a Euros de la divisa seleccionada.
-     * @var double
+     * @var float
      */
     public $tasaconv;
 
     /**
      * Suma total del recargo de equivalencia de las líneas.
-     * @var double
+     * @var float
      */
     public $totalrecargo;
+
+    /**
+     * Observaciones del pedido
+     * @var float
+     */
     public $observaciones;
 
     /**
@@ -207,6 +281,68 @@ class albaran_cliente extends \fs_model
      * @var string 
      */
     public $femail;
+
+    /// datos de transporte
+
+    /**
+     * TODO
+     * @var
+     */
+    public $envio_codtrans;
+
+    /**
+     * TODO
+     * @var
+     */
+    public $envio_codigo;
+
+    /**
+     * TODO
+     * @var
+     */
+    public $envio_nombre;
+
+    /**
+     * TODO
+     * @var
+     */
+    public $envio_apellidos;
+
+    /**
+     * TODO
+     * @var
+     */
+    public $envio_apartado;
+
+    /**
+     * TODO
+     * @var
+     */
+    public $envio_direccion;
+
+    /**
+     * TODO
+     * @var
+     */
+    public $envio_codpostal;
+
+    /**
+     * TODO
+     * @var
+     */
+    public $envio_ciudad;
+
+    /**
+     * TODO
+     * @var
+     */
+    public $envio_provincia;
+
+    /**
+     * TODO
+     * @var
+     */
+    public $envio_codpais;
 
     /**
      * Número de documentos adjuntos.
@@ -257,7 +393,13 @@ class albaran_cliente extends \fs_model
                 $this->hora = date('H:i:s', strtotime($data['hora']));
             }
 
+            $this->netosindto = isset($data['netosindto']) ? floatval($data['netosindto']) : 0.0;
             $this->neto = floatval($data['neto']);
+            $this->dtopor1 = isset($data['dtopor1']) ? floatval($data['dtopor1']) : 0.0;
+            $this->dtopor2 = isset($data['dtopor2']) ? floatval($data['dtopor2']) : 0.0;
+            $this->dtopor3 = isset($data['dtopor3']) ? floatval($data['dtopor3']) : 0.0;
+            $this->dtopor4 = isset($data['dtopor4']) ? floatval($data['dtopor4']) : 0.0;
+            $this->dtopor5 = isset($data['dtopor5']) ? floatval($data['dtopor5']) : 0.0;
             $this->total = floatval($data['total']);
             $this->totaliva = floatval($data['totaliva']);
             $this->totaleuros = floatval($data['totaleuros']);
@@ -309,7 +451,13 @@ class albaran_cliente extends \fs_model
             $this->apartado = NULL;
             $this->fecha = Date('d-m-Y');
             $this->hora = Date('H:i:s');
+            $this->netosindto = 0.0;
             $this->neto = 0.0;
+            $this->dtopor1 = 0.0;
+            $this->dtopor2 = 0.0;
+            $this->dtopor3 = 0.0;
+            $this->dtopor4 = 0.0;
+            $this->dtopor5 = 0.0;
             $this->total = 0.0;
             $this->totaliva = 0.0;
             $this->totaleuros = 0.0;
@@ -505,41 +653,67 @@ class albaran_cliente extends \fs_model
         $status = TRUE;
 
         /// comprobamos las líneas
+        $netos = array();
+        $netosindto = 0;
+        $netocondto = 0;
+        $subtotal = 0;
         $neto = 0;
         $iva = 0;
         $irpf = 0;
         $recargo = 0;
+        $total = 0;
+        
+        // Descuento total adicional del total del documento
+        $t_dto_due = (1-((1-$this->dtopor1/100)*(1-$this->dtopor2/100)*(1-$this->dtopor3/100)*(1-$this->dtopor4/100)*(1-$this->dtopor5/100)))*100;
+        $due_totales = (1-$t_dto_due/100);
+            
         foreach ($this->get_lineas() as $l) {
             if (!$l->test()) {
                 $status = FALSE;
             }
-
-            $neto += $l->pvptotal;
-            $iva += $l->pvptotal * $l->iva / 100;
-            $irpf += $l->pvptotal * $l->irpf / 100;
-            $recargo += $l->pvptotal * $l->recargo / 100;
+            $codimpuesto = ($l->codimpuesto === null ) ? 0 : $l->codimpuesto;
+            if (!array_key_exists($codimpuesto, $netos)) {
+                $netos[$codimpuesto] = array(
+                    'subtotal' => 0,    // Subtotal (Sumatorio de netos de línea)
+                    'base' => 0,        // Base imponible
+                    'iva' => 0,         // Total IVA
+                    'irpf' => 0,        // Total IRPF
+                    'recargo' => 0      // Total Recargo
+                );
+            }
+            // Acumulamos por tipos de IVAs, que es el desglose de pie de página
+            $netosindto = $l->pvptotal;                 // Precio neto por línea
+            $netocondto = $netosindto * $due_totales;   // Precio neto - % desc sobre total
+            $netos[$codimpuesto]['subtotal'] += $netosindto;
+            $netos[$codimpuesto]['base'] += $netocondto;
+            $netos[$codimpuesto]['iva'] += $netocondto * ($l->iva / 100);
+            $netos[$codimpuesto]['irpf'] += $netocondto * ($this->irpf / 100);
+            $netos[$codimpuesto]['recargo'] += $netocondto * ($l->recargo / 100);
         }
 
-        $neto = round($neto, FS_NF0);
-        $iva = round($iva, FS_NF0);
-        $irpf = round($irpf, FS_NF0);
-        $recargo = round($recargo, FS_NF0);
-        $total = $neto + $iva - $irpf + $recargo;
+        foreach ($netos as $codimp => $ne) {
+            $subtotal += $ne['subtotal'];               // Subtotal (Sumatorio de netos de línea)
+            $neto += $ne['base'];                       // Sumatorio de bases imponibles
+            $iva += $ne['iva'];                         // Sumatorio de IVAs
+            $irpf += $ne['irpf'];                       // Sumatorio de IRPFs
+            $recargo += $ne['recargo'];                 // Sumatorio de REs
+            $total = $neto + $iva - $irpf + $recargo;   // Sumatorio del total
+        }
 
         if (!$this->floatcmp($this->neto, $neto, FS_NF0, TRUE)) {
-            $this->new_error_msg("Valor neto del " . FS_ALBARAN . ' ' . $this->codigo . " incorrecto. Valor correcto: " . $neto);
+            $this->new_error_msg("Valor neto del " . FS_ALBARAN . ' ' . $this->codigo . " incorrecto. Valor correcto: " . $neto . " y tiene el valor " . $this->neto);
             $status = FALSE;
-        } else if (!$this->floatcmp($this->totaliva, $iva, FS_NF0, TRUE)) {
-            $this->new_error_msg("Valor totaliva del " . FS_ALBARAN . ' ' . $this->codigo . " incorrecto. Valor correcto: " . $iva);
+        } elseif (!$this->floatcmp($this->totaliva, $iva, FS_NF0, TRUE)) {
+            $this->new_error_msg("Valor totaliva del " . FS_ALBARAN . ' ' . $this->codigo . " incorrecto. Valor correcto: " . $iva . " y tiene el valor " . $this->totaliva);
             $status = FALSE;
-        } else if (!$this->floatcmp($this->totalirpf, $irpf, FS_NF0, TRUE)) {
-            $this->new_error_msg("Valor totalirpf del " . FS_ALBARAN . ' ' . $this->codigo . " incorrecto. Valor correcto: " . $irpf);
+        } elseif (!$this->floatcmp($this->totalirpf, $irpf, FS_NF0, TRUE)) {
+            $this->new_error_msg("Valor totalirpf del " . FS_ALBARAN . ' ' . $this->codigo . " incorrecto. Valor correcto: " . $irpf . " y tiene el valor " . $this->totalirpf);
             $status = FALSE;
-        } else if (!$this->floatcmp($this->totalrecargo, $recargo, FS_NF0, TRUE)) {
-            $this->new_error_msg("Valor totalrecargo del " . FS_ALBARAN . ' ' . $this->codigo . " incorrecto. Valor correcto: " . $recargo);
+        } elseif (!$this->floatcmp($this->totalrecargo, $recargo, FS_NF0, TRUE)) {
+            $this->new_error_msg("Valor totalrecargo del " . FS_ALBARAN . ' ' . $this->codigo . " incorrecto. Valor correcto: " . $recargo . " y tiene el valor " . $this->totalrecargo);
             $status = FALSE;
-        } else if (!$this->floatcmp($this->total, $total, FS_NF0, TRUE)) {
-            $this->new_error_msg("Valor total del " . FS_ALBARAN . ' ' . $this->codigo . " incorrecto. Valor correcto: " . $total);
+        } elseif (!$this->floatcmp($this->total, $total, FS_NF0, TRUE)) {
+            $this->new_error_msg("Valor total del " . FS_ALBARAN . ' ' . $this->codigo . " incorrecto. Valor correcto: " . $total . " y tiene el valor " . $this->total);
             $status = FALSE;
         }
 
@@ -607,39 +781,45 @@ class albaran_cliente extends \fs_model
     {
         if ($this->test()) {
             if ($this->exists()) {
-                $sql = "UPDATE " . $this->table_name . " SET idfactura = " . $this->var2str($this->idfactura)
-                    . ", codigo = " . $this->var2str($this->codigo)
-                    . ", codagente = " . $this->var2str($this->codagente)
-                    . ", codserie = " . $this->var2str($this->codserie)
-                    . ", codejercicio = " . $this->var2str($this->codejercicio)
-                    . ", codcliente = " . $this->var2str($this->codcliente)
-                    . ", codpago = " . $this->var2str($this->codpago)
-                    . ", coddivisa = " . $this->var2str($this->coddivisa)
-                    . ", codalmacen = " . $this->var2str($this->codalmacen)
-                    . ", codpais = " . $this->var2str($this->codpais)
-                    . ", coddir = " . $this->var2str($this->coddir)
-                    . ", codpostal = " . $this->var2str($this->codpostal)
-                    . ", numero = " . $this->var2str($this->numero)
-                    . ", numero2 = " . $this->var2str($this->numero2)
-                    . ", nombrecliente = " . $this->var2str($this->nombrecliente)
+                $sql = "UPDATE " . $this->table_name . " SET apartado = " . $this->var2str($this->apartado)
                     . ", cifnif = " . $this->var2str($this->cifnif)
-                    . ", direccion = " . $this->var2str($this->direccion)
                     . ", ciudad = " . $this->var2str($this->ciudad)
-                    . ", provincia = " . $this->var2str($this->provincia)
-                    . ", apartado = " . $this->var2str($this->apartado)
+                    . ", codagente = " . $this->var2str($this->codagente)
+                    . ", codalmacen = " . $this->var2str($this->codalmacen)
+                    . ", codcliente = " . $this->var2str($this->codcliente)
+                    . ", coddir = " . $this->var2str($this->coddir)
+                    . ", coddivisa = " . $this->var2str($this->coddivisa)
+                    . ", codejercicio = " . $this->var2str($this->codejercicio)
+                    . ", codigo = " . $this->var2str($this->codigo)
+                    . ", codpago = " . $this->var2str($this->codpago)
+                    . ", codpais = " . $this->var2str($this->codpais)
+                    . ", codpostal = " . $this->var2str($this->codpostal)
+                    . ", codserie = " . $this->var2str($this->codserie)
+                    . ", direccion = " . $this->var2str($this->direccion)
                     . ", fecha = " . $this->var2str($this->fecha)
                     . ", hora = " . $this->var2str($this->hora)
-                    . ", neto = " . $this->var2str($this->neto)
-                    . ", total = " . $this->var2str($this->total)
-                    . ", totaliva = " . $this->var2str($this->totaliva)
-                    . ", totaleuros = " . $this->var2str($this->totaleuros)
+                    . ", idfactura = " . $this->var2str($this->idfactura)
                     . ", irpf = " . $this->var2str($this->irpf)
-                    . ", totalirpf = " . $this->var2str($this->totalirpf)
-                    . ", porcomision = " . $this->var2str($this->porcomision)
-                    . ", tasaconv = " . $this->var2str($this->tasaconv)
-                    . ", totalrecargo = " . $this->var2str($this->totalrecargo)
+                    . ", netosindto = " . $this->var2str($this->netosindto)
+                    . ", neto = " . $this->var2str($this->neto)
+                    . ", dtopor1 = " . $this->var2str($this->dtopor1)
+                    . ", dtopor2 = " . $this->var2str($this->dtopor2)
+                    . ", dtopor3 = " . $this->var2str($this->dtopor3)
+                    . ", dtopor4 = " . $this->var2str($this->dtopor4)
+                    . ", dtopor5 = " . $this->var2str($this->dtopor5)
+                    . ", nombrecliente = " . $this->var2str($this->nombrecliente)
+                    . ", numero = " . $this->var2str($this->numero)
+                    . ", numero2 = " . $this->var2str($this->numero2)
                     . ", observaciones = " . $this->var2str($this->observaciones)
+                    . ", porcomision = " . $this->var2str($this->porcomision)
+                    . ", provincia = " . $this->var2str($this->provincia)
+                    . ", tasaconv = " . $this->var2str($this->tasaconv)
                     . ", ptefactura = " . $this->var2str($this->ptefactura)
+                    . ", total = " . $this->var2str($this->total)
+                    . ", totaleuros = " . $this->var2str($this->totaleuros)
+                    . ", totalirpf = " . $this->var2str($this->totalirpf)
+                    . ", totaliva = " . $this->var2str($this->totaliva)
+                    . ", totalrecargo = " . $this->var2str($this->totalrecargo)
                     . ", femail = " . $this->var2str($this->femail)
                     . ", codtrans = " . $this->var2str($this->envio_codtrans)
                     . ", codigoenv = " . $this->var2str($this->envio_codigo)
@@ -661,7 +841,7 @@ class albaran_cliente extends \fs_model
             $sql = "INSERT INTO " . $this->table_name . " (idfactura,codigo,codagente,
                codserie,codejercicio,codcliente,codpago,coddivisa,codalmacen,codpais,coddir,
                codpostal,numero,numero2,nombrecliente,cifnif,direccion,ciudad,provincia,apartado,
-               fecha,hora,neto,total,totaliva,totaleuros,irpf,totalirpf,porcomision,tasaconv,
+               fecha,hora,netosindto,neto,dtopor1,dtopor2,dtopor3,dtopor4,dtopor5,total,totaliva,totaleuros,irpf,totalirpf,porcomision,tasaconv,
                totalrecargo,observaciones,ptefactura,femail,codtrans,codigoenv,nombreenv,apellidosenv,
                apartadoenv,direccionenv,codpostalenv,ciudadenv,provinciaenv,codpaisenv,numdocs) VALUES "
                 . "(" . $this->var2str($this->idfactura)
@@ -686,7 +866,13 @@ class albaran_cliente extends \fs_model
                 . "," . $this->var2str($this->apartado)
                 . "," . $this->var2str($this->fecha)
                 . "," . $this->var2str($this->hora)
+                . "," . $this->var2str($this->netosindto)
                 . "," . $this->var2str($this->neto)
+                . "," . $this->var2str($this->dtopor1)
+                . "," . $this->var2str($this->dtopor2)
+                . "," . $this->var2str($this->dtopor3)
+                . "," . $this->var2str($this->dtopor4)
+                . "," . $this->var2str($this->dtopor5)
                 . "," . $this->var2str($this->total)
                 . "," . $this->var2str($this->totaliva)
                 . "," . $this->var2str($this->totaleuros)
@@ -719,6 +905,11 @@ class albaran_cliente extends \fs_model
         return FALSE;
     }
 
+    /**
+     * Elimina el albarán de la base de datos.
+     * Devuelve FALSE en caso de fallo.
+     * @return boolean
+     */
     public function delete()
     {
         if ($this->db->exec("DELETE FROM " . $this->table_name . " WHERE idalbaran = " . $this->var2str($this->idalbaran) . ";")) {
@@ -742,7 +933,7 @@ class albaran_cliente extends \fs_model
     }
 
     /**
-     * Devuelve un array con los últimos albaranes
+     * Devuelve un array con los últimos albaranes de venta
      * @param integer $offset
      * @param string $order
      * @return \albaran_cliente
@@ -750,6 +941,7 @@ class albaran_cliente extends \fs_model
     public function all($offset = 0, $order = 'fecha DESC', $limit = FS_ITEM_LIMIT)
     {
         $sql = "SELECT * FROM " . $this->table_name . " ORDER BY " . $order;
+
         $data = $this->db->select_limit($sql, $limit, $offset);
         return $this->all_from_data($data);
     }
@@ -768,7 +960,7 @@ class albaran_cliente extends \fs_model
     }
 
     /**
-     * Devuelve un array con los albaranes del cliente.
+     * Devuelve un array con los albaranes del cliente $codcliente.
      * @param string $codcliente
      * @param integer $offset
      * @return \albaran_cliente
@@ -827,7 +1019,7 @@ class albaran_cliente extends \fs_model
     }
 
     /**
-     * Devuelve un array con todos los albaranes que coinciden con $query
+     * Devuelve un array con los albaranes que coinciden con $query
      * @param string $query
      * @param integer $offset
      * @return \albaran_cliente
@@ -903,5 +1095,7 @@ class albaran_cliente extends \fs_model
          */
         $this->db->exec("UPDATE " . $this->table_name . " SET idfactura = NULL WHERE idfactura IS NOT NULL"
             . " AND idfactura NOT IN (SELECT idfactura FROM facturascli);");
+        /// asignamos netosindto a neto a todos los que estén a 0
+        $this->db->exec("UPDATE " . $this->table_name . " SET netosindto = neto WHERE netosindto = 0;");
     }
 }

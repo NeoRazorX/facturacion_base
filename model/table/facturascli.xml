@@ -154,11 +154,19 @@
         <nombre>irpf</nombre>
         <tipo>double precision</tipo>
         <nulo>NO</nulo>
+        <defecto>0</defecto>
+    </columna>
+    <columna>
+        <nombre>netosindto</nombre>
+        <tipo>double precision</tipo>
+        <nulo>NO</nulo>
+        <defecto>0</defecto>
     </columna>
     <columna>
         <nombre>neto</nombre>
         <tipo>double precision</tipo>
         <nulo>NO</nulo>
+        <defecto>0</defecto>
     </columna>
     <columna>
         <nombre>nogenerarasiento</nombre>
@@ -214,26 +222,31 @@
         <nombre>tasaconv</nombre>
         <tipo>double precision</tipo>
         <nulo>NO</nulo>
+        <defecto>1</defecto>
     </columna>
     <columna>
         <nombre>total</nombre>
         <tipo>double precision</tipo>
         <nulo>NO</nulo>
+        <defecto>0</defecto>
     </columna>
     <columna>
         <nombre>totaleuros</nombre>
         <tipo>double precision</tipo>
         <nulo>NO</nulo>
+        <defecto>0</defecto>
     </columna>
     <columna>
         <nombre>totalirpf</nombre>
         <tipo>double precision</tipo>
         <nulo>NO</nulo>
+        <defecto>0</defecto>
     </columna>
     <columna>
         <nombre>totaliva</nombre>
         <tipo>double precision</tipo>
         <nulo>NO</nulo>
+        <defecto>0</defecto>
     </columna>
     <columna>
         <nombre>totalrecargo</nombre>
@@ -296,6 +309,36 @@
     <columna>
         <nombre>numdocs</nombre>
         <tipo>integer</tipo>
+        <defecto>0</defecto>
+    </columna>
+    <columna>
+        <nombre>dtopor1</nombre>
+        <tipo>double precision</tipo>
+        <nulo>NO</nulo>
+        <defecto>0</defecto>
+    </columna>
+    <columna>
+        <nombre>dtopor2</nombre>
+        <tipo>double precision</tipo>
+        <nulo>NO</nulo>
+        <defecto>0</defecto>
+    </columna>
+    <columna>
+        <nombre>dtopor3</nombre>
+        <tipo>double precision</tipo>
+        <nulo>NO</nulo>
+        <defecto>0</defecto>
+    </columna>
+    <columna>
+        <nombre>dtopor4</nombre>
+        <tipo>double precision</tipo>
+        <nulo>NO</nulo>
+        <defecto>0</defecto>
+    </columna>
+    <columna>
+        <nombre>dtopor5</nombre>
+        <tipo>double precision</tipo>
+        <nulo>NO</nulo>
         <defecto>0</defecto>
     </columna>
     <restriccion>
