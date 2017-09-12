@@ -1,0 +1,50 @@
+<div class="table-responsive">
+    <table class="table table-condensed">
+        <thead>
+            <tr>
+                <th class="text-left" width="180">Referencia</th>
+                <th class="text-left">Descripción</th>
+                <th class="text-right" width="90">Cantidad</th>
+                <th width="50"></th>
+                <th class="text-right" width="110">Precio</th>
+                <th class="text-right" width="90">Dto. %</th>
+                <th class="text-right" width="130">Neto</th>
+                <th class="text-right" width="115">{#FS_IVA#}</th>
+                <th class="text-right recargo" width="115">RE %</th>
+                <th class="text-right irpf" width="115">{#FS_IRPF#} %</th>
+                <th class="text-right" width="140">Total</th>
+            </tr>
+        </thead>
+        <tbody id="lineas_doc"></tbody>
+        <tbody>
+            <tr class="info">
+                <td>
+                    <input id="i_new_line" class="form-control" type="text" placeholder="Buscar para añadir..." autocomplete="off"/>
+                </td>
+                <td colspan="3">
+                    <a href="#" class="btn btn-sm btn-default" title="Añadir sin buscar" onclick="return add_linea_libre()">
+                        <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+                    </a>
+                </td>
+                <td colspan="2">
+                    <div class="form-control text-right">Totales</div>
+                </td>
+                <td>
+                    <div id="aneto" class="form-control text-right" style="font-weight: bold;">{$fsc->show_numero(0)}</div>
+                </td>
+                <td>
+                    <div id="aiva" class="form-control text-right" style="font-weight: bold;">{$fsc->show_numero(0)}</div>
+                </td>
+                <td class="recargo">
+                    <div id="are" class="form-control text-right" style="font-weight: bold;">{$fsc->show_numero(0)}</div>
+                </td>
+                <td class="irpf">
+                    <div id="airpf" class="form-control text-right" style="font-weight: bold;">{$fsc->show_numero(0)}</div>
+                </td>
+                <td>
+                    <input type="text" name="atotal" id="atotal" class="form-control text-right" style="font-weight: bold;" value="0" onchange="recalcular()" autocomplete="off"/>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>

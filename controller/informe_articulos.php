@@ -338,12 +338,18 @@ class informe_articulos extends fbase_controller
         $toplist = $this->cache->get_array('top_articulos_sin_vender');
         if (!$toplist) {
             $articulo = new articulo();
-            $sql = "SELECT * FROM articulos WHERE sevende = true"
-                . " AND bloqueado = false AND stockfis > 0 AND referencia NOT IN "
-                . "(SELECT DISTINCT(referencia) FROM lineasfacturascli WHERE referencia IS NOT NULL"
-                . " AND idfactura IN (SELECT idfactura FROM facturascli"
-                . " WHERE fecha >= " . $articulo->var2str(Date('1-1-Y')) . "))"
-                . " ORDER BY stockfis DESC";
+            $sql = "select * from (select a.*"
+                . " from "
+                . " articulos a "
+                . " left join (select lf.referencia"
+                . " from lineasfacturascli lf, facturascli f"
+                . " where"
+                . " lf.idfactura=f.idfactura and"
+                . " lf.referencia is not null and"
+                . " f.fecha >= " . $articulo->var2str(Date('1-1-Y'))
+                . " group by lf.referencia) as f1 on a.referencia=f1.referencia"
+                . " where"
+                . " f1.referencia is null order by a.stockfis desc) a";
 
             $lineas = $this->db->select_limit($sql, FS_ITEM_LIMIT, 0);
             if ($lineas) {
