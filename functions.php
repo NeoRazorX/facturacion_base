@@ -256,20 +256,18 @@ if (!function_exists('fs_generar_numero2')) {
      */
     function fs_generar_numero2(&$documento)
     {
-        $tipo_documento = \get_class($documento);
+        $tipo_documento = get_class($documento);
         $campo = 'numero2';
         if (substr($tipo_documento, -(strlen('proveedor'))) === 'proveedor') {
             $campo = 'numproveedor';
         }
 
-        $numero2 = \filter_input(INPUT_POST, $campo);
-        if (\filter_input(INPUT_GET, $campo)) {
-            $numero2 = \filter_input(INPUT_GET, $campo);
+        $numero2 = filter_input(INPUT_POST, $campo);
+        if (filter_input(INPUT_GET, $campo)) {
+            $numero2 = filter_input(INPUT_GET, $campo);
         }
 
-        if (empty($documento->$campo) && !empty($numero2)) {
-            $documento->$campo = $numero2;
-        }
+        $documento->$campo = $numero2;
     }
 }
 
