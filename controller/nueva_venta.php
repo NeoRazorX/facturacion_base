@@ -604,6 +604,7 @@ class nueva_venta extends fbase_controller
 
                         $linea->irpf = floatval($_POST['irpf_' . $i]);
                         $linea->pvpunitario = floatval($_POST['pvp_' . $i]);
+                        $linea->orden = $i;
                         $linea->cantidad = floatval($_POST['cantidad_' . $i]);
                         $linea->dtopor = floatval($_POST['dto_' . $i]);
                         $linea->dtopor2 = floatval($_POST['dto2_' . $i]);
@@ -848,6 +849,7 @@ class nueva_venta extends fbase_controller
 
                         $linea->irpf = floatval($_POST['irpf_' . $i]);
                         $linea->pvpunitario = floatval($_POST['pvp_' . $i]);
+                        $linea->orden = $i;
                         $linea->cantidad = floatval($_POST['cantidad_' . $i]);
                         $linea->dtopor = floatval($_POST['dto_' . $i]);
                         $linea->dtopor2 = floatval($_POST['dto2_' . $i]);
@@ -1111,6 +1113,7 @@ class nueva_venta extends fbase_controller
 
                         $linea->irpf = floatval($_POST['irpf_' . $i]);
                         $linea->pvpunitario = floatval($_POST['pvp_' . $i]);
+                        $linea->orden = $i;
                         $linea->cantidad = floatval($_POST['cantidad_' . $i]);
                         $linea->dtopor = floatval($_POST['dto_' . $i]);
                         $linea->dtopor2 = floatval($_POST['dto2_' . $i]);
@@ -1309,6 +1312,7 @@ class nueva_venta extends fbase_controller
 
                         $linea->irpf = floatval($_POST['irpf_' . $i]);
                         $linea->pvpunitario = floatval($_POST['pvp_' . $i]);
+                        $linea->orden = $i;
                         $linea->cantidad = floatval($_POST['cantidad_' . $i]);
                         $linea->dtopor = floatval($_POST['dto_' . $i]);
                         $linea->dtopor2 = floatval($_POST['dto2_' . $i]);
