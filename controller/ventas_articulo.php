@@ -153,10 +153,9 @@ class ventas_articulo extends fbase_controller
         $this->hay_atributos = FALSE;
         $this->mostrar_tab_atributos = FALSE;
         $atri0 = new atributo();
-        foreach ($atri0->all() as $atributo) {
+        if (count($atri0->all()) > 0) {
             $this->mostrar_tab_atributos = TRUE;
             $this->hay_atributos = TRUE;
-            break;
         }
 
         /**
@@ -254,7 +253,7 @@ class ventas_articulo extends fbase_controller
                 $nstock->codalmacen = $_POST['almacen'];
                 $nstock->ubicacion = $_POST['ubicacion'];
                 $nstock->nombre();
-                
+
                 if ($nstock->save()) {
                     $this->new_message('Cambios guardados correctamente.');
                 }

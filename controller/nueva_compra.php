@@ -378,26 +378,7 @@ class nueva_compra extends fbase_controller
         }
 
         if ($continuar) {
-            $pedido->fecha = $_POST['fecha'];
-            $pedido->hora = $_POST['hora'];
-            $pedido->codproveedor = $proveedor->codproveedor;
-            $pedido->nombre = $_POST['nombre'];
-            $pedido->cifnif = $_POST['cifnif'];
-            $pedido->codalmacen = $almacen->codalmacen;
-            $pedido->codejercicio = $ejercicio->codejercicio;
-            $pedido->codserie = $serie->codserie;
-            $pedido->codpago = $forma_pago->codpago;
-            $pedido->coddivisa = $divisa->coddivisa;
-            $pedido->tasaconv = $divisa->tasaconv_compra;
-
-            if ($_POST['tasaconv'] != '') {
-                $pedido->tasaconv = floatval($_POST['tasaconv']);
-            }
-
-            $pedido->codagente = $this->agente->codagente;
-            $pedido->observaciones = $_POST['observaciones'];
-
-            fs_generar_numero2($pedido);
+            $this->nuevo_documento($pedido, $proveedor, $almacen, $ejercicio, $serie, $forma_pago, $divisa);
 
             if ($pedido->save()) {
                 $art0 = new articulo();
@@ -406,26 +387,7 @@ class nueva_compra extends fbase_controller
                     if (isset($_POST['referencia_' . $i])) {
                         $linea = new linea_pedido_proveedor();
                         $linea->idpedido = $pedido->idpedido;
-                        $linea->descripcion = $_POST['desc_' . $i];
-
-                        if (!$serie->siniva && $proveedor->regimeniva != 'Exento') {
-                            $imp0 = $this->impuesto->get_by_iva($_POST['iva_' . $i]);
-                            if ($imp0) {
-                                $linea->codimpuesto = $imp0->codimpuesto;
-                                $linea->iva = floatval($_POST['iva_' . $i]);
-                                $linea->recargo = floatval($_POST['recargo_' . $i]);
-                            } else {
-                                $linea->iva = floatval($_POST['iva_' . $i]);
-                                $linea->recargo = floatval($_POST['recargo_' . $i]);
-                            }
-                        }
-
-                        $linea->irpf = floatval($_POST['irpf_' . $i]);
-                        $linea->pvpunitario = floatval($_POST['pvp_' . $i]);
-                        $linea->cantidad = floatval($_POST['cantidad_' . $i]);
-                        $linea->dtopor = floatval($_POST['dto_' . $i]);
-                        $linea->pvpsindto = ($linea->pvpunitario * $linea->cantidad);
-                        $linea->pvptotal = floatval($_POST['neto_' . $i]);
+                        $this->nueva_linea($linea, $serie, $proveedor);
 
                         $articulo = $art0->get($_POST['referencia_' . $i]);
                         if ($articulo) {
@@ -445,11 +407,6 @@ class nueva_compra extends fbase_controller
                                 $this->actualizar_precio_proveedor($pedido->codproveedor, $linea);
                             }
 
-                            $pedido->neto += $linea->pvptotal;
-                            $pedido->totaliva += ($linea->pvptotal * $linea->iva / 100);
-                            $pedido->totalirpf += ($linea->pvptotal * $linea->irpf / 100);
-                            $pedido->totalrecargo += ($linea->pvptotal * $linea->recargo / 100);
-
                             if ($linea->irpf > $pedido->irpf) {
                                 $pedido->irpf = $linea->irpf;
                             }
@@ -461,13 +418,17 @@ class nueva_compra extends fbase_controller
                 }
 
                 if ($continuar) {
-                    /// redondeamos
-                    $pedido->neto = round($pedido->neto, FS_NF0);
-                    $pedido->totaliva = round($pedido->totaliva, FS_NF0);
-                    $pedido->totalirpf = round($pedido->totalirpf, FS_NF0);
-                    $pedido->totalrecargo = round($pedido->totalrecargo, FS_NF0);
-                    $pedido->total = $pedido->neto + $pedido->totaliva - $pedido->totalirpf + $pedido->totalrecargo;
-                    if (abs(floatval($_POST['atotal']) - $pedido->total) >= .02) {
+                    /// obtenemos los subtotales por impuesto
+                    foreach ($this->fbase_get_subtotales_documento($pedido->get_lineas()) as $subt) {
+                        $pedido->neto += $subt['neto'];
+                        $pedido->totaliva += $subt['iva'];
+                        $pedido->totalirpf += $subt['irpf'];
+                        $pedido->totalrecargo += $subt['recargo'];
+                    }
+
+                    $pedido->total = round($pedido->neto + $pedido->totaliva - $pedido->totalirpf + $pedido->totalrecargo, FS_NF0);
+
+                    if (abs(floatval($_POST['atotal']) - $pedido->total) > .01) {
                         $this->new_error_msg("El total difiere entre la vista y el controlador ("
                             . $_POST['atotal'] . " frente a " . $pedido->total . "). Debes informar del error.");
                         $pedido->delete();
@@ -552,26 +513,7 @@ class nueva_compra extends fbase_controller
         }
 
         if ($continuar) {
-            $albaran->fecha = $_POST['fecha'];
-            $albaran->hora = $_POST['hora'];
-            $albaran->codproveedor = $proveedor->codproveedor;
-            $albaran->nombre = $_POST['nombre'];
-            $albaran->cifnif = $_POST['cifnif'];
-            $albaran->codalmacen = $almacen->codalmacen;
-            $albaran->codejercicio = $ejercicio->codejercicio;
-            $albaran->codserie = $serie->codserie;
-            $albaran->codpago = $forma_pago->codpago;
-            $albaran->coddivisa = $divisa->coddivisa;
-            $albaran->tasaconv = $divisa->tasaconv_compra;
-
-            if ($_POST['tasaconv'] != '') {
-                $albaran->tasaconv = floatval($_POST['tasaconv']);
-            }
-
-            $albaran->codagente = $this->agente->codagente;
-            $albaran->observaciones = $_POST['observaciones'];
-
-            fs_generar_numero2($albaran);
+            $this->nuevo_documento($albaran, $proveedor, $almacen, $ejercicio, $serie, $forma_pago, $divisa);
 
             if ($albaran->save()) {
                 $trazabilidad = FALSE;
@@ -582,26 +524,7 @@ class nueva_compra extends fbase_controller
                     if (isset($_POST['referencia_' . $i])) {
                         $linea = new linea_albaran_proveedor();
                         $linea->idalbaran = $albaran->idalbaran;
-                        $linea->descripcion = $_POST['desc_' . $i];
-
-                        if (!$serie->siniva && $proveedor->regimeniva != 'Exento') {
-                            $imp0 = $this->impuesto->get_by_iva($_POST['iva_' . $i]);
-                            if ($imp0) {
-                                $linea->codimpuesto = $imp0->codimpuesto;
-                                $linea->iva = floatval($_POST['iva_' . $i]);
-                                $linea->recargo = floatval($_POST['recargo_' . $i]);
-                            } else {
-                                $linea->iva = floatval($_POST['iva_' . $i]);
-                                $linea->recargo = floatval($_POST['recargo_' . $i]);
-                            }
-                        }
-
-                        $linea->irpf = floatval($_POST['irpf_' . $i]);
-                        $linea->pvpunitario = floatval($_POST['pvp_' . $i]);
-                        $linea->cantidad = floatval($_POST['cantidad_' . $i]);
-                        $linea->dtopor = floatval($_POST['dto_' . $i]);
-                        $linea->pvpsindto = ($linea->pvpunitario * $linea->cantidad);
-                        $linea->pvptotal = floatval($_POST['neto_' . $i]);
+                        $this->nueva_linea($linea, $serie, $proveedor);
 
                         $articulo = $art0->get($_POST['referencia_' . $i]);
                         if ($articulo) {
@@ -632,11 +555,6 @@ class nueva_compra extends fbase_controller
                                 }
                             }
 
-                            $albaran->neto += $linea->pvptotal;
-                            $albaran->totaliva += ($linea->pvptotal * $linea->iva / 100);
-                            $albaran->totalirpf += ($linea->pvptotal * $linea->irpf / 100);
-                            $albaran->totalrecargo += ($linea->pvptotal * $linea->recargo / 100);
-
                             if ($linea->irpf > $albaran->irpf) {
                                 $albaran->irpf = $linea->irpf;
                             }
@@ -648,14 +566,17 @@ class nueva_compra extends fbase_controller
                 }
 
                 if ($continuar) {
-                    /// redondeamos
-                    $albaran->neto = round($albaran->neto, FS_NF0);
-                    $albaran->totaliva = round($albaran->totaliva, FS_NF0);
-                    $albaran->totalirpf = round($albaran->totalirpf, FS_NF0);
-                    $albaran->totalrecargo = round($albaran->totalrecargo, FS_NF0);
-                    $albaran->total = $albaran->neto + $albaran->totaliva - $albaran->totalirpf + $albaran->totalrecargo;
+                    /// obtenemos los subtotales por impuesto
+                    foreach ($this->fbase_get_subtotales_documento($albaran->get_lineas()) as $subt) {
+                        $albaran->neto += $subt['neto'];
+                        $albaran->totaliva += $subt['iva'];
+                        $albaran->totalirpf += $subt['irpf'];
+                        $albaran->totalrecargo += $subt['recargo'];
+                    }
 
-                    if (abs(floatval($_POST['atotal']) - $albaran->total) >= .02) {
+                    $albaran->total = round($albaran->neto + $albaran->totaliva - $albaran->totalirpf + $albaran->totalrecargo, FS_NF0);
+
+                    if (abs(floatval($_POST['atotal']) - $albaran->total) > .01) {
                         $this->new_error_msg("El total difiere entre la vista y el controlador (" .
                             $_POST['atotal'] . " frente a " . $albaran->total . "). Debes informar del error.");
                         $albaran->delete();
@@ -742,30 +663,12 @@ class nueva_compra extends fbase_controller
         }
 
         if ($continuar) {
-            $factura->codejercicio = $ejercicio->codejercicio;
-            $factura->codserie = $serie->codserie;
+            $this->nuevo_documento($factura, $proveedor, $almacen, $ejercicio, $serie, $forma_pago, $divisa);
             $factura->set_fecha_hora($_POST['fecha'], $_POST['hora']);
-
-            $factura->codproveedor = $proveedor->codproveedor;
-            $factura->nombre = $_POST['nombre'];
-            $factura->cifnif = $_POST['cifnif'];
-            $factura->codalmacen = $almacen->codalmacen;
-            $factura->codpago = $forma_pago->codpago;
-            $factura->coddivisa = $divisa->coddivisa;
-            $factura->tasaconv = $divisa->tasaconv_compra;
-
-            if ($_POST['tasaconv'] != '') {
-                $factura->tasaconv = floatval($_POST['tasaconv']);
-            }
-
-            $factura->codagente = $this->agente->codagente;
-            $factura->observaciones = $_POST['observaciones'];
 
             if ($forma_pago->genrecibos == 'Pagados') {
                 $factura->pagada = TRUE;
             }
-
-            fs_generar_numero2($factura);
 
             $regularizacion = new regularizacion_iva();
             if ($regularizacion->get_fecha_inside($factura->fecha)) {
@@ -780,26 +683,7 @@ class nueva_compra extends fbase_controller
                     if (isset($_POST['referencia_' . $i])) {
                         $linea = new linea_factura_proveedor();
                         $linea->idfactura = $factura->idfactura;
-                        $linea->descripcion = $_POST['desc_' . $i];
-
-                        if (!$serie->siniva && $proveedor->regimeniva != 'Exento') {
-                            $imp0 = $this->impuesto->get_by_iva($_POST['iva_' . $i]);
-                            if ($imp0) {
-                                $linea->codimpuesto = $imp0->codimpuesto;
-                                $linea->iva = floatval($_POST['iva_' . $i]);
-                                $linea->recargo = floatval($_POST['recargo_' . $i]);
-                            } else {
-                                $linea->iva = floatval($_POST['iva_' . $i]);
-                                $linea->recargo = floatval($_POST['recargo_' . $i]);
-                            }
-                        }
-
-                        $linea->irpf = floatval($_POST['irpf_' . $i]);
-                        $linea->pvpunitario = floatval($_POST['pvp_' . $i]);
-                        $linea->cantidad = floatval($_POST['cantidad_' . $i]);
-                        $linea->dtopor = floatval($_POST['dto_' . $i]);
-                        $linea->pvpsindto = ($linea->pvpunitario * $linea->cantidad);
-                        $linea->pvptotal = floatval($_POST['neto_' . $i]);
+                        $this->nueva_linea($linea, $serie, $proveedor);
 
                         $articulo = $art0->get($_POST['referencia_' . $i]);
                         if ($articulo) {
@@ -830,11 +714,6 @@ class nueva_compra extends fbase_controller
                                 }
                             }
 
-                            $factura->neto += $linea->pvptotal;
-                            $factura->totaliva += ($linea->pvptotal * $linea->iva / 100);
-                            $factura->totalirpf += ($linea->pvptotal * $linea->irpf / 100);
-                            $factura->totalrecargo += ($linea->pvptotal * $linea->recargo / 100);
-
                             if ($linea->irpf > $factura->irpf) {
                                 $factura->irpf = $linea->irpf;
                             }
@@ -846,19 +725,22 @@ class nueva_compra extends fbase_controller
                 }
 
                 if ($continuar) {
-                    /// redondeamos
-                    $factura->neto = round($factura->neto, FS_NF0);
-                    $factura->totaliva = round($factura->totaliva, FS_NF0);
-                    $factura->totalirpf = round($factura->totalirpf, FS_NF0);
-                    $factura->totalrecargo = round($factura->totalrecargo, FS_NF0);
-                    $factura->total = $factura->neto + $factura->totaliva - $factura->totalirpf + $factura->totalrecargo;
+                    /// obtenemos los subtotales por impuesto
+                    foreach ($this->fbase_get_subtotales_documento($factura->get_lineas()) as $subt) {
+                        $factura->neto += $subt['neto'];
+                        $factura->totaliva += $subt['iva'];
+                        $factura->totalirpf += $subt['irpf'];
+                        $factura->totalrecargo += $subt['recargo'];
+                    }
+
+                    $factura->total = round($factura->neto + $factura->totaliva - $factura->totalirpf + $factura->totalrecargo, FS_NF0);
 
                     if (abs(floatval($_POST['atotal']) - $factura->total) >= .02) {
                         $this->new_error_msg("El total difiere entre el controlador y la vista (" .
                             $factura->total . " frente a " . $_POST['atotal'] . "). Debes informar del error.");
                         $factura->delete();
                     } else if ($factura->save()) {
-                        $this->generar_asiento($factura);
+                        $this->fbase_generar_asiento($factura, FALSE);
                         /**
                          * Función de ejecución de tareas post guardado correcto de la factura
                          */
@@ -883,29 +765,6 @@ class nueva_compra extends fbase_controller
             } else {
                 $this->new_error_msg("¡Imposible guardar la factura!");
             }
-        }
-    }
-
-    /**
-     * Genera el asiento correspondiente a la factura, si procede
-     * @param factura_proveedor $factura
-     */
-    private function generar_asiento(&$factura)
-    {
-        if ($this->empresa->contintegrada) {
-            $asiento_factura = new asiento_factura();
-            $asiento_factura->generar_asiento_compra($factura);
-
-            foreach ($asiento_factura->errors as $err) {
-                $this->new_error_msg($err);
-            }
-
-            foreach ($asiento_factura->messages as $msg) {
-                $this->new_message($msg);
-            }
-        } else {
-            /// de todas formas forzamos la generación de las líneas de iva
-            $factura->get_lineas_iva();
         }
     }
 
@@ -1009,5 +868,53 @@ class nueva_compra extends fbase_controller
         }
 
         return $artilist;
+    }
+
+    private function nuevo_documento(&$documento, $proveedor, $almacen, $ejercicio, $serie, $forma_pago, $divisa)
+    {
+        $documento->fecha = $_POST['fecha'];
+        $documento->hora = $_POST['hora'];
+        $documento->codproveedor = $proveedor->codproveedor;
+        $documento->nombre = $_POST['nombre'];
+        $documento->cifnif = $_POST['cifnif'];
+        $documento->codalmacen = $almacen->codalmacen;
+        $documento->codejercicio = $ejercicio->codejercicio;
+        $documento->codserie = $serie->codserie;
+        $documento->codpago = $forma_pago->codpago;
+        $documento->coddivisa = $divisa->coddivisa;
+        $documento->tasaconv = $divisa->tasaconv_compra;
+
+        if ($_POST['tasaconv'] != '') {
+            $documento->tasaconv = floatval($_POST['tasaconv']);
+        }
+
+        $documento->codagente = $this->agente->codagente;
+        $documento->observaciones = $_POST['observaciones'];
+
+        fs_generar_numero2($documento);
+    }
+
+    private function nueva_linea(&$linea, $serie, $proveedor)
+    {
+        $linea->descripcion = $_POST['desc_' . $i];
+
+        if (!$serie->siniva && $proveedor->regimeniva != 'Exento') {
+            $imp0 = $this->impuesto->get_by_iva($_POST['iva_' . $i]);
+            if ($imp0) {
+                $linea->codimpuesto = $imp0->codimpuesto;
+                $linea->iva = floatval($_POST['iva_' . $i]);
+                $linea->recargo = floatval($_POST['recargo_' . $i]);
+            } else {
+                $linea->iva = floatval($_POST['iva_' . $i]);
+                $linea->recargo = floatval($_POST['recargo_' . $i]);
+            }
+        }
+
+        $linea->irpf = floatval($_POST['irpf_' . $i]);
+        $linea->pvpunitario = floatval($_POST['pvp_' . $i]);
+        $linea->cantidad = floatval($_POST['cantidad_' . $i]);
+        $linea->dtopor = floatval($_POST['dto_' . $i]);
+        $linea->pvpsindto = ($linea->pvpunitario * $linea->cantidad);
+        $linea->pvptotal = floatval($_POST['neto_' . $i]);
     }
 }

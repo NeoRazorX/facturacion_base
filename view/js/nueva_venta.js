@@ -35,8 +35,7 @@ var solo_con_stock = true;
 
 function usar_cliente(codcliente)
 {
-    if (nueva_venta_url !== '')
-    {
+    if (nueva_venta_url !== '') {
         $.getJSON(nueva_venta_url, 'datoscliente=' + codcliente, function (json) {
             cliente = json;
             document.f_buscar_articulos.codcliente.value = cliente.codcliente;
@@ -122,30 +121,14 @@ function usar_direccion_envio()
 
 function recalcular()
 {
-    var l_uds = 0;
-    var l_pvp = 0;
-    var l_dto = 0;
-    var l_dto2 = 0;
-    var l_dto3 = 0;
-    var l_dto4 = 0;
     var show = [];
-    var l_neto = 0;
-    var l_iva = 0;
-    var l_irpf = 0;
-    var l_recargo = 0;
-    var netosindto = 0;
-    var netocondto = 0;
-    var neto = 0;
-    var total_iva = 0;
-    var total_irpf = 0;
-    var total_recargo = 0;
+    var subtotales = [];
     var adto1 = 0;
     var adto2 = 0;
     var adto3 = 0;
     var adto4 = 0;
     var adto5 = 0;
-    var dto_totales = 0;
-    var dto_linea = 0;
+    var total_irpf = 0;
 
     adto1 = parseFloat($("#adtopor1").val());
     if (isNaN(adto1)) {
@@ -168,7 +151,7 @@ function recalcular()
         adto5 = 0;
     }
 
-    dto_totales = calc_due([adto1, adto2, adto3, adto4, adto5]);
+    var dto_totales = calc_due([adto1, adto2, adto3, adto4, adto5]);
     for (var i = 0; i < numlineas; i++) {
         if ($("#linea_" + i).length > 0) {
             /// cambiamos coma por punto
@@ -199,68 +182,50 @@ function recalcular()
             if ($("#recargo_" + i).val().search(",") >= 0) {
                 $("#recargo_" + i).val($("#recargo_" + i).val().replace(",", "."));
             }
-            
-            l_uds = parseFloat($("#cantidad_" + i).val());
+
+            var l_uds = parseFloat($("#cantidad_" + i).val());
             if (isNaN(l_uds)) {
                 l_uds = 0;
             }
-            l_pvp = parseFloat($("#pvp_" + i).val());
+            var l_pvp = parseFloat($("#pvp_" + i).val());
             if (isNaN(l_pvp)) {
                 l_pvp = 0;
             }
-            l_dto = parseFloat($("#dto_" + i).val());
+            var l_dto = parseFloat($("#dto_" + i).val());
             if (isNaN(l_dto)) {
                 l_dto = 0;
             }
-            l_dto2 = parseFloat($("#dto2_" + i).val());
+            var l_dto2 = parseFloat($("#dto2_" + i).val());
             if (isNaN(l_dto2)) {
                 l_dto2 = 0;
             }
-            l_dto3 = parseFloat($("#dto3_" + i).val());
+            var l_dto3 = parseFloat($("#dto3_" + i).val());
             if (isNaN(l_dto3)) {
                 l_dto3 = 0;
             }
-            l_dto4 = parseFloat($("#dto4_" + i).val());
+            var l_dto4 = parseFloat($("#dto4_" + i).val());
             if (isNaN(l_dto4)) {
                 l_dto4 = 0;
             }
-            
-            if ((l_dto2 == 0 && l_dto3 == 0 && l_dto4 == 0)) {
-                show[i] = false;
-            } else {
-                show[i] = true;
-            }
-            
-            dto_linea = calc_due([l_dto, l_dto2, l_dto3, l_dto4]);
-            
-            // Total neto antes de descuentos globales
-            netosindto += l_uds * l_pvp * dto_linea;
-            l_neto = l_uds * l_pvp * dto_linea;
 
-            l_iva = parseFloat($("#iva_" + i).val());
-            l_irpf = parseFloat($("#irpf_" + i).val());
+            var dto_linea = calc_due([l_dto, l_dto2, l_dto3, l_dto4]);
+            var l_neto = l_uds * l_pvp * dto_linea;
+            var l_iva = parseFloat($("#iva_" + i).val());
+            var l_irpf = parseFloat($("#irpf_" + i).val());
             if (isNaN(l_irpf)) {
                 l_irpf = 0;
             }
-            l_recargo = parseFloat($("#recargo_" + i).val());
+            var l_recargo = parseFloat($("#recargo_" + i).val());
             if (isNaN(l_recargo)) {
                 l_recargo = 0;
             }
-            
+
             $("#neto_" + i).val(l_neto);
             if (numlineas == 1) {
                 $("#total_" + i).val(l_neto + l_neto * (l_iva - l_irpf + l_recargo) / 100);
             } else {
                 $("#total_" + i).val(number_format(l_neto + (l_neto * (l_iva - l_irpf + l_recargo) / 100), fs_nf0, '.', ''));
             }
-            l_neto = l_uds * l_pvp * dto_linea;
-
-            // ESTOS YA SON VALORES FINALES, SE REDONDEAN AHORA
-            // Total neto despues de descuentos globales
-            netocondto += l_neto;
-            total_iva += l_neto * l_iva / 100;
-            total_irpf += l_neto * l_irpf / 100;
-            total_recargo += l_neto * l_recargo / 100;
 
             /// adaptamos el alto del textarea al texto
             var txt = $("textarea[name='desc_" + i + "']").val();
@@ -268,43 +233,64 @@ function recalcular()
             if (txt.length > 1) {
                 $("textarea[name='desc_" + i + "']").prop('rows', txt.length);
             }
+
+            if ((l_dto2 == 0 && l_dto3 == 0 && l_dto4 == 0)) {
+                show[i] = false;
+            } else {
+                show[i] = true;
+            }
+
+            /// calculamos los subtotales
+            var l_codimpuesto = $("#iva_" + i).val();
+            if (subtotales[l_codimpuesto] === undefined) {
+                subtotales[l_codimpuesto] = {
+                    netosindto: 0,
+                    neto: 0,
+                    iva: 0,
+                    recargo: 0,
+                };
+            }
+
+            subtotales[l_codimpuesto].netosindto += l_neto;
+            subtotales[l_codimpuesto].neto += l_neto * dto_totales;
+            subtotales[l_codimpuesto].iva += l_neto * dto_totales * l_iva / 100;
+            subtotales[l_codimpuesto].recargo += l_neto * dto_totales * l_recargo / 100;
+            total_irpf += l_neto * dto_totales * l_irpf / 100;
         }
     }
 
-    netocondto = netosindto * dto_totales;
-    neto = netocondto;
-    total_iva = total_iva * dto_totales;
-    total_recargo = total_recargo * dto_totales;
-    total_irpf = total_irpf * dto_totales;
-    
-    $("#anetosindto").html(fs_round(netosindto, fs_nf0));
-    $("#aneto").html(fs_round(netocondto, fs_nf0));
-    $("#aiva").html(fs_round(total_iva, fs_nf0));
-    $("#are").html(fs_round(total_recargo, fs_nf0));
-    $("#airpf").html(fs_round(total_irpf, fs_nf0));
-    $("#atotal").val(fs_round(neto + total_iva - total_irpf + total_recargo, fs_nf0));
+    /// redondeamos los subtotales
+    var netosindto = 0;
+    var neto = 0;
+    var total_iva = 0;
+    var total_recargo = 0;
+    total_irpf = fs_round(total_irpf, fs_nf0);
+    subtotales.forEach(function (elem) {
+        netosindto += fs_round(elem.netosindto, fs_nf0);
+        neto += fs_round(elem.neto, fs_nf0);
+        total_iva += fs_round(elem.iva, fs_nf0);
+        total_recargo += fs_round(elem.recargo, fs_nf0);
+    });
 
-    // ELIMINAR DESPUÉS DE REVISAR
-    console.log("Valores antes de redondeo: ");
+    var total = fs_round(neto + total_iva - total_irpf + total_recargo, fs_nf0);
+
+    $("#anetosindto").html(number_format(netosindto, fs_nf0, '.', ''));
+    $("#aneto").html(number_format(neto, fs_nf0, '.', ''));
+    $("#aiva").html(number_format(total_iva, fs_nf0, '.', ''));
+    $("#are").html(number_format(total_recargo, fs_nf0, '.', ''));
+    $("#airpf").html(number_format(total_irpf, fs_nf0, '.', ''));
+    $("#atotal").val(total);
+
+    console.log("---------");
     console.log("Subtotal: " + netosindto);
-    console.log("Descuento sobre el total: " + netosindto);
-    console.log("Base imponible: " + netocondto);
-    console.log("Impuestos: " + total_iva);
+    console.log("Neto: " + neto);
+    console.log("IVA: " + total_iva);
     console.log("RE: " + total_recargo);
     console.log("IRPF: " + total_irpf);
     console.log("Total: " + (neto + total_iva - total_irpf + total_recargo));
-    console.log("");
-    console.log("Valores despues de redondeo: ");
-    console.log("Subtotal: " + fs_round(netosindto, fs_nf0));
-    console.log("Descuento sobre el total: " + fs_round(netosindto, fs_nf0));
-    console.log("Base imponible: " + fs_round(netocondto, fs_nf0));
-    console.log("Impuestos: " + fs_round(total_iva, fs_nf0));
-    console.log("RE: " + fs_round(total_recargo, fs_nf0));
-    console.log("IRPF: " + fs_round(total_irpf, fs_nf0));
-    console.log("Total: " + fs_round(neto + total_iva - total_irpf + total_recargo, fs_nf0));
-   
+
     // Descuentos de líneas del documento
-    Array.prototype.contains = function(elem) {
+    Array.prototype.contains = function (elem) {
         for (var i in this) {
             if (this[i] == elem) {
                 return true;
@@ -312,21 +298,17 @@ function recalcular()
         }
         return false;
     }
-    
-    if(show.contains(true)) {
+
+    if (show.contains(true) || dtosl) {
         dtosl = true;
         $(".dtosl").show();
     } else {
-        if (dtosl) {
-            dtosl = true;
-            $(".dtosl").show();
-        } else {
-            dtosl = false;
-            $(".dtosl").hide();
-        }
+        dtosl = false;
+        $(".dtosl").hide();
     }
+
     // Descuentos totales del documento
-    if (netosindto != netocondto || dtost) {
+    if (netosindto != neto || dtost) {
         dtost = true;
         $(".dtost").show();
     } else {
@@ -537,12 +519,12 @@ function ajustar_iva(num)
 
 function aux_all_dtos(dto2, dto3, dto4)
 {
-    var html = '<td class="dtosl"><input type="text" id="dto2_' + numlineas + '" name="dto2_' + numlineas + 
-        '" value="' + dto2 + '" class="form-control text-right" onkeyup="recalcular()" onclick="this.select()" autocomplete="off"/></td>';
-    html += '<td class="dtosl"><input type="text" id="dto3_' + numlineas + '" name="dto3_' + numlineas + 
-        '" value="' + dto3 + '" class="form-control text-right" onkeyup="recalcular()" onclick="this.select()" autocomplete="off"/></td>';
-    html += '<td class="dtosl"><input type="text" id="dto4_' + numlineas + '" name="dto4_' + numlineas + 
-        '" value="' + dto4 + '" class="form-control text-right" onkeyup="recalcular()" onclick="this.select()" autocomplete="off"/></td>';
+    var html = '<td class="dtosl"><input type="text" id="dto2_' + numlineas + '" name="dto2_' + numlineas +
+            '" value="' + dto2 + '" class="form-control text-right" onkeyup="recalcular()" onclick="this.select()" autocomplete="off"/></td>';
+    html += '<td class="dtosl"><input type="text" id="dto3_' + numlineas + '" name="dto3_' + numlineas +
+            '" value="' + dto3 + '" class="form-control text-right" onkeyup="recalcular()" onclick="this.select()" autocomplete="off"/></td>';
+    html += '<td class="dtosl"><input type="text" id="dto4_' + numlineas + '" name="dto4_' + numlineas +
+            '" value="' + dto4 + '" class="form-control text-right" onkeyup="recalcular()" onclick="this.select()" autocomplete="off"/></td>';
     return html;
 }
 
@@ -863,13 +845,13 @@ function calc_due(descuentos)
 function calc_desc_due(descuentos)
 {
     var dto = 1;
-    for (var i = 0; i < descuentos.length; ++i){
+    for (var i = 0; i < descuentos.length; ++i) {
         if (descuentos[i] == 0) {
             dto *= 1
         } else {
             dto *= (1 - descuentos[i] / 100);
         }
-        
+
     }
     return (1 - dto) * 100;
 }
@@ -882,7 +864,7 @@ $(document).ready(function () {
     $("#lineas_albaran").attr('id', 'lineas_doc');
 
     show = false;
-    if(!show) {
+    if (!show) {
         dtosl = false;
         $('.dtosl').hide();
     } else {

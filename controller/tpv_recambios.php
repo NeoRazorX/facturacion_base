@@ -471,11 +471,6 @@ class tpv_recambios extends fbase_controller
                                 /// descontamos del stock
                                 $articulo->sum_stock($factura->codalmacen, 0 - $linea->cantidad, FALSE, $linea->codcombinacion);
 
-                                $factura->neto += $linea->pvptotal;
-                                $factura->totaliva += ($linea->pvptotal * $linea->iva / 100);
-                                $factura->totalirpf += ($linea->pvptotal * $linea->irpf / 100);
-                                $factura->totalrecargo += ($linea->pvptotal * $linea->recargo / 100);
-
                                 if ($linea->irpf > $factura->irpf) {
                                     $factura->irpf = $linea->irpf;
                                 }
@@ -491,12 +486,16 @@ class tpv_recambios extends fbase_controller
                 }
 
                 if ($continuar) {
-                    /// redondeamos
-                    $factura->neto = round($factura->neto, FS_NF0);
-                    $factura->totaliva = round($factura->totaliva, FS_NF0);
-                    $factura->totalirpf = round($factura->totalirpf, FS_NF0);
-                    $factura->totalrecargo = round($factura->totalrecargo, FS_NF0);
-                    $factura->total = $factura->neto + $factura->totaliva - $factura->totalirpf + $factura->totalrecargo;
+                    /// obtenemos los subtotales por impuesto
+                    foreach ($this->fbase_get_subtotales_documento($factura->get_lineas()) as $subt) {
+                        $factura->netosindto += $subt['netosindto'];
+                        $factura->neto += $subt['neto'];
+                        $factura->totaliva += $subt['iva'];
+                        $factura->totalirpf += $subt['irpf'];
+                        $factura->totalrecargo += $subt['recargo'];
+                    }
+
+                    $factura->total = round($factura->neto + $factura->totaliva - $factura->totalirpf + $factura->totalrecargo, FS_NF0);
 
                     if (abs(floatval($_POST['tpv_total2']) - $factura->total) >= .02) {
                         $this->new_error_msg("El total difiere entre la vista y el controlador (" . $_POST['tpv_total2'] .

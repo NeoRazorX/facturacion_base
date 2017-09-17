@@ -138,8 +138,9 @@ class contabilidad_ejercicio extends fbase_controller
             return parent::url();
         } else if ($this->ejercicio) {
             return $this->ejercicio->url();
-        } else
-            return parent::url();
+        }
+        
+        return parent::url();
     }
 
     private function check_asientos()
@@ -254,7 +255,6 @@ class contabilidad_ejercicio extends fbase_controller
 
         /// añadimos las cuentas
         $cuenta = new cuenta();
-        $num = 0;
         $cuentas = $cuenta->full_from_ejercicio($this->ejercicio->codejercicio);
         foreach ($cuentas as $c) {
             $aux = $archivo_xml->addChild("cuenta");
@@ -294,17 +294,17 @@ class contabilidad_ejercicio extends fbase_controller
                 if (copy($_FILES['farchivo']['tmp_name'], 'tmp/' . FS_TMP_NAME . 'ejercicio.xml')) {
                     $import_step = 1;
                     $this->url_recarga = $this->url() . '&importar=' . (1 + $import_step);
-                } else
+                } else {
                     $this->new_error_msg('Error al copiar el archivo.');
-            }
-            else if ($_POST['fuente'] != '') {
+                }
+            } else if ($_POST['fuente'] != '') {
                 if (copy($_POST['fuente'], 'tmp/' . FS_TMP_NAME . 'ejercicio.xml')) {
                     $import_step = 1;
                     $this->url_recarga = $this->url() . '&importar=' . (1 + $import_step);
-                } else
+                } else {
                     $this->new_error_msg('Error al copiar el archivo.');
-            }
-            else {
+                }
+            } else {
                 $this->new_error_msg('Has seleccionado importar desde un archivo externo,
                pero no has seleccionado ningún archivo.');
             }
@@ -542,8 +542,9 @@ class contabilidad_ejercicio extends fbase_controller
                             /// cada 500 clientes volvemos a recargar la página para continuar
                             $this->url_recarga = $this->url() . '&importar=' . $import_step . '&offset=' . $offset;
                             break;
-                        } else
+                        } else {
                             $clientes = $cliente->all($offset);
+                        }
                     }
                 }
 
@@ -570,12 +571,14 @@ class contabilidad_ejercicio extends fbase_controller
                             /// cada 500 proveedores volvemos a recargar la página para continuar
                             $this->url_recarga = $this->url() . '&importar=' . $import_step . '&offset=' . $offset;
                             break;
-                        } else
+                        } else {
                             $proveedores = $proveedor->all($offset);
+                        }
                     }
                 }
-            } else
+            } else {
                 $this->new_error("Imposible leer el archivo.");
+            }
         }
     }
 
