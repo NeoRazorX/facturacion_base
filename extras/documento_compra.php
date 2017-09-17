@@ -200,13 +200,13 @@ trait documento_compra
     {
         $this->cifnif = '';
         $this->codagente = NULL;
-        $this->codalmacen = $this->default_items->codalmacen();
+        $this->codalmacen = $default_items->codalmacen();
         $this->coddivisa = NULL;
         $this->codejercicio = NULL;
         $this->codigo = NULL;
-        $this->codpago = $this->default_items->codpago();
+        $this->codpago = $default_items->codpago();
         $this->codproveedor = NULL;
-        $this->codserie = $this->default_items->codserie();
+        $this->codserie = $default_items->codserie();
         $this->fecha = Date('d-m-Y');
         $this->hora = Date('H:i:s');
         $this->irpf = 0.0;
