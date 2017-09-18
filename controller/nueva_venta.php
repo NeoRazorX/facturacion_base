@@ -535,7 +535,7 @@ class nueva_venta extends fbase_controller
 
         if ($continuar) {
             $this->nuevo_documento($presupuesto, $ejercicio, $serie, $almacen, $forma_pago, $divisa, $cliente);
-            
+
             /// establecemos la fecha de finoferta
             $presupuesto->finoferta = date("Y-m-d", strtotime($_POST['fecha'] . " +1 month"));
             $fsvar = new fs_var();
@@ -1122,6 +1122,10 @@ class nueva_venta extends fbase_controller
         $documento->codpostal = $_POST['codpostal'];
         $documento->direccion = $_POST['direccion'];
         $documento->apartado = $_POST['apartado'];
+
+        if (is_numeric($_POST['coddir'])) {
+            $documento->coddir = $_POST['coddir'];
+        }
 
         /// envío
         $documento->envio_nombre = $_POST['envio_nombre'];
