@@ -387,7 +387,7 @@ class nueva_compra extends fbase_controller
                     if (isset($_POST['referencia_' . $i])) {
                         $linea = new linea_pedido_proveedor();
                         $linea->idpedido = $pedido->idpedido;
-                        $this->nueva_linea($linea, $serie, $proveedor);
+                        $this->nueva_linea($linea, $i, $serie, $proveedor);
 
                         $articulo = $art0->get($_POST['referencia_' . $i]);
                         if ($articulo) {
@@ -524,7 +524,7 @@ class nueva_compra extends fbase_controller
                     if (isset($_POST['referencia_' . $i])) {
                         $linea = new linea_albaran_proveedor();
                         $linea->idalbaran = $albaran->idalbaran;
-                        $this->nueva_linea($linea, $serie, $proveedor);
+                        $this->nueva_linea($linea, $i, $serie, $proveedor);
 
                         $articulo = $art0->get($_POST['referencia_' . $i]);
                         if ($articulo) {
@@ -683,7 +683,7 @@ class nueva_compra extends fbase_controller
                     if (isset($_POST['referencia_' . $i])) {
                         $linea = new linea_factura_proveedor();
                         $linea->idfactura = $factura->idfactura;
-                        $this->nueva_linea($linea, $serie, $proveedor);
+                        $this->nueva_linea($linea, $i, $serie, $proveedor);
 
                         $articulo = $art0->get($_POST['referencia_' . $i]);
                         if ($articulo) {
@@ -894,7 +894,7 @@ class nueva_compra extends fbase_controller
         fs_generar_numero2($documento);
     }
 
-    private function nueva_linea(&$linea, $serie, $proveedor)
+    private function nueva_linea(&$linea, $i, $serie, $proveedor)
     {
         $linea->descripcion = $_POST['desc_' . $i];
 
