@@ -71,17 +71,8 @@ function usar_serie()
 
 function recalcular()
 {
-    var l_uds = 0;
-    var l_pvp = 0;
-    var l_dto = 0;
-    var l_neto = 0;
-    var l_iva = 0;
-    var l_irpf = 0;
-    var l_recargo = 0;
-    var neto = 0;
-    var total_iva = 0;
+    var subtotales = [];
     var total_irpf = 0;
-    var total_recargo = 0;
 
     for (var i = 1; i <= numlineas; i++) {
         if ($("#linea_" + i).length > 0) {
@@ -105,13 +96,13 @@ function recalcular()
                 $("#recargo_" + i).val($("#recargo_" + i).val().replace(",", "."));
             }
 
-            l_uds = parseFloat($("#cantidad_" + i).val());
-            l_pvp = parseFloat($("#pvp_" + i).val());
-            l_dto = parseFloat($("#dto_" + i).val());
-            l_neto = l_uds * l_pvp * (100 - l_dto) / 100;
-            l_iva = parseFloat($("#iva_" + i).val());
-            l_irpf = parseFloat($("#irpf_" + i).val());
-            l_recargo = parseFloat($("#recargo_" + i).val());
+            var l_uds = parseFloat($("#cantidad_" + i).val());
+            var l_pvp = parseFloat($("#pvp_" + i).val());
+            var l_dto = parseFloat($("#dto_" + i).val());
+            var l_neto = l_uds * l_pvp * (100 - l_dto) / 100;
+            var l_iva = parseFloat($("#iva_" + i).val());
+            var l_irpf = parseFloat($("#irpf_" + i).val());
+            var l_recargo = parseFloat($("#recargo_" + i).val());
 
             $("#neto_" + i).val(l_neto);
             if (numlineas == 1) {
@@ -120,29 +111,55 @@ function recalcular()
                 $("#total_" + i).val(number_format(l_neto + (l_neto * (l_iva - l_irpf + l_recargo) / 100), fs_nf0, '.', ''));
             }
 
-            neto += l_neto;
-            total_iva += l_neto * l_iva / 100;
-            total_irpf += l_neto * l_irpf / 100;
-            total_recargo += l_neto * l_recargo / 100;
-
             /// adaptamos el alto del textarea al texto
             var txt = $("textarea[name='desc_" + i + "']").val();
             txt = txt.split(/\r*\n/);
             if (txt.length > 1) {
                 $("textarea[name='desc_" + i + "']").prop('rows', txt.length);
             }
+            
+            /// calculamos los subtotales
+            var l_codimpuesto = $("#iva_" + i).val();
+            if (subtotales[l_codimpuesto] === undefined) {
+                subtotales[l_codimpuesto] = {
+                    neto: 0,
+                    iva: 0,
+                    recargo: 0,
+                };
+            }
+
+            subtotales[l_codimpuesto].neto += l_neto;
+            subtotales[l_codimpuesto].iva += l_neto * l_iva / 100;
+            subtotales[l_codimpuesto].recargo += l_neto * l_recargo / 100;
+            total_irpf += l_neto * l_irpf / 100;
         }
     }
-
-    neto = fs_round(neto, fs_nf0);
-    total_iva = fs_round(total_iva, fs_nf0);
+    
+    /// redondeamos los subtotales
+    var neto = 0;
+    var total_iva = 0;
+    var total_recargo = 0;
     total_irpf = fs_round(total_irpf, fs_nf0);
-    total_recargo = fs_round(total_recargo, fs_nf0);
-    $("#aneto").html(neto);
-    $("#aiva").html(total_iva);
-    $("#are").html(total_recargo);
-    $("#airpf").html(total_irpf);
-    $("#atotal").html(neto + total_iva - total_irpf + total_recargo);
+    subtotales.forEach(function (elem) {
+        neto += fs_round(elem.neto, fs_nf0);
+        total_iva += fs_round(elem.iva, fs_nf0);
+        total_recargo += fs_round(elem.recargo, fs_nf0);
+    });
+
+    var total = fs_round(neto + total_iva - total_irpf + total_recargo, fs_nf0);
+
+    $("#aneto").html(number_format(neto, fs_nf0, '.', ''));
+    $("#aiva").html(number_format(total_iva, fs_nf0, '.', ''));
+    $("#are").html(number_format(total_recargo, fs_nf0, '.', ''));
+    $("#airpf").html(number_format(total_irpf, fs_nf0, '.', ''));
+    $("#atotal").html(total);
+
+    console.log("---------");
+    console.log("Neto: " + neto);
+    console.log("IVA: " + total_iva);
+    console.log("RE: " + total_recargo);
+    console.log("IRPF: " + total_irpf);
+    console.log("Total: " + (neto + total_iva - total_irpf + total_recargo));
 
     if (total_recargo == 0 && !cliente.recargo) {
         $(".recargo").hide();
@@ -156,12 +173,12 @@ function recalcular()
         $(".irpf").show();
     }
 
-    $("#tpv_total").val(fs_round(neto + total_iva - total_irpf + total_recargo, fs_nf0));
-    $("#tpv_total2").val(fs_round(neto + total_iva - total_irpf + total_recargo, fs_nf0));
-    $("#tpv_total3").val(fs_round(neto + total_iva - total_irpf + total_recargo, fs_nf0));
+    $("#tpv_total").val(fs_round(total, fs_nf0));
+    $("#tpv_total2").val(fs_round(total, fs_nf0));
+    $("#tpv_total3").val(fs_round(total, fs_nf0));
 
     var tpv_efectivo = parseFloat($("#tpv_efectivo").val());
-    $("#tpv_cambio").val(show_precio(tpv_efectivo - (neto + total_iva - total_irpf + total_recargo)));
+    $("#tpv_cambio").val(show_precio(tpv_efectivo - total));
 }
 
 function ajustar_total(i)

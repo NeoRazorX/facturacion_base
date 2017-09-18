@@ -252,11 +252,6 @@ class compras_albaran extends fbase_controller
                                 }
 
                                 if ($lineas[$k]->save()) {
-                                    $this->albaran->neto += $value->pvptotal;
-                                    $this->albaran->totaliva += $value->pvptotal * $value->iva / 100;
-                                    $this->albaran->totalirpf += $value->pvptotal * $value->irpf / 100;
-                                    $this->albaran->totalrecargo += $value->pvptotal * $value->recargo / 100;
-
                                     if ($value->irpf > $this->albaran->irpf) {
                                         $this->albaran->irpf = $value->irpf;
                                     }
@@ -314,11 +309,6 @@ class compras_albaran extends fbase_controller
                                     $this->actualizar_precio_proveedor($this->albaran->codproveedor, $linea);
                                 }
 
-                                $this->albaran->neto += $linea->pvptotal;
-                                $this->albaran->totaliva += $linea->pvptotal * $linea->iva / 100;
-                                $this->albaran->totalirpf += $linea->pvptotal * $linea->irpf / 100;
-                                $this->albaran->totalrecargo += $linea->pvptotal * $linea->recargo / 100;
-
                                 if ($linea->irpf > $this->albaran->irpf) {
                                     $this->albaran->irpf = $linea->irpf;
                                 }
@@ -329,14 +319,17 @@ class compras_albaran extends fbase_controller
                     }
                 }
 
-                /// redondeamos
-                $this->albaran->neto = round($this->albaran->neto, FS_NF0);
-                $this->albaran->totaliva = round($this->albaran->totaliva, FS_NF0);
-                $this->albaran->totalirpf = round($this->albaran->totalirpf, FS_NF0);
-                $this->albaran->totalrecargo = round($this->albaran->totalrecargo, FS_NF0);
-                $this->albaran->total = $this->albaran->neto + $this->albaran->totaliva - $this->albaran->totalirpf + $this->albaran->totalrecargo;
+                /// obtenemos los subtotales por impuesto
+                foreach ($this->fbase_get_subtotales_documento($this->albaran->get_lineas()) as $subt) {
+                    $this->albaran->neto += $subt['neto'];
+                    $this->albaran->totaliva += $subt['iva'];
+                    $this->albaran->totalirpf += $subt['irpf'];
+                    $this->albaran->totalrecargo += $subt['recargo'];
+                }
 
-                if (abs(floatval($_POST['atotal']) - $this->albaran->total) >= .02) {
+                $this->albaran->total = round($this->albaran->neto + $this->albaran->totaliva - $this->albaran->totalirpf + $this->albaran->totalrecargo, FS_NF0);
+
+                if (abs(floatval($_POST['atotal']) - $this->albaran->total) > .01) {
                     $this->new_error_msg("El total difiere entre el controlador y la vista (" . $this->albaran->total .
                         " frente a " . $_POST['atotal'] . "). Debes informar del error.");
                 }
@@ -357,126 +350,7 @@ class compras_albaran extends fbase_controller
 
     private function generar_factura()
     {
-        $factura = new factura_proveedor();
-        $factura->cifnif = $this->albaran->cifnif;
-        $factura->codalmacen = $this->albaran->codalmacen;
-        $factura->coddivisa = $this->albaran->coddivisa;
-        $factura->tasaconv = $this->albaran->tasaconv;
-        $factura->codpago = $this->albaran->codpago;
-        $factura->codproveedor = $this->albaran->codproveedor;
-        $factura->codserie = $this->albaran->codserie;
-        $factura->irpf = $this->albaran->irpf;
-        $factura->neto = $this->albaran->neto;
-        $factura->nombre = $this->albaran->nombre;
-        $factura->numproveedor = $this->albaran->numproveedor;
-        $factura->observaciones = $this->albaran->observaciones;
-        $factura->total = $this->albaran->total;
-        $factura->totalirpf = $this->albaran->totalirpf;
-        $factura->totaliva = $this->albaran->totaliva;
-        $factura->totalrecargo = $this->albaran->totalrecargo;
-        $factura->codagente = $this->albaran->codagente;
-
-        if (is_null($factura->codagente)) {
-            $factura->codagente = $this->user->codagente;
-        }
-
-        /// asignamos el ejercicio que corresponde a la fecha elegida
-        $eje0 = $this->ejercicio->get_by_fecha($_POST['facturar']);
-        if ($eje0) {
-            $factura->codejercicio = $eje0->codejercicio;
-            $factura->set_fecha_hora($_POST['facturar'], $factura->hora);
-        }
-
-        /// comprobamos la forma de pago para saber si hay que marcar la factura como pagada
-        $forma0 = new forma_pago();
-        $formapago = $forma0->get($factura->codpago);
-        if ($formapago && $formapago->genrecibos == 'Pagados') {
-            $factura->pagada = TRUE;
-        }
-
-        fs_generar_numero2($factura);
-
-        $regularizacion = new regularizacion_iva();
-
-        if (!$eje0) {
-            $this->new_error_msg("Ejercicio no encontrado o está cerrado.");
-        } else if (!$eje0->abierto()) {
-            $this->new_error_msg("El ejercicio está cerrado.");
-        } else if ($regularizacion->get_fecha_inside($factura->fecha)) {
-            $this->new_error_msg("El " . FS_IVA . " de ese periodo ya ha sido regularizado. No se pueden añadir más facturas en esa fecha.");
-        } else if ($factura->save()) {
-            $continuar = TRUE;
-            foreach ($this->albaran->get_lineas() as $l) {
-                $linea = new linea_factura_proveedor();
-                $linea->cantidad = $l->cantidad;
-                $linea->codimpuesto = $l->codimpuesto;
-                $linea->descripcion = $l->descripcion;
-                $linea->dtopor = $l->dtopor;
-                $linea->idalbaran = $l->idalbaran;
-                $linea->idlineaalbaran = $l->idlinea;
-                $linea->idfactura = $factura->idfactura;
-                $linea->irpf = $l->irpf;
-                $linea->iva = $l->iva;
-                $linea->pvpsindto = $l->pvpsindto;
-                $linea->pvptotal = $l->pvptotal;
-                $linea->pvpunitario = $l->pvpunitario;
-                $linea->recargo = $l->recargo;
-                $linea->referencia = $l->referencia;
-                $linea->codcombinacion = $l->codcombinacion;
-
-                if (!$linea->save()) {
-                    $continuar = FALSE;
-                    $this->new_error_msg("¡Imposible guardar la línea el artículo " . $linea->referencia . "! ");
-                    break;
-                }
-            }
-
-            if ($continuar) {
-                $this->albaran->idfactura = $factura->idfactura;
-                $this->albaran->ptefactura = FALSE;
-                if ($this->albaran->save()) {
-                    $this->generar_asiento($factura);
-                    fs_documento_post_save($factura);
-                } else {
-                    $this->new_error_msg("¡Imposible vincular el " . FS_ALBARAN . " con la nueva factura!");
-                    if ($factura->delete()) {
-                        $this->new_error_msg("La factura se ha borrado.");
-                    } else {
-                        $this->new_error_msg("¡Imposible borrar la factura!");
-                    }
-                }
-            } else {
-                if ($factura->delete()) {
-                    $this->new_error_msg("La factura se ha borrado.");
-                } else {
-                    $this->new_error_msg("¡Imposible borrar la factura!");
-                }
-            }
-        } else {
-            $this->new_error_msg("¡Imposible guardar la factura!");
-        }
-    }
-
-    private function generar_asiento(&$factura)
-    {
-        if ($this->empresa->contintegrada) {
-            $asiento_factura = new asiento_factura();
-            if ($asiento_factura->generar_asiento_compra($factura)) {
-                $this->new_message("<a href='" . $factura->url() . "'>Factura</a> generada correctamente.");
-            }
-
-            foreach ($asiento_factura->errors as $err) {
-                $this->new_error_msg($err);
-            }
-
-            foreach ($asiento_factura->messages as $msg) {
-                $this->new_message($msg);
-            }
-        } else {
-            $this->new_message("<a href='" . $factura->url() . "'>Factura</a> generada correctamente.");
-        }
-
-        $this->new_change('Factura Proveedor ' . $factura->codigo, $factura->url(), TRUE);
+        $this->fbase_facturar_albaran_proveedor([$this->albaran], $_POST['facturar']);
     }
 
     /**

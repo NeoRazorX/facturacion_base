@@ -18,6 +18,8 @@
  */
 namespace FacturaScripts\model;
 
+require_once __DIR__.'/../../extras/documento_compra.php';
+
 /**
  * Albarán de proveedor o albarán de compra. Representa la recepción
  * de un material que se ha comprado. Implica la entrada de ese material
@@ -27,6 +29,7 @@ namespace FacturaScripts\model;
  */
 class albaran_proveedor extends \fs_model
 {
+    use \documento_compra;
 
     /**
      * Clave primaria. Integer
@@ -41,139 +44,17 @@ class albaran_proveedor extends \fs_model
     public $idfactura;
 
     /**
-     * Identificador único de cara a humanos.
-     * @var string 
-     */
-    public $codigo;
-
-    /**
-     * Número del albarán.
-     * Único dentro de la serie+ejercicio.
-     * @var string 
-     */
-    public $numero;
-
-    /**
-     * Número de albarán de proveedor, si lo hay.
-     * Puede contener letras.
-     * @var string 
-     */
-    public $numproveedor;
-
-    /**
-     * Ejercicio relacionado. El que corresponde a la fecha.
-     * @var string 
-     */
-    public $codejercicio;
-
-    /**
-     * Serie relacionada.
-     * @var string 
-     */
-    public $codserie;
-
-    /**
-     * Divisa del albarán.
-     * @var string 
-     */
-    public $coddivisa;
-
-    /**
-     * Forma de pago asociada.
-     * @var string 
-     */
-    public $codpago;
-
-    /**
-     * Empleado que ha creado este albarán.
-     * @var string 
-     */
-    public $codagente;
-
-    /**
-     * Almacén en el que entra la mercancía.
-     * @var string 
-     */
-    public $codalmacen;
-    public $fecha;
-    public $hora;
-
-    /**
-     * Código del proveedor de este albarán.
-     * @var string 
-     */
-    public $codproveedor;
-    public $nombre;
-    public $cifnif;
-
-    /**
-     * Suma del pvptotal de líneas. Total del albarán antes de impuestos.
-     * @var double 
-     */
-    public $neto;
-
-    /**
-     * Suma total del albarán, con impuestos.
-     * @var double 
-     */
-    public $total;
-
-    /**
-     * Suma del IVA de las líneas.
-     * @var double 
-     */
-    public $totaliva;
-
-    /**
-     * Total expresado en euros, por si no fuese la divisa del albarán.
-     * totaleuros = total/tasaconv
-     * No hace falta rellenarlo, al hacer save() se calcula el valor.
-     * @var double 
-     */
-    public $totaleuros;
-
-    /**
-     * % de retención IRPF del albarán. Se obtiene de la serie.
-     * Cada línea puede tener un % distinto.
-     * @var double 
-     */
-    public $irpf;
-
-    /**
-     * Suma total de las retenciones IRPF de las líneas.
-     * @var double 
-     */
-    public $totalirpf;
-
-    /**
-     * Tasa de conversión a Euros de la divisa seleccionada.
-     * @var double 
-     */
-    public $tasaconv;
-
-    /**
-     * Suma total del recargo de equivalencia de las líneas.
-     * @var double 
-     */
-    public $totalrecargo;
-    public $observaciones;
-
-    /**
      * TRUE => está pendiente de factura.
      * @var boolean 
      */
     public $ptefactura;
 
-    /**
-     * Número de documentos adjuntos.
-     * @var integer 
-     */
-    public $numdocs;
-
     public function __construct($data = FALSE)
     {
         parent::__construct('albaranesprov');
         if ($data) {
+            $this->load_data_trait($data);
+            
             $this->idalbaran = $this->intval($data['idalbaran']);
 
             $this->idfactura = $this->intval($data['idfactura']);
@@ -186,64 +67,11 @@ class albaran_proveedor extends \fs_model
                 /// si ya hay una factura enlazada, no puede estar pendiente de factura
                 $this->ptefactura = FALSE;
             }
-
-            $this->codigo = $data['codigo'];
-            $this->numero = $data['numero'];
-            $this->numproveedor = $data['numproveedor'];
-            $this->codejercicio = $data['codejercicio'];
-            $this->codserie = $data['codserie'];
-            $this->coddivisa = $data['coddivisa'];
-            $this->codpago = $data['codpago'];
-            $this->codagente = $data['codagente'];
-            $this->codalmacen = $data['codalmacen'];
-            $this->fecha = Date('d-m-Y', strtotime($data['fecha']));
-
-            $this->hora = '00:00:00';
-            if (!is_null($data['hora'])) {
-                $this->hora = date('H:i:s', strtotime($data['hora']));
-            }
-
-            $this->codproveedor = $data['codproveedor'];
-            $this->nombre = $data['nombre'];
-            $this->cifnif = $data['cifnif'];
-            $this->neto = floatval($data['neto']);
-            $this->total = floatval($data['total']);
-            $this->totaliva = floatval($data['totaliva']);
-            $this->totaleuros = floatval($data['totaleuros']);
-            $this->irpf = floatval($data['irpf']);
-            $this->totalirpf = floatval($data['totalirpf']);
-            $this->tasaconv = floatval($data['tasaconv']);
-            $this->totalrecargo = floatval($data['totalrecargo']);
-            $this->observaciones = $this->no_html($data['observaciones']);
-            $this->numdocs = intval($data['numdocs']);
         } else {
+            $this->clear_trait($this->default_items);
             $this->idalbaran = NULL;
             $this->idfactura = NULL;
-            $this->codigo = '';
-            $this->numero = '';
-            $this->numproveedor = '';
-            $this->codejercicio = NULL;
-            $this->codserie = $this->default_items->codserie();
-            $this->coddivisa = NULL;
-            $this->codpago = $this->default_items->codpago();
-            $this->codagente = NULL;
-            $this->codalmacen = $this->default_items->codalmacen();
-            $this->fecha = Date('d-m-Y');
-            $this->hora = Date('H:i:s');
-            $this->codproveedor = NULL;
-            $this->nombre = '';
-            $this->cifnif = '';
-            $this->neto = 0.0;
-            $this->total = 0.0;
-            $this->totaliva = 0.0;
-            $this->totaleuros = 0.0;
-            $this->irpf = 0.0;
-            $this->totalirpf = 0.0;
-            $this->tasaconv = 1.0;
-            $this->totalrecargo = 0.0;
-            $this->observaciones = '';
             $this->ptefactura = TRUE;
-            $this->numdocs = 0;
         }
     }
 
@@ -254,17 +82,6 @@ class albaran_proveedor extends \fs_model
         new \factura_proveedor();
 
         return '';
-    }
-
-    public function observaciones_resume()
-    {
-        if ($this->observaciones == '') {
-            return '-';
-        } else if (strlen($this->observaciones) < 60) {
-            return $this->observaciones;
-        }
-
-        return substr($this->observaciones, 0, 50) . '...';
     }
 
     public function url()
@@ -283,24 +100,6 @@ class albaran_proveedor extends \fs_model
         }
 
         return 'index.php?page=compras_factura&id=' . $this->idfactura;
-    }
-
-    public function agente_url()
-    {
-        if (is_null($this->codagente)) {
-            return "index.php?page=admin_agentes";
-        }
-
-        return "index.php?page=admin_agente&cod=" . $this->codagente;
-    }
-
-    public function proveedor_url()
-    {
-        if (is_null($this->codproveedor)) {
-            return "index.php?page=compras_proveedores";
-        }
-
-        return "index.php?page=compras_proveedor&cod=" . $this->codproveedor;
     }
 
     public function get_lineas()
@@ -348,31 +147,11 @@ class albaran_proveedor extends \fs_model
      */
     public function test()
     {
-        $this->nombre = $this->no_html($this->nombre);
-        if ($this->nombre == '') {
-            $this->nombre = '-';
-        }
-
-        $this->numproveedor = $this->no_html($this->numproveedor);
-        $this->observaciones = $this->no_html($this->observaciones);
-
-        /**
-         * Usamos el euro como divisa puente a la hora de sumar, comparar
-         * o convertir cantidades en varias divisas. Por este motivo necesimos
-         * muchos decimales.
-         */
-        $this->totaleuros = round($this->total / $this->tasaconv, 5);
-
         if ($this->idfactura) {
             $this->ptefactura = FALSE;
         }
 
-        if ($this->floatcmp($this->total, $this->neto + $this->totaliva - $this->totalirpf + $this->totalrecargo, FS_NF0, TRUE)) {
-            return TRUE;
-        }
-
-        $this->new_error_msg("Error grave: El total está mal calculado. ¡Avisa al informático!");
-        return FALSE;
+        return $this->test_trait();
     }
 
     /**
@@ -382,46 +161,7 @@ class albaran_proveedor extends \fs_model
      */
     public function full_test($duplicados = TRUE)
     {
-        $status = TRUE;
-
-        /// comprobamos las líneas
-        $neto = 0;
-        $iva = 0;
-        $irpf = 0;
-        $recargo = 0;
-        foreach ($this->get_lineas() as $l) {
-            if (!$l->test()) {
-                $status = FALSE;
-            }
-
-            $neto += $l->pvptotal;
-            $iva += $l->pvptotal * $l->iva / 100;
-            $irpf += $l->pvptotal * $l->irpf / 100;
-            $recargo += $l->pvptotal * $l->recargo / 100;
-        }
-
-        $neto = round($neto, FS_NF0);
-        $iva = round($iva, FS_NF0);
-        $irpf = round($irpf, FS_NF0);
-        $recargo = round($recargo, FS_NF0);
-        $total = $neto + $iva - $irpf + $recargo;
-
-        if (!$this->floatcmp($this->neto, $neto, FS_NF0, TRUE)) {
-            $this->new_error_msg("Valor neto del " . FS_ALBARAN . ' ' . $this->codigo . " incorrecto. Valor correcto: " . $neto . " y tiene el valor " . $this->neto);
-            $status = FALSE;
-        } else if (!$this->floatcmp($this->totaliva, $iva, FS_NF0, TRUE)) {
-            $this->new_error_msg("Valor totaliva del " . FS_ALBARAN . ' ' . $this->codigo . " incorrecto. Valor correcto: " . $iva . " y tiene el valor " . $this->totaliva);
-            $status = FALSE;
-        } else if (!$this->floatcmp($this->totalirpf, $irpf, FS_NF0, TRUE)) {
-            $this->new_error_msg("Valor totalirpf del " . FS_ALBARAN . ' ' . $this->codigo . " incorrecto. Valor correcto: " . $irpf . " y tiene el valor " . $this->totalirpf);
-            $status = FALSE;
-        } else if (!$this->floatcmp($this->totalrecargo, $recargo, FS_NF0, TRUE)) {
-            $this->new_error_msg("Valor totalrecargo del " . FS_ALBARAN . ' ' . $this->codigo . " incorrecto. Valor correcto: " . $recargo . " y tiene el valor " . $this->totalrecargo);
-            $status = FALSE;
-        } else if (!$this->floatcmp($this->total, $total, FS_NF0, TRUE)) {
-            $this->new_error_msg("Valor total del " . FS_ALBARAN . ' ' . $this->codigo . " incorrecto. Valor correcto: " . $total . " y tiene el valor " . $this->total);
-            $status = FALSE;
-        }
+        $status = $this->full_test_trait(FS_ALBARAN);
 
         if ($this->total != 0) {
             /// comprobamos las facturas asociadas

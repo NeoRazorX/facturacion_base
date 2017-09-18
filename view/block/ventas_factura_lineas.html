@@ -1,49 +1,8 @@
-{$dto1=$fsc->calc_due(array($fsc->factura->dtopor1))}
-{$dto2=$fsc->calc_due(array($fsc->factura->dtopor1,$fsc->factura->dtopor2))}
-{$dto3=$fsc->calc_due(array($fsc->factura->dtopor1,$fsc->factura->dtopor2,$fsc->factura->dtopor3))}
-{$dto4=$fsc->calc_due(array($fsc->factura->dtopor1,$fsc->factura->dtopor2,$fsc->factura->dtopor3,$fsc->factura->dtopor4))}
-{$dto5=$fsc->calc_due(array($fsc->factura->dtopor1,$fsc->factura->dtopor2,$fsc->factura->dtopor3,$fsc->factura->dtopor4,$fsc->factura->dtopor5))}
-<script type="text/javascript">
-$(document).ready(function () {
-    var show = [];
-    {loop="$lineas"}
-        l_dto2 = {$value->dtopor2};
-        if (isNaN(l_dto2)) {
-            l_dto2 = 0;
-        }
-        l_dto3 = {$value->dtopor3};
-        if (isNaN(l_dto3)) {
-            l_dto3 = 0;
-        }
-        l_dto4 = {$value->dtopor4};
-        if (isNaN(l_dto4)) {
-            l_dto4 = 0;
-        }
-
-        if ((l_dto2 == 0 && l_dto3 == 0 && l_dto4 == 0)) {
-            show[{$counter}] = false;
-        } else {
-            show[{$counter}] = true;
-        }
-    {/loop}
-
-    // Descuentos de líneas del documento
-    Array.prototype.contains = function(elem) {
-        for (var i in this) {
-            if (this[i] == elem) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    if(show.contains(true)) {
-        $(".dtosl").show();
-    } else {
-        $(".dtosl").hide();
-    }
-});
-</script>
+{$dto1=$fsc->fbase_calc_due(array($fsc->factura->dtopor1))}
+{$dto2=$fsc->fbase_calc_due(array($fsc->factura->dtopor1,$fsc->factura->dtopor2))}
+{$dto3=$fsc->fbase_calc_due(array($fsc->factura->dtopor1,$fsc->factura->dtopor2,$fsc->factura->dtopor3))}
+{$dto4=$fsc->fbase_calc_due(array($fsc->factura->dtopor1,$fsc->factura->dtopor2,$fsc->factura->dtopor3,$fsc->factura->dtopor4))}
+{$dto5=$fsc->fbase_calc_due(array($fsc->factura->dtopor1,$fsc->factura->dtopor2,$fsc->factura->dtopor3,$fsc->factura->dtopor4,$fsc->factura->dtopor5))}
 <div class="table-responsive">
     <table class="table table-hover">
         <thead>
@@ -100,82 +59,61 @@ $(document).ready(function () {
         </tbody>
     </table>
     <table class="table table-hover">
-        <tfoot>
+        <thead>
             <tr>
                 {if="$fsc->factura->coddivisa!=$fsc->empresa->coddivisa"}
-                <td colspan='{if="$fsc->factura->netosindto==$fsc->factura->neto"}6{else}1{/if}' class="text-right warning">
-                    <b>{$fsc->factura->coddivisa}:</b>
-                </td>
+                <th>Divisa</th>
                 {/if}
-                <td class="text-right dtost">
-                    <b>Neto<br/><br/>{$fsc->show_precio($fsc->factura->netosindto, $fsc->factura->coddivisa)}</b>
-                </td>
-                <td class="text-right dtost">
-                    <b>Dto. 1<br/>{$fsc->factura->dtopor1}%<br/>
-                    {if="$fsc->factura->dtopor1!=0"}
+                <th class="text-right">Subtotal</th>
+                <th class="text-right">Dto.</th>
+                <th class="text-right dtost">Dto. 2</th>
+                <th class="text-right dtost">Dto. 3</th>
+                <th class="text-right dtost">Dto. 4</th>
+                <th class="text-right dtost">Dto. 5</th>
+                <th class="text-right">Neto</th>
+                <th class="text-right">{#FS_IVA#}</th>
+                <th class="text-right recargo">Recargo</th>
+                <th class="text-right irpf">{#FS_IRPF#}</th>
+                <th class="text-right">Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                {if="$fsc->factura->coddivisa!=$fsc->empresa->coddivisa"}
+                <td>{$fsc->factura->coddivisa}</td>
+                {/if}
+                <td class="text-right">{$fsc->show_precio($fsc->factura->netosindto, $fsc->factura->coddivisa)}</td>
+                <td class="text-right">
+                    ({$fsc->factura->dtopor1}%)
                     {$fsc->show_precio($fsc->factura->netosindto*(1-$dto1), $fsc->factura->coddivisa)}
-                    {else}
-                    {$fsc->show_precio(0, $fsc->factura->coddivisa)}
-                    {/if}
-                    </b>
                 </td>
                 <td class="text-right dtost">
-                    <b>Dto. 2<br/>{$fsc->factura->dtopor2}%<br/>
-                    {if="$fsc->factura->dtopor2!=0"}
+                    ({$fsc->factura->dtopor2}%)
                     {$fsc->show_precio($fsc->factura->netosindto*($dto1-$dto2), $fsc->factura->coddivisa)}
-                    {else}
-                    {$fsc->show_precio(0, $fsc->factura->coddivisa)}
-                    {/if}
-                    </b>
                 </td>
                 <td class="text-right dtost">
-                    <b>Dto. 3<br/>{$fsc->factura->dtopor3}%<br/>
-                    {if="$fsc->factura->dtopor3!=0"}
+                    ({$fsc->factura->dtopor3}%)
                     {$fsc->show_precio($fsc->factura->netosindto*($dto2-$dto3), $fsc->factura->coddivisa)}
-                    {else}
-                    {$fsc->show_precio(0, $fsc->factura->coddivisa)}
-                    {/if}
-                    </b>
                 </td>
                 <td class="text-right dtost">
-                    <b>Dto. 4<br/>{$fsc->factura->dtopor4}%<br/>
-                    {if="$fsc->factura->dtopor4!=0"}
+                    ({$fsc->factura->dtopor4}%)
                     {$fsc->show_precio($fsc->factura->netosindto*($dto3-$dto4), $fsc->factura->coddivisa)}
-                    {else}
-                    {$fsc->show_precio(0, $fsc->factura->coddivisa)}
-                    {/if}
-                    </b>
                 </td>
                 <td class="text-right dtost">
-                    <b>Dto. 5<br/>{$fsc->factura->dtopor5}%<br/>
-                    {if="$fsc->factura->dtopor5!=0"}
+                    ({$fsc->factura->dtopor5}%)
                     {$fsc->show_precio($fsc->factura->netosindto*($dto4-$dto5), $fsc->factura->coddivisa)}
-                    {else}
-                    {$fsc->show_precio(0, $fsc->factura->coddivisa)}
-                    {/if}
-                    </b>
                 </td>
-                <td class="text-right">
-                    <b>Base<br/><br/>{$fsc->show_precio($fsc->factura->neto, $fsc->factura->coddivisa)}</b>
-                </td>
-                <td class="text-right">
-                    <b>{#FS_IVA#}<br/><br/>{$fsc->show_precio($fsc->factura->totaliva, $fsc->factura->coddivisa)}</b>
-                </td>
-                <td class="text-right recargo">
-                    <b>Recargo<br/><br/>{$fsc->show_precio($fsc->factura->totalrecargo, $fsc->factura->coddivisa)}</b>
-                </td>
-                <td class="text-right irpf">
-                    <b>{#FS_IRPF#}<br/><br/>-{$fsc->show_precio($fsc->factura->totalirpf, $fsc->factura->coddivisa)}</b>
-                </td>
-                <td class="text-right">
-                    <b>Total<br/><br/>{$fsc->show_precio($fsc->factura->total, $fsc->factura->coddivisa)}</b>
-                </td>
+                <td class="text-right">{$fsc->show_precio($fsc->factura->neto, $fsc->factura->coddivisa)}</td>
+                <td class="text-right">{$fsc->show_precio($fsc->factura->totaliva, $fsc->factura->coddivisa)}</td>
+                <td class="text-right recargo">{$fsc->show_precio($fsc->factura->totalrecargo, $fsc->factura->coddivisa)}</td>
+                <td class="text-right irpf">-{$fsc->show_precio($fsc->factura->totalirpf, $fsc->factura->coddivisa)}</td>
+                <td class="text-right">{$fsc->show_precio($fsc->factura->total, $fsc->factura->coddivisa)}</td>
             </tr>
             {if="$fsc->factura->coddivisa!=$fsc->empresa->coddivisa"}
             <tr class="warning">
-                <td colspan='{if="$fsc->factura->netosindto==$fsc->factura->neto"}6{else}1{/if}' class="text-right"><b>{$fsc->empresa->coddivisa}:</td>
-                <td class="dtost"></td>
-                <td class="dtost"></td>
+                <td>{$fsc->empresa->coddivisa}</td>
+                <td></td>
+                <td></td>
                 <td class="dtost"></td>
                 <td class="dtost"></td>
                 <td class="dtost"></td>
@@ -184,10 +122,12 @@ $(document).ready(function () {
                 <td></td>
                 <td class="recargo"></td>
                 <td class="irpf"></td>
-                <td class="text-right"><b>{$fsc->show_precio($fsc->euro_convert($fsc->factura->totaleuros, $fsc->factura->coddivisa, $fsc->factura->tasaconv))}</b></td>
+                <td class="text-right">
+                    <b>{$fsc->show_precio($fsc->euro_convert($fsc->factura->totaleuros, $fsc->factura->coddivisa, $fsc->factura->tasaconv))}</b>
+                </td>
             </tr>
             {/if}
-        </tfoot>
+        </tbody>
     </table>
 </div>
 <div class="container-fluid">

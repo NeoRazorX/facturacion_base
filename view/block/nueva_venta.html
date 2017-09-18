@@ -45,6 +45,9 @@
                     {if="$value->codtarifa"}
                     <span class="glyphicon glyphicon-usd" aria-hidden="true"></span>
                     tarifa {$value->codtarifa}
+                    {elseif="$fsc->cliente_s->codtarifa"}
+                    <span class="glyphicon glyphicon-usd" aria-hidden="true"></span>
+                    tarifa {$fsc->cliente_s->codtarifa}
                     {else}
                     <span class="glyphicon glyphicon-usd" aria-hidden="true"></span>
                     ninguna tarifa asignada.
