@@ -938,11 +938,11 @@ class informe_albaranes extends fbase_controller
                 'cliente' => '',
                 'proveedor' => '',
                 FS_CIFNIF => $doc->cifnif,
-                'neto' => $this->show_numero($doc->neto),
-                'iva' => $this->show_numero($doc->totaliva),
-                're' => $this->show_numero($doc->totalrecargo),
-                'irpf' => $this->show_numero($doc->totalirpf),
-                'total' => $this->show_numero($doc->total),
+                'neto' => round($doc->neto, FS_NF0),
+                'iva' => round($doc->totaliva, FS_NF0),
+                're' => round($doc->totalrecargo, FS_NF0),
+                'irpf' => round($doc->totalirpf, FS_NF0),
+                'total' => round($doc->total, FS_NF0),
             );
 
             if ($tipo == 'compra') {
@@ -987,11 +987,11 @@ class informe_albaranes extends fbase_controller
                 'fecha' => $doc->fecha,
                 'cliente' => '',
                 'cifnif' => $doc->cifnif,
-                'neto' => $this->show_numero($doc->neto),
-                'iva' => $this->show_numero($doc->totaliva),
-                're' => $this->show_numero($doc->totalrecargo),
-                'irpf' => $this->show_numero($doc->totalirpf),
-                'total' => $this->show_numero($doc->total),
+                'neto' => round($doc->neto, FS_NF0),
+                'iva' => round($doc->totaliva, FS_NF0),
+                're' => round($doc->totalrecargo, FS_NF0),
+                'irpf' => round($doc->totalirpf, FS_NF0),
+                'total' => round($doc->total, FS_NF0),
             );
 
             if ($tipo == 'compra') {
