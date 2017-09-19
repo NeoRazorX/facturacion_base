@@ -620,6 +620,12 @@ function buscar_articulos()
 }
 
 $(document).ready(function () {
+    /**
+     * Renombramos el id "lineas_albaran" a "lineas_doc", para asegurar que no deja de funcionar
+     * hasta que todos los plugins gratuitos y de pago hayan aplicado el cambio.
+     */
+    $("#lineas_albaran").attr('id', 'lineas_doc');
+    
     $("#i_new_line").click(function () {
         $("#i_new_line").val("");
         $("#nav_articulos li").each(function () {
