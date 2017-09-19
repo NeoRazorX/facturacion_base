@@ -577,7 +577,7 @@ class contabilidad_ejercicio extends fbase_controller
                     }
                 }
             } else {
-                $this->new_error("Imposible leer el archivo.");
+                $this->new_error_msg("Imposible leer el archivo.");
             }
         }
     }
