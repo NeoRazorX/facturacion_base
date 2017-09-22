@@ -84,6 +84,7 @@ class ventas_factura_devolucion extends fs_controller
 
             $frec->irpf = 0;
             $frec->neto = 0;
+            $frec->netosindto = 0;
             $frec->total = 0;
             $frec->totalirpf = 0;
             $frec->totaliva = 0;
@@ -93,11 +94,13 @@ class ventas_factura_devolucion extends fs_controller
             foreach ($this->factura->get_lineas() as $value) {
                 if (isset($_POST['devolver_' . $value->idlinea]) && floatval($_POST['devolver_' . $value->idlinea]) > 0) {
                     $guardar = TRUE;
+                    break;
                 }
             }
-            
+
+            /// función auxiliar para implementar en los plugins que lo necesiten
             fs_generar_numero2($frec);
-            
+
             if ($guardar) {
                 if ($frec->save()) {
                     $art0 = new articulo();
@@ -110,17 +113,16 @@ class ventas_factura_devolucion extends fs_controller
                             $linea->idalbaran = NULL;
                             $linea->cantidad = 0 - floatval($_POST['devolver_' . $value->idlinea]);
                             $linea->pvpsindto = $linea->cantidad * $linea->pvpunitario;
-                            $linea->pvptotal = $linea->cantidad * $linea->pvpunitario * (100 - $linea->dtopor) / 100;
+
+                            // Descuento Unificado Equivalente
+                            $due_linea = $this->fbase_calc_due(array($linea->dtopor, $linea->dtopor2, $linea->dtopor3, $linea->dtopor4));
+                            $linea->pvptotal = $linea->cantidad * $linea->pvpunitario * $due_linea;
+
                             if ($linea->save()) {
                                 $articulo = $art0->get($linea->referencia);
                                 if ($articulo) {
                                     $articulo->sum_stock($frec->codalmacen, 0 - $linea->cantidad, FALSE, $linea->codcombinacion);
                                 }
-
-                                $frec->neto += $linea->pvptotal;
-                                $frec->totaliva += ($linea->pvptotal * $linea->iva / 100);
-                                $frec->totalirpf += ($linea->pvptotal * $linea->irpf / 100);
-                                $frec->totalrecargo += ($linea->pvptotal * $linea->recargo / 100);
 
                                 if ($linea->irpf > $frec->irpf) {
                                     $frec->irpf = $linea->irpf;
@@ -129,17 +131,25 @@ class ventas_factura_devolucion extends fs_controller
                         }
                     }
 
-                    /// redondeamos
-                    $frec->neto = round($frec->neto, FS_NF0);
-                    $frec->totaliva = round($frec->totaliva, FS_NF0);
-                    $frec->totalirpf = round($frec->totalirpf, FS_NF0);
-                    $frec->totalrecargo = round($frec->totalrecargo, FS_NF0);
-                    $frec->total = $frec->neto + $frec->totaliva - $frec->totalirpf + $frec->totalrecargo;
+                    /// obtenemos los subtotales por impuesto
+                    $due_totales = $this->fbase_calc_due([$frec->dtopor1, $frec->dtopor2, $frec->dtopor3, $frec->dtopor4, $frec->dtopor5]);
+                    foreach ($this->fbase_get_subtotales_documento($frec->get_lineas(), $due_totales) as $subt) {
+                        $frec->netosindto += $subt['netosindto'];
+                        $frec->neto += $subt['neto'];
+                        $frec->totaliva += $subt['iva'];
+                        $frec->totalirpf += $subt['irpf'];
+                        $frec->totalrecargo += $subt['recargo'];
+                    }
+
+                    $frec->total = round($frec->neto + $frec->totaliva - $frec->totalirpf + $frec->totalrecargo, FS_NF0);
                     $frec->pagada = TRUE;
+
                     if ($frec->save()) {
                         $this->generar_asiento($frec);
+
+                        /// Función de ejecución de tareas post guardado correcto de la factura
                         fs_documento_post_save($frec);
-                        
+
                         $this->new_message(FS_FACTURA_RECTIFICATIVA . ' creada correctamente.');
                     }
                 } else {
@@ -151,6 +161,10 @@ class ventas_factura_devolucion extends fs_controller
         }
     }
 
+    /**
+     * 
+     * @param factura_cliente $factura
+     */
     private function generar_asiento(&$factura)
     {
         if ($this->empresa->contintegrada) {
@@ -164,6 +178,9 @@ class ventas_factura_devolucion extends fs_controller
             foreach ($asiento_factura->messages as $msg) {
                 $this->new_message($msg);
             }
+        } else {
+            /// generamos las líneas de IVA de todas formas
+            $factura->get_lineas_iva();
         }
     }
 

@@ -336,9 +336,13 @@ class compras_albaran extends fbase_controller
             }
         }
 
-        fs_generar_numero2($this->albaran);
+        /// función auxiliar para implementar en los plugins que lo necesiten
+        if (!fs_generar_numproveedor($this->albaran)) {
+            $this->albaran->numproveedor = $_POST['numproveedor'];
+        }
 
         if ($this->albaran->save()) {
+            /// Función de ejecución de tareas post guardado correcto del albarán
             fs_documento_post_save($this->albaran);
 
             $this->new_message(ucfirst(FS_ALBARAN) . " modificado correctamente.");

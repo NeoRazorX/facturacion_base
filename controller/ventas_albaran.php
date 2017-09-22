@@ -51,6 +51,7 @@ class ventas_albaran extends fbase_controller
         $this->ppage = $this->page->get('ventas_albaranes');
         $this->agente = FALSE;
 
+        $this->agencia = new agencia_transporte();
         $albaran = new albaran_cliente();
         $this->albaran = FALSE;
         $this->almacen = new almacen();
@@ -65,7 +66,6 @@ class ventas_albaran extends fbase_controller
         $this->nuevo_albaran_url = FALSE;
         $this->pais = new pais();
         $this->serie = new serie();
-        $this->agencia = new agencia_transporte();
 
         /// ¿El usuario tiene permiso para eliminar la factura?
         $this->allow_delete_fac = $this->user->allow_delete_on('ventas_factura');
@@ -294,11 +294,11 @@ class ventas_albaran extends fbase_controller
                                 $lineas[$k]->dtopor3 = floatval($_POST['dto3_' . $num]);
                                 $lineas[$k]->dtopor4 = floatval($_POST['dto4_' . $num]);
                                 $lineas[$k]->pvpsindto = $value->cantidad * $value->pvpunitario;
-                                
+
                                 // Descuento Unificado Equivalente
                                 $due_linea = $this->fbase_calc_due(array($lineas[$k]->dtopor, $lineas[$k]->dtopor2, $lineas[$k]->dtopor3, $lineas[$k]->dtopor4));
                                 $lineas[$k]->pvptotal = $lineas[$k]->cantidad * $lineas[$k]->pvpunitario * $due_linea;
-                                
+
                                 $lineas[$k]->descripcion = $_POST['desc_' . $num];
                                 $lineas[$k]->codimpuesto = NULL;
                                 $lineas[$k]->iva = 0;
@@ -358,7 +358,7 @@ class ventas_albaran extends fbase_controller
                             $linea->dtopor3 = floatval($_POST['dto3_' . $num]);
                             $linea->dtopor4 = floatval($_POST['dto4_' . $num]);
                             $linea->pvpsindto = $linea->cantidad * $linea->pvpunitario;
-                            
+
                             // Descuento Unificado Equivalente
                             $due_linea = $this->fbase_calc_due(array($linea->dtopor, $linea->dtopor2, $linea->dtopor3, $linea->dtopor4));
                             $linea->pvptotal = $linea->cantidad * $linea->pvpunitario * $due_linea;
@@ -376,7 +376,7 @@ class ventas_albaran extends fbase_controller
                                     /// actualizamos el stock
                                     $art0->sum_stock($this->albaran->codalmacen, 0 - $linea->cantidad, FALSE, $linea->codcombinacion);
                                 }
-                                
+
                                 if ($linea->irpf > $this->albaran->irpf) {
                                     $this->albaran->irpf = $linea->irpf;
                                 }
@@ -398,7 +398,7 @@ class ventas_albaran extends fbase_controller
                 }
 
                 $this->albaran->total = round($this->albaran->neto + $this->albaran->totaliva - $this->albaran->totalirpf + $this->albaran->totalrecargo, FS_NF0);
-                
+
                 if (abs(floatval($_POST['atotal']) - $this->albaran->total) > .01) {
                     $this->new_error_msg("El total difiere entre el controlador y la vista (" . $this->albaran->total .
                         " frente a " . $_POST['atotal'] . "). Debes informar del error.");
@@ -406,9 +406,13 @@ class ventas_albaran extends fbase_controller
             }
         }
 
-        fs_generar_numero2($this->albaran);
+        /// función auxiliar para implementar en los plugins que lo necesiten
+        if (!fs_generar_numero2($this->albaran)) {
+            $this->albaran->numero2 = $_POST['numero2'];
+        }
 
         if ($this->albaran->save()) {
+            /// Función de ejecución de tareas post guardado correcto del albarán
             fs_documento_post_save($this->albaran);
 
             $this->new_message(ucfirst(FS_ALBARAN) . " modificado correctamente.");

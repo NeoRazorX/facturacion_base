@@ -544,8 +544,10 @@ class nueva_venta extends fbase_controller
                 $presupuesto->finoferta = date("Y-m-d", strtotime($_POST['fecha'] . " +" . intval($dias) . " days"));
             }
 
-            /// Se coloca antes del save para poder obtener todos los datos necesarios para procesar el numero2
-            fs_generar_numero2($presupuesto);
+            /// función auxiliar para implementar en los plugins que lo necesiten
+            if (!fs_generar_numero2($presupuesto)) {
+                $presupuesto->numero2 = $_POST['numero2'];
+            }
 
             if ($presupuesto->save()) {
                 $art0 = new articulo();
@@ -593,9 +595,7 @@ class nueva_venta extends fbase_controller
                             $presupuesto->total . " frente a " . $_POST['atotal'] . "). Debes informar del error.");
                         $presupuesto->delete();
                     } else if ($presupuesto->save()) {
-                        /**
-                         * Función de ejecución de tareas post guardado correcto del presupuesto
-                         */
+                        /// Función de ejecución de tareas post guardado correcto del presupuesto
                         fs_documento_post_save($presupuesto);
 
                         $this->new_message("<a href='" . $presupuesto->url() . "'>" . ucfirst(FS_PRESUPUESTO) . "</a> guardado correctamente.");
@@ -675,8 +675,10 @@ class nueva_venta extends fbase_controller
         if ($continuar) {
             $this->nuevo_documento($pedido, $ejercicio, $serie, $almacen, $forma_pago, $divisa, $cliente);
 
-            /// Se coloca antes del save para poder obtener todos los datos necesarios para procesar el numero2
-            fs_generar_numero2($pedido);
+            /// función auxiliar para implementar en los plugins que lo necesiten
+            if (!fs_generar_numero2($pedido)) {
+                $pedido->numero2 = $_POST['numero2'];
+            }
 
             if ($pedido->save()) {
                 $art0 = new articulo();
@@ -724,9 +726,7 @@ class nueva_venta extends fbase_controller
                             . $pedido->total . " frente a " . $_POST['atotal'] . "). Debes informar del error.");
                         $pedido->delete();
                     } else if ($pedido->save()) {
-                        /**
-                         * Función de ejecución de tareas post guardado correcto del pedido
-                         */
+                        /// Función de ejecución de tareas post guardado correcto del pedido
                         fs_documento_post_save($pedido);
 
                         $this->new_message("<a href='" . $pedido->url() . "'>" . ucfirst(FS_PEDIDO) . "</a> guardado correctamente.");
@@ -808,8 +808,10 @@ class nueva_venta extends fbase_controller
         if ($continuar) {
             $this->nuevo_documento($albaran, $ejercicio, $serie, $almacen, $forma_pago, $divisa, $cliente);
 
-            /// Se coloca antes del save para poder obtener todos los datos necesarios para procesar el numero2
-            fs_generar_numero2($albaran);
+            /// función auxiliar para implementar en los plugins que lo necesiten
+            if (!fs_generar_numero2($albaran)) {
+                $albaran->numero2 = $_POST['numero2'];
+            }
 
             if ($albaran->save()) {
                 $trazabilidad = FALSE;
@@ -878,9 +880,7 @@ class nueva_venta extends fbase_controller
                             " frente a " . $albaran->total . "). Debes informar del error.");
                         $albaran->delete();
                     } else if ($albaran->save()) {
-                        /**
-                         * Función de ejecución de tareas post guardado correcto del albaran
-                         */
+                        /// Función de ejecución de tareas post guardado correcto del albaran
                         fs_documento_post_save($albaran);
 
                         $this->new_message("<a href='" . $albaran->url() . "'>" . ucfirst(FS_ALBARAN) . "</a> guardado correctamente.");
@@ -981,8 +981,10 @@ class nueva_venta extends fbase_controller
 
             $factura->vencimiento = $forma_pago->calcular_vencimiento($factura->fecha, $cliente->diaspago);
 
-            /// Se coloca antes del save para poder obtener todos los datos necesarios para procesar el numero2
-            fs_generar_numero2($factura);
+            /// función auxiliar para implementar en los plugins que lo necesiten
+            if (!fs_generar_numero2($factura)) {
+                $factura->numero2 = $_POST['numero2'];
+            }
 
             $regularizacion = new regularizacion_iva();
             if ($regularizacion->get_fecha_inside($factura->fecha)) {
@@ -1057,9 +1059,7 @@ class nueva_venta extends fbase_controller
                     } else if ($factura->save()) {
                         $this->fbase_generar_asiento($factura, FALSE);
 
-                        /**
-                         * Función de ejecución de tareas post guardado correcto de la factura
-                         */
+                        /// Función de ejecución de tareas post guardado correcto de la factura
                         fs_documento_post_save($factura);
 
                         $this->new_message("<a href='" . $factura->url() . "'>Factura</a> guardada correctamente.");
