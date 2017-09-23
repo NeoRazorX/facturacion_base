@@ -721,7 +721,7 @@ class nueva_venta extends fbase_controller
 
                     $pedido->total = round($pedido->neto + $pedido->totaliva - $pedido->totalirpf + $pedido->totalrecargo, FS_NF0);
 
-                    if (abs(floatval($_POST['atotal']) - $pedido->total) >= .02) {
+                    if (abs(floatval($_POST['atotal']) - $pedido->total) > .01) {
                         $this->new_error_msg("El total difiere entre el controlador y la vista ("
                             . $pedido->total . " frente a " . $_POST['atotal'] . "). Debes informar del error.");
                         $pedido->delete();

@@ -296,12 +296,14 @@ class ventas_imprimir extends compras_imprimir
             /// ¿El articulo tiene trazabilidad?
             $descripcion .= $this->generar_trazabilidad($lineas[$linea_actual]);
 
+            $due_lineas = $this->fbase_calc_desc_due([$lineas[$linea_actual]->dtopor, $lineas[$linea_actual]->dtopor2, $lineas[$linea_actual]->dtopor3, $lineas[$linea_actual]->dtopor4]);
+
             $fila = array(
                 'alb' => '-',
                 'cantidad' => $this->show_numero($lineas[$linea_actual]->cantidad, $dec_cantidad),
                 'descripcion' => $descripcion,
                 'pvp' => $this->show_precio($lineas[$linea_actual]->pvpunitario, $this->documento->coddivisa, TRUE, FS_NF0_ART),
-                'dto' => $this->show_numero($lineas[$linea_actual]->dtopor) . " %",
+                'dto' => $this->show_numero($due_lineas) . " %",
                 'iva' => $this->show_numero($lineas[$linea_actual]->iva) . " %",
                 're' => $this->show_numero($lineas[$linea_actual]->recargo) . " %",
                 'irpf' => $this->show_numero($lineas[$linea_actual]->irpf) . " %",
