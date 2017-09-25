@@ -425,8 +425,10 @@ class tpv_recambios extends fbase_controller
                 }
             }
 
-            /// Colocamos el numero2 antes del save para obtener cualquier dato adicional
-            fs_generar_numero2($factura);
+            /// función auxiliar para implementar en los plugins que lo necesiten
+            if (!fs_generar_numero2($factura)) {
+                $factura->numero2 = $_POST['numero2'];
+            }
 
             $regularizacion = new regularizacion_iva();
             if ($regularizacion->get_fecha_inside($factura->fecha)) {
@@ -454,8 +456,8 @@ class tpv_recambios extends fbase_controller
                             $linea->pvpunitario = floatval($_POST['pvp_' . $i]);
                             $linea->cantidad = floatval($_POST['cantidad_' . $i]);
                             $linea->dtopor = floatval($_POST['dto_' . $i]);
-                            $linea->pvpsindto = ($linea->pvpunitario * $linea->cantidad);
-                            $linea->pvptotal = floatval($_POST['neto_' . $i]);
+                            $linea->pvpsindto = $linea->pvpunitario * $linea->cantidad;
+                            $linea->pvptotal = $linea->cantidad * $linea->pvpunitario * (100 - $linea->dtopor) / 100;
 
                             if ($articulo) {
                                 if ($articulo->trazabilidad) {
@@ -504,9 +506,7 @@ class tpv_recambios extends fbase_controller
                     } else if ($factura->save()) {
                         $this->generar_asiento($factura);
 
-                        /**
-                         * Función de ejecución de tareas post guardado correcto de la factura
-                         */
+                        /// Función de ejecución de tareas post guardado correcto de la factura
                         fs_documento_post_save($factura);
 
                         $this->new_message("<a href='" . $factura->url() . "'>Factura</a> guardada correctamente.");

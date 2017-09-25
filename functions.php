@@ -250,34 +250,37 @@ if (!function_exists('plantilla_email')) {
 if (!function_exists('fs_generar_numero2')) {
 
     /**
-     * Asigna el valor de numero2 si es un documento de venta 
-     * o de numproveedor si es un documento de compra.
+     * Genera y asigna el valor de numero2. Devuelve true si lo asgina.
+     * A completar en los plugins interesados.
      * @param object $documento
+     * @return boolean
      */
     function fs_generar_numero2(&$documento)
     {
-        $tipo_documento = get_class($documento);
-        $campo = 'numero2';
-        if (substr($tipo_documento, -(strlen('proveedor'))) === 'proveedor') {
-            $campo = 'numproveedor';
-        }
-
-        $numero2 = filter_input(INPUT_POST, $campo);
-        if (filter_input(INPUT_GET, $campo)) {
-            $numero2 = filter_input(INPUT_GET, $campo);
-        }
-
-        $documento->$campo = $numero2;
+        return false;
     }
 }
 
+if (!function_exists('fs_generar_numproveedor')) {
+
+    /**
+     * Genera y asigna el valor de numproveedor. Devuelve true si lo asgina.
+     * A completar en los plugins interesados.
+     * @param object $documento
+     * @return boolean
+     */
+    function fs_generar_numproveedor(&$documento)
+    {
+        return false;
+    }
+}
 
 if (!function_exists('fs_documento_post_save')) {
 
     /**
-     * Genera tareas despues que se guarda un documento de venta o de compra
+     * Genera tareas despues que se guarde un documento de venta o de compra
      * En facturacion_base solo devuelve un ok en los plugins por pais
-     * se puede agregar procesos adicionales
+     * se puede agregar procesos adicionales.
      * @param object $documento
      * @return boolean
      */

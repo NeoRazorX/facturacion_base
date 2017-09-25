@@ -306,7 +306,6 @@ class fbase_controller extends fs_controller
 
         $factura->codserie = $albaranes[0]->codserie;
         $factura->irpf = $albaranes[0]->irpf;
-        $factura->numero2 = $albaranes[0]->numero2;
         $factura->observaciones = $albaranes[0]->observaciones;
         $factura->apartado = $albaranes[0]->apartado;
         $factura->cifnif = $albaranes[0]->cifnif;
@@ -386,7 +385,10 @@ class fbase_controller extends fs_controller
             }
         }
 
-        fs_generar_numero2($factura);
+        /// función auxiliar para implementar en los plugins que lo necesiten
+        if (!fs_generar_numero2($factura)) {
+            $factura->numero2 = $albaranes[0]->numero2;
+        }
 
         $regularizacion = new regularizacion_iva();
 
@@ -460,20 +462,18 @@ class fbase_controller extends fs_controller
 
                 if ($continuar) {
                     $this->fbase_generar_asiento($factura);
+
+                    /// Función de ejecución de tareas post guardado correcto de la factura
                     fs_documento_post_save($factura);
-                } else {
-                    if ($factura->delete()) {
-                        $this->new_error_msg("La factura se ha borrado.");
-                    } else {
-                        $this->new_error_msg("¡Imposible borrar la factura!");
-                    }
-                }
-            } else {
-                if ($factura->delete()) {
+                } else if ($factura->delete()) {
                     $this->new_error_msg("La factura se ha borrado.");
                 } else {
                     $this->new_error_msg("¡Imposible borrar la factura!");
                 }
+            } else if ($factura->delete()) {
+                $this->new_error_msg("La factura se ha borrado.");
+            } else {
+                $this->new_error_msg("¡Imposible borrar la factura!");
             }
         } else {
             $this->new_error_msg("¡Imposible guardar la factura!");
@@ -499,7 +499,6 @@ class fbase_controller extends fs_controller
         $factura->codpago = $albaranes[0]->codpago;
         $factura->codserie = $albaranes[0]->codserie;
         $factura->irpf = $albaranes[0]->irpf;
-        $factura->numproveedor = $albaranes[0]->numproveedor;
         $factura->observaciones = $albaranes[0]->observaciones;
 
         /// obtenemos los datos actualizados del proveedor
@@ -530,7 +529,10 @@ class fbase_controller extends fs_controller
             $factura->pagada = TRUE;
         }
 
-        fs_generar_numero2($factura);
+        /// función auxiliar para implementar en los plugins que lo necesiten
+        if (!fs_generar_numproveedor($factura)) {
+            $factura->numproveedor = $albaranes[0]->numproveedor;
+        }
 
         $regularizacion = new regularizacion_iva();
 
@@ -583,7 +585,7 @@ class fbase_controller extends fs_controller
 
                 $factura->total = round($factura->neto + $factura->totaliva - $factura->totalirpf + $factura->totalrecargo, FS_NF0);
                 $factura->save();
-                
+
                 foreach ($albaranes as $alb) {
                     $alb->idfactura = $factura->idfactura;
                     $alb->ptefactura = FALSE;
@@ -597,20 +599,18 @@ class fbase_controller extends fs_controller
 
                 if ($continuar) {
                     $this->fbase_generar_asiento($factura);
+
+                    /// Función de ejecución de tareas post guardado correcto de la factura
                     fs_documento_post_save($factura);
-                } else {
-                    if ($factura->delete()) {
-                        $this->new_error_msg("La factura se ha borrado.");
-                    } else {
-                        $this->new_error_msg("¡Imposible borrar la factura!");
-                    }
-                }
-            } else {
-                if ($factura->delete()) {
+                } else if ($factura->delete()) {
                     $this->new_error_msg("La factura se ha borrado.");
                 } else {
                     $this->new_error_msg("¡Imposible borrar la factura!");
                 }
+            } else if ($factura->delete()) {
+                $this->new_error_msg("La factura se ha borrado.");
+            } else {
+                $this->new_error_msg("¡Imposible borrar la factura!");
             }
         } else {
             $this->new_error_msg("¡Imposible guardar la factura!");
@@ -647,7 +647,7 @@ class fbase_controller extends fs_controller
         if ($mensaje && $ok) {
             $this->new_message("<a href='" . $factura->url() . "'>Factura</a> generada correctamente.");
         }
-        
+
         return $ok;
     }
 }

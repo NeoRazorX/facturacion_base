@@ -91,10 +91,14 @@ class compras_factura_devolucion extends fs_controller
             foreach ($this->factura->get_lineas() as $value) {
                 if (isset($_POST['devolver_' . $value->idlinea]) && floatval($_POST['devolver_' . $value->idlinea]) > 0) {
                     $guardar = TRUE;
+                    break;
                 }
             }
 
-            fs_generar_numero2($frec);
+            /// función auxiliar para implementar en los plugins que lo necesiten
+            if (!fs_generar_numproveedor($frec)) {
+                $frec->numproveedor = $_POST['numproveedor'];
+            }
 
             if ($guardar) {
                 if ($frec->save()) {
@@ -109,16 +113,12 @@ class compras_factura_devolucion extends fs_controller
                             $linea->cantidad = 0 - floatval($_POST['devolver_' . $value->idlinea]);
                             $linea->pvpsindto = $linea->cantidad * $linea->pvpunitario;
                             $linea->pvptotal = $linea->cantidad * $linea->pvpunitario * (100 - $linea->dtopor) / 100;
+
                             if ($linea->save()) {
                                 $articulo = $art0->get($linea->referencia);
                                 if ($articulo) {
                                     $articulo->sum_stock($frec->codalmacen, 0 - $linea->cantidad, TRUE, $linea->codcombinacion);
                                 }
-
-                                $frec->neto += $linea->pvptotal;
-                                $frec->totaliva += ($linea->pvptotal * $linea->iva / 100);
-                                $frec->totalirpf += ($linea->pvptotal * $linea->irpf / 100);
-                                $frec->totalrecargo += ($linea->pvptotal * $linea->recargo / 100);
 
                                 if ($linea->irpf > $frec->irpf) {
                                     $frec->irpf = $linea->irpf;
@@ -127,15 +127,21 @@ class compras_factura_devolucion extends fs_controller
                         }
                     }
 
-                    /// redondeamos
-                    $frec->neto = round($frec->neto, FS_NF0);
-                    $frec->totaliva = round($frec->totaliva, FS_NF0);
-                    $frec->totalirpf = round($frec->totalirpf, FS_NF0);
-                    $frec->totalrecargo = round($frec->totalrecargo, FS_NF0);
-                    $frec->total = $frec->neto + $frec->totaliva - $frec->totalirpf + $frec->totalrecargo;
+                    /// obtenemos los subtotales por impuesto
+                    foreach ($this->fbase_get_subtotales_documento($frec->get_lineas()) as $subt) {
+                        $frec->neto += $subt['neto'];
+                        $frec->totaliva += $subt['iva'];
+                        $frec->totalirpf += $subt['irpf'];
+                        $frec->totalrecargo += $subt['recargo'];
+                    }
+
+                    $frec->total = round($frec->neto + $frec->totaliva - $frec->totalirpf + $frec->totalrecargo, FS_NF0);
                     $frec->pagada = TRUE;
+
                     if ($frec->save()) {
                         $this->generar_asiento($frec);
+
+                        /// Función de ejecución de tareas post guardado correcto de la factura
                         fs_documento_post_save($frec);
 
                         $this->new_message(FS_FACTURA_RECTIFICATIVA . ' creada correctamente.');
@@ -149,6 +155,10 @@ class compras_factura_devolucion extends fs_controller
         }
     }
 
+    /**
+     * 
+     * @param factura_proveedor $factura
+     */
     private function generar_asiento(&$factura)
     {
         if ($this->empresa->contintegrada) {
@@ -162,6 +172,9 @@ class compras_factura_devolucion extends fs_controller
             foreach ($asiento_factura->messages as $msg) {
                 $this->new_message($msg);
             }
+        } else {
+            /// generamos las líneas de IVA de todas formas
+            $factura->get_lineas_iva();
         }
     }
 

@@ -136,7 +136,10 @@ class compras_factura extends fbase_controller
         $this->factura->cifnif = $_POST['cifnif'];
         $this->factura->set_fecha_hora($_POST['fecha'], $_POST['hora']);
 
-        fs_generar_numero2($this->factura);
+        /// función auxiliar para implementar en los plugins que lo necesiten
+        if( !fs_generar_numproveedor($this->factura) ) {
+            $this->factura->numproveedor = $_POST['numproveedor'];
+        }
 
         if ($this->factura->save()) {
             $asiento = $this->factura->get_asiento();
@@ -147,6 +150,7 @@ class compras_factura extends fbase_controller
                 }
             }
 
+            /// Función de ejecución de tareas post guardado correcto del albarán
             fs_documento_post_save($this->factura);
 
             $this->new_message("Factura modificada correctamente.");
@@ -261,6 +265,8 @@ class compras_factura extends fbase_controller
             }
 
             $this->new_message('Factura de compra ' . $this->factura->codigo . ' anulada correctamente.', TRUE);
+
+            /// Función de ejecución de tareas post guardado correcto del albarán
             fs_documento_post_save($this->factura);
         }
     }
@@ -273,6 +279,7 @@ class compras_factura extends fbase_controller
             $factura = clone $this->factura;
             $factura->idfactura = NULL;
             $factura->numero = NULL;
+            $factura->numproveedor = NULL;
             $factura->codigo = NULL;
             $factura->idasiento = NULL;
             $factura->idasientop = NULL;
@@ -284,13 +291,14 @@ class compras_factura extends fbase_controller
             $factura->codserie = $_POST['codserie'];
             $factura->set_fecha_hora($this->today(), $this->hour());
             $factura->observaciones = $_POST['motivo'];
-            $factura->neto = 0 - $factura->neto;
-            $factura->totalirpf = 0 - $factura->totalirpf;
-            $factura->totaliva = 0 - $factura->totaliva;
-            $factura->totalrecargo = 0 - $factura->totalrecargo;
-            $factura->total = $factura->neto + $factura->totaliva + $factura->totalrecargo - $factura->totalirpf;
+            $factura->neto = 0;
+            $factura->totalirpf = 0;
+            $factura->totaliva = 0;
+            $factura->totalrecargo = 0;
+            $factura->total = 0;
 
-            fs_generar_numero2($factura);
+            /// función auxiliar para implementar en los plugins que lo necesiten
+            fs_generar_numproveedor($factura);
 
             if ($factura->save()) {
                 $articulo = new articulo();
@@ -318,17 +326,33 @@ class compras_factura extends fbase_controller
                     }
                 }
 
-                if ($error) {
+                /// obtenemos los subtotales por impuesto
+                foreach ($this->fbase_get_subtotales_documento($factura->get_lineas()) as $subt) {
+                    $factura->neto += $subt['neto'];
+                    $factura->totaliva += $subt['iva'];
+                    $factura->totalirpf += $subt['irpf'];
+                    $factura->totalrecargo += $subt['recargo'];
+                }
+
+                $factura->total = round($factura->neto + $factura->totaliva - $factura->totalirpf + $factura->totalrecargo, FS_NF0);
+
+                if ($error || !$factura->save()) {
                     $factura->delete();
                     $this->new_error_msg('Se han producido errores al crear la ' . FS_FACTURA_RECTIFICATIVA);
                 } else {
                     $this->new_message('<a href="' . $factura->url() . '">' . ucfirst(FS_FACTURA_RECTIFICATIVA) . '</a> creada correctamenmte.');
-                    fs_documento_post_save($factura);
 
                     if ($this->empresa->contintegrada) {
                         $this->generar_asiento($factura);
+                    } else {
+                        /// generamos las líneas de IVA de todas formas
+                        $factura->get_lineas_iva();
                     }
 
+                    /// Función de ejecución de tareas post guardado correcto del albarán
+                    fs_documento_post_save($factura);
+
+                    /// anulamos la factura actual
                     $this->factura->anulada = TRUE;
                     $this->factura->save();
                 }

@@ -129,7 +129,7 @@
       </thead>
       {loop="$fsc->clientes"}
       <tr class='clickableRow{if="$value->debaja"} danger{elseif="$value->fechaalta==$fsc->today()"} success{/if}' href='{$value->url()}'>
-         <td class="text-center" title="quitar cliente {$value->codcliente} del grupo">
+         <td class="text-center danger" title="quitar cliente {$value->codcliente} del grupo">
             {if="$fsc->allow_delete"}
             <a href="{$fsc->url()}&quitar={$value->codcliente}" class="cancel_clickable">
                <span class="glyphicon glyphicon-trash"></span>
