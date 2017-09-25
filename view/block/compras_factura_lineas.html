@@ -1,0 +1,86 @@
+<div class="table-responsive">
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th class="text-left text-capitalize">{#FS_ALBARAN#}</th>
+                <th class="text-left">Artículo</th>
+                <th class="text-right" width="70">Cantidad</th>
+                <th class="text-right" width="80">Precio</th>
+                <th class="text-right" width="70">Dto</th>
+                <th class="text-right" width="85">Neto</th>
+                <th class="text-right" width="75">{#FS_IVA#}</th>
+                <th class="recargo text-right" width="70">RE</th>
+                <th class="irpf text-right" width="70">{#FS_IRPF#}</th>
+                <th class="text-right" width="90">Total</th>
+            </tr>
+        </thead>
+        {loop="$lineas"}
+        <tr{if="$value->cantidad<=0"} class="warning"{/if}>
+            <td>
+                {if="$value->idalbaran"}
+                <a href="{$value->albaran_url()}">{$value->albaran_codigo()}</a>
+                {$value->albaran_numero()}
+                {else}
+                -
+                {/if}
+            </td>
+            <td>
+                <a href="{$value->articulo_url()}">{$value->referencia}</a> {$value->descripcion()}
+            </td>
+            <td class="text-right">{$value->cantidad}</td>
+            <td class="text-right">{$fsc->show_precio($value->pvpunitario, $fsc->factura->coddivisa, TRUE, FS_NF0_ART)}</td>
+            <td class="text-right">{$fsc->show_numero($value->dtopor, 2)} %</td>
+            <td class="text-right">{$fsc->show_precio($value->pvptotal, $fsc->factura->coddivisa)}</td>
+            <td class="text-right">{$fsc->show_numero($value->iva, 2)} %</td>
+            <td class="recargo text-right">{$fsc->show_numero($value->recargo, 2)} %</td>
+            <td class="irpf text-right">{$fsc->show_numero($value->irpf, 2)} %</td>
+            <td class="text-right">{$fsc->show_precio($value->total_iva(), $fsc->factura->coddivisa)}</td>
+        </tr>
+        {else}
+        <tr class="warning">
+            <td colspan="10">
+                <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                &nbsp; No hay líneas.
+            </td>
+        </tr>
+        {/loop}
+        <tr>
+            {if="$fsc->factura->coddivisa!=$fsc->empresa->coddivisa"}
+            <td colspan="5" class="text-right warning"><b>{$fsc->factura->coddivisa}:</b></td>
+            {else}
+            <td colspan="5"></td>
+            {/if}
+            <td class="text-right"><b>{$fsc->show_precio($fsc->factura->neto, $fsc->factura->coddivisa)}</b></td>
+            <td class="text-right"><b>{$fsc->show_precio($fsc->factura->totaliva, $fsc->factura->coddivisa)}</b></td>
+            <td class="recargo text-right"><b>{$fsc->show_precio($fsc->factura->totalrecargo, $fsc->factura->coddivisa)}</b></td>
+            <td class="irpf text-right"><b>-{$fsc->show_precio($fsc->factura->totalirpf, $fsc->factura->coddivisa)}</b></td>
+            <td class="text-right"><b>{$fsc->show_precio($fsc->factura->total, $fsc->factura->coddivisa)}</b></td>
+        </tr>
+        {if="$fsc->factura->coddivisa!=$fsc->empresa->coddivisa"}
+        <tr class="warning">
+            <td colspan="5" class="text-right"><b>{$fsc->empresa->coddivisa}:</b></td>
+            <td></td>
+            <td></td>
+            <td class="recargo"></td>
+            <td class="irpf"></td>
+            <td class="text-right"><b>{$fsc->show_precio($fsc->euro_convert($fsc->factura->totaleuros, $fsc->factura->coddivisa, $fsc->factura->tasaconv))}</b></td>
+        </tr>
+        {/if}
+    </table>
+</div>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12">
+            {if="!in_array('editar_facturas', $GLOBALS['plugins'])"}
+            <p class="help-block text-right">
+                Puedes editar las líneas de las facturas usando el plugin
+                <a href="https://www.facturascripts.com/plugin/editar_facturas" target="_blank">editar facturas</a>.
+            </p>
+            {/if}
+            <div class="form-group">
+                Observaciones:
+                <textarea class="form-control" name="observaciones" rows="6">{$fsc->factura->observaciones}</textarea>
+            </div>
+        </div>
+    </div>
+</div>

@@ -17,6 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+require_once 'plugins/facturacion_base/extras/fbase_controller.php';
 require_once 'plugins/facturacion_base/extras/fs_pdf.php';
 require_once 'extras/phpmailer/class.phpmailer.php';
 require_once 'extras/phpmailer/class.smtp.php';
@@ -25,7 +26,7 @@ require_once 'extras/phpmailer/class.smtp.php';
  * Esta clase agrupa los procedimientos de imprimir/enviar albaranes de proveedor
  * e imprimir facturas de proveedor.
  */
-class compras_imprimir extends fs_controller
+class compras_imprimir extends fbase_controller
 {
 
     public $articulo_proveedor;
@@ -66,6 +67,7 @@ class compras_imprimir extends fs_controller
 
     protected function private_core()
     {
+        parent::private_core();
         $this->init();
 
         if (isset($_REQUEST['albaran']) && isset($_REQUEST['id'])) {
@@ -437,19 +439,28 @@ class compras_imprimir extends fs_controller
 
     protected function generar_pdf_totales(&$pdf_doc, &$lineas_iva, $pagina)
     {
+        /// ¿Hay descuento por documento?
+        $due_totales = 0;
+        if (isset($this->documento->dtopor1)) {
+            $due_totales = $this->fbase_calc_desc_due([$this->documento->dtopor1, $this->documento->dtopor2, $this->documento->dtopor3, $this->documento->dtopor4, $this->documento->dtopor5]);
+        }
+
         /*
          * Rellenamos la última tabla de la página:
          * 
          * Página            Neto    IVA   Total
          */
         $pdf_doc->new_table();
-        $titulo = array('pagina' => '<b>Página</b>', 'neto' => '<b>Neto</b>',);
+        $titulo = array('pagina' => '<b>Página</b>', 'dto' => '<b>Dto.</b>', 'neto' => '<b>Neto</b>',);
         $fila = array(
             'pagina' => $pagina . '/' . $this->numpaginas,
+            'dto' => $this->show_numero($due_totales).' %',
             'neto' => $this->show_precio($this->documento->neto, $this->documento->coddivisa),
         );
+
         $opciones = array(
             'cols' => array(
+                'dto' => array('justification' => 'right'),
                 'neto' => array('justification' => 'right'),
             ),
             'showLines' => 3,

@@ -452,8 +452,8 @@
                <div class="col-sm-12">
                   <p class="help-block">
                      Desde aquí puedes configurar las tarifas de venta a clientes.
-                     Crea todas las tarifas que necesites, después <b>asígna las tarifas</b>
-                     a los <a href="index.php?page=ventas_clientes#grupos">grupos de clientes</a>.
+                     Crea todas las tarifas que necesites, después puedes asignarlas a clientes o
+                     a <a href="index.php?page=ventas_clientes#grupos">grupos de clientes</a>.
                      <br/>
                      Las tarifas son básicamente fórmulas a aplicar al precio de venta o de coste
                      del artículo.
@@ -546,11 +546,6 @@
                      </div>
                   </form>
                   {/loop}
-                  <p class="help-block">
-                     ¿Necesitas un sistema de tarifas más <b>avanzado</b>? el plugin
-                     <a href="https://www.facturascripts.com/plugin/facturacion_premium" target="_blank">facturación premium</a>
-                     permite definir tarifas específicas por familia y precios fijos para artículos.
-                  </p>
                   <form name="f_nueva_tarifa" action="{$fsc->url()}#tarifas" method="post" class="form">
                      <div class="panel panel-info">
                         <div class="panel-heading">
@@ -627,6 +622,13 @@
                                  </div>
                               </div>
                            </div>
+                        </div>
+                        <div class="panel-footer">
+                            <p class="help-block">
+                                ¿Necesitas un sistema de tarifas más <b>avanzado</b>? el plugin
+                                <a href="https://www.facturascripts.com/plugin/facturacion_premium" target="_blank">facturación premium</a>
+                                permite definir tarifas específicas por familia y precios fijos para artículos.
+                            </p>
                         </div>
                      </div>
                   </form>

@@ -29,8 +29,6 @@
             <tr id="linea_{$counter}" data-ref="{$value->referencia}" data-line="{$value->idlinea}">
                 <td>
                     <input type="hidden" name="idlinea_{$counter}" value="{$value->idlinea}"/>
-                    <input type="hidden" name="referencia_{$counter}" value="{$value->referencia}"/>
-                    <input type="hidden" name="codcombinacion_{$counter}" value="{$value->codcombinacion}"/>
                     {if="$value->idlineapedido"}
                     <div class="input-group">
                         <a target="_blank" href="index.php?page=ventas_pedido&id={$value->idpedido}" class="input-group-addon" title="ver {#FS_PEDIDO#}">P</a>
@@ -77,8 +75,7 @@
                            onkeyup="recalcular()" onclick="this.select()" autocomplete="off"/>
                 </td>
                 <td>
-                    <input type="text" class="form-control text-right" id="neto_{$counter}" name="neto_{$counter}"
-                           onchange="ajustar_neto('{$counter}')" onclick="this.select()" autocomplete="off"/>
+                    <input type="text" class="form-control text-right" id="neto_{$counter}" onchange="ajustar_neto('{$counter}')" onclick="this.select()" autocomplete="off"/>
                 </td>
                 <td>
                     <select class="form-control" id="iva_{$counter}" name="iva_{$counter}" onchange="ajustar_iva('{$counter}')">
@@ -100,8 +97,7 @@
                            onchange="recalcular()" onclick="this.select()" autocomplete="off"/>
                 </td>
                 <td class="warning" title="Cálculo aproximado del total de la linea">
-                    <input type="text" class="form-control text-right" id="total_{$counter}" name="total_{$counter}"
-                           onchange="ajustar_total('{$counter}')" onclick="this.select()" autocomplete="off"/>
+                    <input type="text" class="form-control text-right" id="total_{$counter}" onchange="ajustar_total('{$counter}')" onclick="this.select()" autocomplete="off"/>
                 </td>
             </tr>
             {/loop}

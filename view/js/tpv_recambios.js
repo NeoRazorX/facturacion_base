@@ -119,7 +119,7 @@ function recalcular()
             }
             
             /// calculamos los subtotales
-            var l_codimpuesto = $("#iva_" + i).val();
+            var l_codimpuesto = Math.round(l_iva * 100);
             if (subtotales[l_codimpuesto] === undefined) {
                 subtotales[l_codimpuesto] = {
                     neto: 0,

@@ -51,6 +51,7 @@ class ventas_albaran extends fbase_controller
         $this->ppage = $this->page->get('ventas_albaranes');
         $this->agente = FALSE;
 
+        $this->agencia = new agencia_transporte();
         $albaran = new albaran_cliente();
         $this->albaran = FALSE;
         $this->almacen = new almacen();
@@ -65,7 +66,6 @@ class ventas_albaran extends fbase_controller
         $this->nuevo_albaran_url = FALSE;
         $this->pais = new pais();
         $this->serie = new serie();
-        $this->agencia = new agencia_transporte();
 
         /// ¿El usuario tiene permiso para eliminar la factura?
         $this->allow_delete_fac = $this->user->allow_delete_on('ventas_factura');
@@ -289,21 +289,21 @@ class ventas_albaran extends fbase_controller
                                 $cantidad_old = $value->cantidad;
                                 $lineas[$k]->cantidad = floatval($_POST['cantidad_' . $num]);
                                 $lineas[$k]->pvpunitario = floatval($_POST['pvp_' . $num]);
-                                $lineas[$k]->dtopor = floatval($_POST['dto_' . $num]);
-                                $lineas[$k]->dtopor2 = floatval($_POST['dto2_' . $num]);
-                                $lineas[$k]->dtopor3 = floatval($_POST['dto3_' . $num]);
-                                $lineas[$k]->dtopor4 = floatval($_POST['dto4_' . $num]);
+                                $lineas[$k]->dtopor = floatval(fs_filter_input_post('dto_' . $num, 0));
+                                $lineas[$k]->dtopor2 = floatval(fs_filter_input_post('dto2_' . $num, 0));
+                                $lineas[$k]->dtopor3 = floatval(fs_filter_input_post('dto3_' . $num, 0));
+                                $lineas[$k]->dtopor4 = floatval(fs_filter_input_post('dto4_' . $num, 0));
                                 $lineas[$k]->pvpsindto = $value->cantidad * $value->pvpunitario;
-                                
+
                                 // Descuento Unificado Equivalente
                                 $due_linea = $this->fbase_calc_due(array($lineas[$k]->dtopor, $lineas[$k]->dtopor2, $lineas[$k]->dtopor3, $lineas[$k]->dtopor4));
                                 $lineas[$k]->pvptotal = $lineas[$k]->cantidad * $lineas[$k]->pvpunitario * $due_linea;
-                                
+
                                 $lineas[$k]->descripcion = $_POST['desc_' . $num];
                                 $lineas[$k]->codimpuesto = NULL;
                                 $lineas[$k]->iva = 0;
                                 $lineas[$k]->recargo = 0;
-                                $lineas[$k]->irpf = floatval($_POST['irpf_' . $num]);
+                                $lineas[$k]->irpf = floatval(fs_filter_input_post('irpf_' . $num, 0));
                                 if (!$serie->siniva && $regimeniva != 'Exento') {
                                     $imp0 = $this->impuesto->get_by_iva($_POST['iva_' . $num]);
                                     if ($imp0) {
@@ -311,7 +311,7 @@ class ventas_albaran extends fbase_controller
                                     }
 
                                     $lineas[$k]->iva = floatval($_POST['iva_' . $num]);
-                                    $lineas[$k]->recargo = floatval($_POST['recargo_' . $num]);
+                                    $lineas[$k]->recargo = floatval(fs_filter_input_post('recargo_' . $num, 0));
                                 }
 
                                 if ($lineas[$k]->save()) {
@@ -347,18 +347,18 @@ class ventas_albaran extends fbase_controller
                                 }
 
                                 $linea->iva = floatval($_POST['iva_' . $num]);
-                                $linea->recargo = floatval($_POST['recargo_' . $num]);
+                                $linea->recargo = floatval(fs_filter_input_post('recargo_' . $num, 0));
                             }
 
-                            $linea->irpf = floatval($_POST['irpf_' . $num]);
+                            $linea->irpf = floatval(fs_filter_input_post('irpf_' . $num, 0));
                             $linea->cantidad = floatval($_POST['cantidad_' . $num]);
                             $linea->pvpunitario = floatval($_POST['pvp_' . $num]);
-                            $linea->dtopor = floatval($_POST['dto_' . $num]);
-                            $linea->dtopor2 = floatval($_POST['dto2_' . $num]);
-                            $linea->dtopor3 = floatval($_POST['dto3_' . $num]);
-                            $linea->dtopor4 = floatval($_POST['dto4_' . $num]);
+                            $linea->dtopor = floatval(fs_filter_input_post('dto_' . $num, 0));
+                            $linea->dtopor2 = floatval(fs_filter_input_post('dto2_' . $num, 0));
+                            $linea->dtopor3 = floatval(fs_filter_input_post('dto3_' . $num, 0));
+                            $linea->dtopor4 = floatval(fs_filter_input_post('dto4_' . $num, 0));
                             $linea->pvpsindto = $linea->cantidad * $linea->pvpunitario;
-                            
+
                             // Descuento Unificado Equivalente
                             $due_linea = $this->fbase_calc_due(array($linea->dtopor, $linea->dtopor2, $linea->dtopor3, $linea->dtopor4));
                             $linea->pvptotal = $linea->cantidad * $linea->pvpunitario * $due_linea;
@@ -376,7 +376,7 @@ class ventas_albaran extends fbase_controller
                                     /// actualizamos el stock
                                     $art0->sum_stock($this->albaran->codalmacen, 0 - $linea->cantidad, FALSE, $linea->codcombinacion);
                                 }
-                                
+
                                 if ($linea->irpf > $this->albaran->irpf) {
                                     $this->albaran->irpf = $linea->irpf;
                                 }
@@ -398,7 +398,7 @@ class ventas_albaran extends fbase_controller
                 }
 
                 $this->albaran->total = round($this->albaran->neto + $this->albaran->totaliva - $this->albaran->totalirpf + $this->albaran->totalrecargo, FS_NF0);
-                
+
                 if (abs(floatval($_POST['atotal']) - $this->albaran->total) > .01) {
                     $this->new_error_msg("El total difiere entre el controlador y la vista (" . $this->albaran->total .
                         " frente a " . $_POST['atotal'] . "). Debes informar del error.");
@@ -406,9 +406,13 @@ class ventas_albaran extends fbase_controller
             }
         }
 
-        fs_generar_numero2($this->albaran);
+        /// función auxiliar para implementar en los plugins que lo necesiten
+        if (!fs_generar_numero2($this->albaran)) {
+            $this->albaran->numero2 = $_POST['numero2'];
+        }
 
         if ($this->albaran->save()) {
+            /// Función de ejecución de tareas post guardado correcto del albarán
             fs_documento_post_save($this->albaran);
 
             $this->new_message(ucfirst(FS_ALBARAN) . " modificado correctamente.");

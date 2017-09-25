@@ -1,0 +1,200 @@
+<div class="modal fade" id="modal_imprimir_albaran">
+   <div class="modal-dialog">
+      <div class="modal-content">
+         <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">Imprimir {#FS_ALBARAN#}</h4>
+         </div>
+         <div class="modal-body">
+            {loop="$fsc->extensions"}
+               {if="$value->type=='pdf'"}
+               <a href="index.php?page={$value->from}{$value->params}&id={$fsc->albaran->idalbaran}" target="_blank" class="btn btn-block btn-default">
+                  <span class="glyphicon glyphicon-print"></span>&nbsp; {$value->text}
+               </a>
+               {/if}
+            {/loop}
+         </div>
+         <div class="modal-footer">
+            <a href="index.php?page=admin_empresa#impresion" target="_blank">
+               <span class="glyphicon glyphicon-wrench"></span>&nbsp; Opciones de impresión
+            </a>
+         </div>
+      </div>
+   </div>
+</div>
+
+{if="$fsc->empresa->can_send_mail()"}
+<form class="form" role="form" name="f_enviar_email" action="{$fsc->url()}" method="post" enctype="multipart/form-data">
+   <input type="hidden" name="codproveedor" value="{$fsc->albaran->codproveedor}"/>
+   <div class="modal" id="modal_enviar">
+      <div class="modal-dialog">
+         <div class="modal-content">
+            <div class="modal-header">
+               <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+               <h4 class="modal-title">
+                  <span class="glyphicon glyphicon-envelope"></span>&nbsp;
+                  Enviar {#FS_ALBARAN#}
+               </h4>
+            </div>
+            <div class="modal-body">
+               <div class="form-group">
+                  <div class="input-group">
+                     <span class="input-group-addon">De</span>
+                     <select name="de" class="form-control">
+                        {if="$fsc->user->email"}
+                        <option>{$fsc->user->email}</option>
+                        {/if}
+                        <option>{$fsc->empresa->email}</option>
+                     </select>
+                  </div>
+               </div>
+               <div class="form-group">
+                  <div class="input-group">
+                     <span class="input-group-addon">Para</span>
+                     {if="$fsc->proveedor_s"}
+                     <input id="ac_email" class="form-control" type="text" name="email" value="{$fsc->proveedor_s->email}" autocomplete="off"/>
+                     <span class="input-group-addon" title="Asignar email al proveedor">
+                        <input type="checkbox" name="guardar" value="TRUE"/>
+                        <span class="glyphicon glyphicon-floppy-disk"></span>
+                     </span>
+                     {else}
+                     <input id="ac_email" class="form-control" type="text" name="email" autocomplete="off"/>
+                     {/if}
+                  </div>
+               </div>
+               <div class="form-group">
+                  <div class="input-group">
+                     <span class="input-group-addon">Copia</span>
+                     <input id="ac_email2" class="form-control" type="text" name="email_copia" autocomplete="off"/>
+                     <span class="input-group-addon" title="Copia de carbón oculta">
+                        <input type="checkbox" name="cco" value="TRUE"/>
+                        <span class="glyphicon glyphicon-eye-close"></span>
+                     </span>
+                  </div>
+               </div>
+               <div class="form-group">
+                  <textarea class="form-control" name="mensaje" rows="6">Buenos días, le adjunto mi {#FS_ALBARAN#} {$fsc->albaran->codigo}.
+{$fsc->empresa->email_config['mail_firma']}</textarea>
+                  <p class="help-block">
+                     <a href="index.php?page=admin_empresa#email">Editar la firma</a>
+                  </p>
+               </div>
+               <div class="form-group">
+                  <input name="adjunto" type="file"/>
+                  <p class="help-block">
+                     Se va a adjuntar el {#FS_ALBARAN#}, pero si lo deseas
+                     puedes añadir otro archivo de hasta {$fsc->get_max_file_upload()} MB
+                  </p>
+               </div>
+               {loop="$fsc->extensions"}
+                  {if="$value->type=='email'"}
+                  <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.action='index.php?page={$value->from}{$value->params}&id={$fsc->albaran->idalbaran}';this.form.submit();">
+                     <span class="glyphicon glyphicon-send"></span>&nbsp; {$value->text}
+                  </button>
+                  {/if}
+               {/loop}
+            </div>
+         </div>
+      </div>
+   </div>
+</form>
+{else}
+<div class="modal" id="modal_enviar">
+   <div class="modal-dialog">
+      <div class="modal-content">
+         <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">
+               <span class="glyphicon glyphicon-envelope"></span>&nbsp; Enviar por email
+            </h4>
+         </div>
+         <div class="modal-body">
+            <a href='index.php?page=admin_empresa#email' class="btn btn-sm btn-warning">
+               <span class="glyphicon glyphicon-wrench"></span>&nbsp; Configurar
+            </a>
+         </div>
+      </div>
+   </div>
+</div>
+{/if}
+
+<form class="form" role="form" action="{$fsc->url()}" method="post">
+   <input type="hidden" name="petid" value="{$fsc->random_string()}"/>
+   <div class="modal" id="modal_aprobar">
+      <div class="modal-dialog modal-sm">
+         <div class="modal-content">
+            <div class="modal-header">
+               <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+               <h4 class="modal-title">Aprobar {#FS_ALBARAN#}</h4>
+            </div>
+            <div class="modal-body">
+               <div class="form-group">
+                  Fecha de la factura:
+                  <input class="form-control datepicker" type="text" name="facturar" value="{$fsc->today()}" autocomplete="off"/>
+                  <p class="help-block">
+                     Se generará una factura. Si deseas aprobar de golpe todos
+                     los {#FS_ALBARANES#} pendientes, puedes usar el plugin <b>megafacturador</b>.
+                  </p>
+               </div>
+               <div class="text-right">
+                  <button class="btn btn-sm btn-primary" onclick="this.disabled=true;this.form.submit();">
+                     <span class="glyphicon glyphicon-paperclip"></span>&nbsp; Aprobar
+                  </button>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</form>
+
+<form action="{$fsc->ppage->url()}" method="post">
+   <input type="hidden" name="delete" value="{$fsc->albaran->idalbaran}"/>
+   <div class="modal fade" id="modal_eliminar">
+      <div class="modal-dialog">
+         <div class="modal-content">
+            <div class="modal-header">
+               <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+               <h4 class="modal-title">¿Realmente desea eliminar este {#FS_ALBARAN#}?</h4>
+            </div>
+            {if="$fsc->albaran->idfactura"}
+               {if="$fsc->allow_delete_fac"}
+               <div class="modal-body bg-warning">
+                  Hay <b>una factura asociada</b> que será eliminada junto con este {#FS_ALBARAN#}.
+               </div>
+               <div class="modal-footer">
+                  <div class="pull-left">
+                     <label>
+                        <input type="checkbox" name="stock" value="TRUE" checked=""/>
+                        Actualizar el stock
+                     </label>
+                  </div>
+                  <button class="btn btn-sm btn-danger" onclick="this.disabled=true;this.form.submit();">
+                     <span class="glyphicon glyphicon-trash"></span>&nbsp; Eliminar
+                  </button>
+               </div>
+               {else}
+               <div class="modal-body bg-danger">
+                  Hay <b>una factura asociada</b> que será eliminada junto con este {#FS_ALBARAN#}.
+                  Pero no tienes permiso para eliminar facturas.
+               </div>
+               <div class="modal-footer">
+                  <button type="button" class="btn btn-sm btn-default" data-dismiss="modal">Cerrar</button>
+               </div>
+               {/if}
+            {else}
+            <div class="modal-footer">
+               <div class="pull-left">
+                  <label>
+                     <input type="checkbox" name="stock" value="TRUE" checked=""/>
+                     Actualizar el stock
+                  </label>
+               </div>
+               <button class="btn btn-sm btn-danger" onclick="this.disabled=true;this.form.submit();">
+                  <span class="glyphicon glyphicon-trash"></span>&nbsp; Eliminar
+               </button>
+            </div>
+            {/if}
+         </div>
+      </div>
+   </div>
+</form>

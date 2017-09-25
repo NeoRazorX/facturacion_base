@@ -18,6 +18,8 @@
  */
 namespace FacturaScripts\model;
 
+require_once __DIR__.'/../../extras/linea_documento_compra.php';
+
 /**
  * Línea de una factura de proveedor.
  * 
@@ -26,12 +28,8 @@ namespace FacturaScripts\model;
 class linea_factura_proveedor extends \fs_model
 {
 
-    /**
-     * Clave primaria.
-     * @var integer 
-     */
-    public $idlinea;
-
+    use \linea_documento_compra;
+    
     /**
      * ID de la linea del albarán relacionado, si lo hay.
      * @var integer 
@@ -50,67 +48,6 @@ class linea_factura_proveedor extends \fs_model
      */
     public $idalbaran;
 
-    /**
-     * Importe neto de la línea, sin impuestos.
-     * @var double 
-     */
-    public $pvptotal;
-
-    /**
-     * % de descuento.
-     * @var double 
-     */
-    public $dtopor;
-
-    /**
-     * % de recargo de equivalencia.
-     * @var double 
-     */
-    public $recargo;
-
-    /**
-     * % de IRPF
-     * @var double 
-     */
-    public $irpf;
-
-    /**
-     * Importe neto sin descuentos.
-     * @var double 
-     */
-    public $pvpsindto;
-    public $cantidad;
-
-    /**
-     * Impuesto relacionado.
-     * @var string
-     */
-    public $codimpuesto;
-
-    /**
-     * Precio del artículo, una unidad.
-     * @var double 
-     */
-    public $pvpunitario;
-    public $descripcion;
-
-    /**
-     * Referencia del artículo.
-     * @var string
-     */
-    public $referencia;
-
-    /**
-     * Código de la combinación seleccionada, en el caso de los artículos con atributos.
-     * @var string
-     */
-    public $codcombinacion;
-
-    /**
-     * % de iva, el que corresponde al impuesto.
-     * @var double 
-     */
-    public $iva;
     private $codigo;
     private $fecha;
     private $albaran_codigo;
@@ -128,45 +65,16 @@ class linea_factura_proveedor extends \fs_model
         }
 
         if ($data) {
-            $this->idlinea = $this->intval($data['idlinea']);
+            $this->load_data_trait($data);
             $this->idlineaalbaran = $this->intval($data['idlineaalbaran']);
             $this->idfactura = $this->intval($data['idfactura']);
             $this->idalbaran = $this->intval($data['idalbaran']);
-            $this->referencia = $data['referencia'];
-            $this->codcombinacion = $data['codcombinacion'];
-            $this->descripcion = $data['descripcion'];
-            $this->cantidad = floatval($data['cantidad']);
-            $this->pvpunitario = floatval($data['pvpunitario']);
-            $this->pvpsindto = floatval($data['pvpsindto']);
-            $this->dtopor = floatval($data['dtopor']);
-            $this->pvptotal = floatval($data['pvptotal']);
-            $this->codimpuesto = $data['codimpuesto'];
-            $this->iva = floatval($data['iva']);
-            $this->recargo = floatval($data['recargo']);
-            $this->irpf = floatval($data['irpf']);
         } else {
-            $this->idlinea = NULL;
+            $this->clear_trait();
             $this->idlineaalbaran = NULL;
             $this->idfactura = NULL;
             $this->idalbaran = NULL;
-            $this->referencia = NULL;
-            $this->codcombinacion = NULL;
-            $this->descripcion = '';
-            $this->cantidad = 0.0;
-            $this->pvpunitario = 0.0;
-            $this->pvpsindto = 0.0;
-            $this->dtopor = 0.0;
-            $this->pvptotal = 0.0;
-            $this->codimpuesto = NULL;
-            $this->iva = 0.0;
-            $this->recargo = 0.0;
-            $this->irpf = 0.0;
         }
-    }
-
-    protected function install()
-    {
-        return '';
     }
 
     /**
@@ -221,16 +129,6 @@ class linea_factura_proveedor extends \fs_model
                 }
             }
         }
-    }
-
-    public function total_iva()
-    {
-        return $this->pvptotal * (100 + $this->iva - $this->irpf + $this->recargo) / 100;
-    }
-
-    public function descripcion()
-    {
-        return nl2br($this->descripcion);
     }
 
     public function show_codigo()
@@ -297,15 +195,6 @@ class linea_factura_proveedor extends \fs_model
         return $this->albaran_numero;
     }
 
-    public function articulo_url()
-    {
-        if (is_null($this->referencia) || $this->referencia == '') {
-            return "index.php?page=ventas_articulos";
-        }
-
-        return "index.php?page=ventas_articulo&ref=" . urlencode($this->referencia);
-    }
-
     /**
      * Devuelve los datos de una linea
      * @param integer $idlinea
@@ -328,25 +217,6 @@ class linea_factura_proveedor extends \fs_model
         }
 
         return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idlinea = " . $this->var2str($this->idlinea) . ";");
-    }
-
-    public function test()
-    {
-        $this->descripcion = $this->no_html($this->descripcion);
-        $total = $this->pvpunitario * $this->cantidad * (100 - $this->dtopor) / 100;
-        $totalsindto = $this->pvpunitario * $this->cantidad;
-
-        if (!$this->floatcmp($this->pvptotal, $total, FS_NF0, TRUE)) {
-            $this->new_error_msg("Error en el valor de pvptotal de la línea " . $this->referencia
-                . " de la factura. Valor correcto: " . $total);
-            return FALSE;
-        } else if (!$this->floatcmp($this->pvpsindto, $totalsindto, FS_NF0, TRUE)) {
-            $this->new_error_msg("Error en el valor de pvpsindto de la línea " . $this->referencia
-                . " de la factura. Valor correcto: " . $totalsindto);
-            return FALSE;
-        }
-
-        return TRUE;
     }
 
     public function save()
