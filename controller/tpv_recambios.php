@@ -456,8 +456,8 @@ class tpv_recambios extends fbase_controller
                             $linea->pvpunitario = floatval($_POST['pvp_' . $i]);
                             $linea->cantidad = floatval($_POST['cantidad_' . $i]);
                             $linea->dtopor = floatval($_POST['dto_' . $i]);
-                            $linea->pvpsindto = ($linea->pvpunitario * $linea->cantidad);
-                            $linea->pvptotal = floatval($_POST['neto_' . $i]);
+                            $linea->pvpsindto = $linea->pvpunitario * $linea->cantidad;
+                            $linea->pvptotal = $linea->cantidad * $linea->pvpunitario * (100 - $linea->dtopor) / 100;
 
                             if ($articulo) {
                                 if ($articulo->trazabilidad) {

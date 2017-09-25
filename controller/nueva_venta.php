@@ -1157,21 +1157,21 @@ class nueva_venta extends fbase_controller
             if ($imp0) {
                 $linea->codimpuesto = $imp0->codimpuesto;
                 $linea->iva = floatval($_POST['iva_' . $i]);
-                $linea->recargo = floatval($_POST['recargo_' . $i]);
+                $linea->recargo = floatval(fs_filter_input_post('recargo_' . $i, 0));
             } else {
                 $linea->iva = floatval($_POST['iva_' . $i]);
-                $linea->recargo = floatval($_POST['recargo_' . $i]);
+                $linea->recargo = floatval(fs_filter_input_post('recargo_' . $i, 0));
             }
         }
 
-        $linea->irpf = floatval($_POST['irpf_' . $i]);
+        $linea->irpf = floatval(fs_filter_input_post('irpf_' . $i, 0));
         $linea->pvpunitario = floatval($_POST['pvp_' . $i]);
         $linea->cantidad = floatval($_POST['cantidad_' . $i]);
-        $linea->dtopor = floatval($_POST['dto_' . $i]);
-        $linea->dtopor2 = floatval($_POST['dto2_' . $i]);
-        $linea->dtopor3 = floatval($_POST['dto3_' . $i]);
-        $linea->dtopor4 = floatval($_POST['dto4_' . $i]);
-        $linea->pvpsindto = ($linea->pvpunitario * $linea->cantidad);
+        $linea->dtopor = floatval(fs_filter_input_post('dto_' . $i, 0));
+        $linea->dtopor2 = floatval(fs_filter_input_post('dto2_' . $i, 0));
+        $linea->dtopor3 = floatval(fs_filter_input_post('dto3_' . $i, 0));
+        $linea->dtopor4 = floatval(fs_filter_input_post('dto4_' . $i, 0));
+        $linea->pvpsindto = $linea->pvpunitario * $linea->cantidad;
 
         // Descuento Unificado Equivalente
         $due_linea = $this->fbase_calc_due(array($linea->dtopor, $linea->dtopor2, $linea->dtopor3, $linea->dtopor4));

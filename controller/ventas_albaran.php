@@ -289,10 +289,10 @@ class ventas_albaran extends fbase_controller
                                 $cantidad_old = $value->cantidad;
                                 $lineas[$k]->cantidad = floatval($_POST['cantidad_' . $num]);
                                 $lineas[$k]->pvpunitario = floatval($_POST['pvp_' . $num]);
-                                $lineas[$k]->dtopor = floatval($_POST['dto_' . $num]);
-                                $lineas[$k]->dtopor2 = floatval($_POST['dto2_' . $num]);
-                                $lineas[$k]->dtopor3 = floatval($_POST['dto3_' . $num]);
-                                $lineas[$k]->dtopor4 = floatval($_POST['dto4_' . $num]);
+                                $lineas[$k]->dtopor = floatval(fs_filter_input_post('dto_' . $num, 0));
+                                $lineas[$k]->dtopor2 = floatval(fs_filter_input_post('dto2_' . $num, 0));
+                                $lineas[$k]->dtopor3 = floatval(fs_filter_input_post('dto3_' . $num, 0));
+                                $lineas[$k]->dtopor4 = floatval(fs_filter_input_post('dto4_' . $num, 0));
                                 $lineas[$k]->pvpsindto = $value->cantidad * $value->pvpunitario;
 
                                 // Descuento Unificado Equivalente
@@ -303,7 +303,7 @@ class ventas_albaran extends fbase_controller
                                 $lineas[$k]->codimpuesto = NULL;
                                 $lineas[$k]->iva = 0;
                                 $lineas[$k]->recargo = 0;
-                                $lineas[$k]->irpf = floatval($_POST['irpf_' . $num]);
+                                $lineas[$k]->irpf = floatval(fs_filter_input_post('irpf_' . $num, 0));
                                 if (!$serie->siniva && $regimeniva != 'Exento') {
                                     $imp0 = $this->impuesto->get_by_iva($_POST['iva_' . $num]);
                                     if ($imp0) {
@@ -311,7 +311,7 @@ class ventas_albaran extends fbase_controller
                                     }
 
                                     $lineas[$k]->iva = floatval($_POST['iva_' . $num]);
-                                    $lineas[$k]->recargo = floatval($_POST['recargo_' . $num]);
+                                    $lineas[$k]->recargo = floatval(fs_filter_input_post('recargo_' . $num, 0));
                                 }
 
                                 if ($lineas[$k]->save()) {
@@ -347,16 +347,16 @@ class ventas_albaran extends fbase_controller
                                 }
 
                                 $linea->iva = floatval($_POST['iva_' . $num]);
-                                $linea->recargo = floatval($_POST['recargo_' . $num]);
+                                $linea->recargo = floatval(fs_filter_input_post('recargo_' . $num, 0));
                             }
 
-                            $linea->irpf = floatval($_POST['irpf_' . $num]);
+                            $linea->irpf = floatval(fs_filter_input_post('irpf_' . $num, 0));
                             $linea->cantidad = floatval($_POST['cantidad_' . $num]);
                             $linea->pvpunitario = floatval($_POST['pvp_' . $num]);
-                            $linea->dtopor = floatval($_POST['dto_' . $num]);
-                            $linea->dtopor2 = floatval($_POST['dto2_' . $num]);
-                            $linea->dtopor3 = floatval($_POST['dto3_' . $num]);
-                            $linea->dtopor4 = floatval($_POST['dto4_' . $num]);
+                            $linea->dtopor = floatval(fs_filter_input_post('dto_' . $num, 0));
+                            $linea->dtopor2 = floatval(fs_filter_input_post('dto2_' . $num, 0));
+                            $linea->dtopor3 = floatval(fs_filter_input_post('dto3_' . $num, 0));
+                            $linea->dtopor4 = floatval(fs_filter_input_post('dto4_' . $num, 0));
                             $linea->pvpsindto = $linea->cantidad * $linea->pvpunitario;
 
                             // Descuento Unificado Equivalente

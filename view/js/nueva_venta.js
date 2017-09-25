@@ -121,7 +121,7 @@ function usar_direccion_envio()
 
 function recalcular()
 {
-    var show = [];
+    var show_dtosl = false;
     var subtotales = [];
     var adto1 = 0;
     var adto2 = 0;
@@ -234,14 +234,12 @@ function recalcular()
                 $("textarea[name='desc_" + i + "']").prop('rows', txt.length);
             }
 
-            if ((l_dto2 == 0 && l_dto3 == 0 && l_dto4 == 0)) {
-                show[i] = false;
-            } else {
-                show[i] = true;
+            if (l_dto2 != 0 || l_dto3 != 0 || l_dto4 != 0) {
+                show_dtosl = true;
             }
 
             /// calculamos los subtotales
-            var l_codimpuesto = $("#iva_" + i).val();
+            var l_codimpuesto = Math.round(l_iva * 100);
             if (subtotales[l_codimpuesto] === undefined) {
                 subtotales[l_codimpuesto] = {
                     netosindto: 0,
@@ -289,25 +287,22 @@ function recalcular()
     console.log("IRPF: " + total_irpf);
     console.log("Total: " + (neto + total_iva - total_irpf + total_recargo));
 
-    // Descuentos de líneas del documento
-    Array.prototype.contains = function (elem) {
-        for (var i in this) {
-            if (this[i] == elem) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    if (show.contains(true) || dtosl) {
+    /// descuentos de las líneas
+    if (show_dtosl || dtosl) {
         dtosl = true;
         $(".dtosl").show();
+        disable_inputs('dto2', false);
+        disable_inputs('dto3', false);
+        disable_inputs('dto4', false);
     } else {
         dtosl = false;
         $(".dtosl").hide();
+        disable_inputs('dto2', true);
+        disable_inputs('dto3', true);
+        disable_inputs('dto4', true);
     }
 
-    // Descuentos totales del documento
+    /// Descuentos totales del documento
     if (netosindto != neto || dtost) {
         dtost = true;
         $(".dtost").show();
@@ -318,14 +313,27 @@ function recalcular()
 
     if (total_recargo == 0 && !cliente.recargo) {
         $(".recargo").hide();
+        disable_inputs('recargo', true);
     } else {
         $(".recargo").show();
+        disable_inputs('recargo', false);
     }
 
     if (total_irpf == 0 && irpf == 0) {
         $(".irpf").hide();
+        disable_inputs('irpf', true);
     } else {
         $(".irpf").show();
+        disable_inputs('irpf', false);
+    }
+}
+
+function disable_inputs(name, value)
+{
+    for (var i = 0; i < numlineas; i++) {
+        if ($("#linea_" + i).length > 0) {
+            $("#" + name + "_" + i).prop('disabled', value);
+        }
     }
 }
 

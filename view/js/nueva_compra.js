@@ -132,7 +132,7 @@ function recalcular()
             }
 
             /// calculamos los subtotales
-            var l_codimpuesto = $("#iva_" + i).val();
+            var l_codimpuesto = Math.round(l_iva * 100);
             if (subtotales[l_codimpuesto] === undefined) {
                 subtotales[l_codimpuesto] = {
                     neto: 0,
@@ -176,14 +176,27 @@ function recalcular()
 
     if (total_recargo == 0 && !tiene_recargo) {
         $(".recargo").hide();
+        disable_inputs('recargo', true);
     } else {
         $(".recargo").show();
+        disable_inputs('recargo', false);
     }
 
     if (total_irpf == 0 && irpf == 0) {
         $(".irpf").hide();
+        disable_inputs('irpf', true);
     } else {
         $(".irpf").show();
+        disable_inputs('irpf', false);
+    }
+}
+
+function disable_inputs(name, value)
+{
+    for (var i = 0; i < numlineas; i++) {
+        if ($("#linea_" + i).length > 0) {
+            $("#" + name + "_" + i).prop('disabled', value);
+        }
     }
 }
 
@@ -625,7 +638,7 @@ $(document).ready(function () {
      * hasta que todos los plugins gratuitos y de pago hayan aplicado el cambio.
      */
     $("#lineas_albaran").attr('id', 'lineas_doc');
-    
+
     $("#i_new_line").click(function () {
         $("#i_new_line").val("");
         $("#nav_articulos li").each(function () {
