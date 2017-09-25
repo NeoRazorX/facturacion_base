@@ -440,6 +440,7 @@ class compras_imprimir extends fbase_controller
     protected function generar_pdf_totales(&$pdf_doc, &$lineas_iva, $pagina)
     {
         /// ¿Hay descuento por documento?
+        $due_totales = 0;
         if (isset($this->documento->dtopor1)) {
             $due_totales = $this->fbase_calc_desc_due([$this->documento->dtopor1, $this->documento->dtopor2, $this->documento->dtopor3, $this->documento->dtopor4, $this->documento->dtopor5]);
         }
