@@ -129,6 +129,16 @@ class pedido_proveedor extends \fs_model
 
         return FALSE;
     }
+    
+    public function get_by_numproveedor($numproveedor)
+    {
+        $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE upper(numproveedor) = " . strtoupper($this->var2str($numproveedor)) . ";");
+        if ($data) {
+            return new \pedido_proveedor($data[0]);
+        }
+
+        return FALSE;
+    }
 
     public function exists()
     {

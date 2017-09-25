@@ -109,13 +109,28 @@ class albaran_proveedor extends \fs_model
     }
 
     /**
-     * Devuelve el albraán solicitado o false si no lo encuentra.
+     * Devuelve el albarán solicitado o false si no lo encuentra.
      * @param string $id
      * @return \albaran_proveedor|boolean
      */
     public function get($id)
     {
         $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idalbaran = " . $this->var2str($id) . ";");
+        if ($data) {
+            return new \albaran_proveedor($data[0]);
+        }
+
+        return FALSE;
+    }
+    
+    /**
+     * Devuelve el albarán solicitado o false si no lo encuentra.
+     * @param string $numproveedor
+     * @return \albaran_proveedor|boolean
+     */
+    public function get_by_numproveedor($numproveedor)
+    {
+        $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE upper(numproveedor) = " . strtoupper($this->var2str($numproveedor)) . ";");
         if ($data) {
             return new \albaran_proveedor($data[0]);
         }

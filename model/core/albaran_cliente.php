@@ -126,6 +126,21 @@ class albaran_cliente extends \fs_model
         return FALSE;
     }
 
+    /**
+     * Devuelve el albarán solicitado o false si no se encuentra.
+     * @param string $numero2
+     * @return \albaran_cliente|boolean
+     */
+    public function get_by_numero2($numero2)
+    {
+        $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE upper(numero2) = " . strtoupper($this->var2str($numero2)) . ";");
+        if ($data) {
+            return new \albaran_cliente($data[0]);
+        }
+
+        return FALSE;
+    }
+
     public function get_by_codigo($cod)
     {
         $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE upper(codigo) = " . strtoupper($this->var2str($cod)) . ";");

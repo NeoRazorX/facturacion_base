@@ -166,6 +166,16 @@ class presupuesto_cliente extends \fs_model
         return FALSE;
     }
 
+    public function get_by_numero2($numero2)
+    {
+        $presupuesto = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE upper(numero2) = " . strtoupper($this->var2str($$numero2)) . ";");
+        if ($presupuesto) {
+            return new \presupuesto_cliente($presupuesto[0]);
+        }
+
+        return FALSE;
+    }
+    
     public function exists()
     {
         if (is_null($this->idpresupuesto)) {

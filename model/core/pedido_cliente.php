@@ -80,8 +80,11 @@ class pedido_cliente extends \fs_model
                 /// cancelado
                 $this->editable = FALSE;
             } else if ($this->editable) {
-                $this->status = 0;
+                // TODO Porque marcarlo siempre como "Pendiente" si es editable?
+                // Se pisa con "estados_documentos" que está en desarrollo
+                //$this->status = 0;
             } else {
+                /// si no esta aprobado, ni cancelado y no es editable
                 $this->status = 2;
             }
 
@@ -154,6 +157,16 @@ class pedido_cliente extends \fs_model
     public function get($id)
     {
         $pedido = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idpedido = " . $this->var2str($id) . ";");
+        if ($pedido) {
+            return new \pedido_cliente($pedido[0]);
+        }
+
+        return FALSE;
+    }
+
+    public function get_by_numero2($numero2)
+    {
+        $pedido = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE upper(numero2) = " . strtoupper($this->var2str($numero2)) . ";");
         if ($pedido) {
             return new \pedido_cliente($pedido[0]);
         }
@@ -459,6 +472,21 @@ class pedido_cliente extends \fs_model
     public function all_from_albaran($id)
     {
         $sql = "SELECT * FROM " . $this->table_name . " WHERE idalbaran = " . $this->var2str($id)
+            . " ORDER BY fecha DESC, codigo DESC;";
+
+        $data = $this->db->select($sql);
+        return $this->all_from_data($data);
+    }
+    
+    
+    /**
+     * Devuelve todos los pedidos con status=$status.
+     * @param integer $status
+     * @return \pedido_cliente
+     */
+    public function all_from_status($status)
+    {
+        $sql = "SELECT * FROM " . $this->table_name . " WHERE status = " . $this->var2str($status)
             . " ORDER BY fecha DESC, codigo DESC;";
 
         $data = $this->db->select($sql);
