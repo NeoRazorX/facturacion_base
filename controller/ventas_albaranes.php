@@ -33,6 +33,7 @@ class ventas_albaranes extends fbase_controller
     public $codpago;
     public $codserie;
     public $desde;
+    public $fecha_entrega;
     public $forma_pago;
     public $grupo;
     public $hasta;
@@ -107,6 +108,7 @@ class ventas_albaranes extends fbase_controller
             $this->codgrupo = '';
             $this->codpago = '';
             $this->codserie = '';
+            $this->fecha_entrega = '';
             $this->desde = '';
             $this->hasta = '';
             $this->num_resultados = '';
@@ -153,6 +155,10 @@ class ventas_albaranes extends fbase_controller
                 if (isset($_REQUEST['desde'])) {
                     $this->desde = $_REQUEST['desde'];
                     $this->hasta = $_REQUEST['hasta'];
+                }
+                
+                if (isset($_REQUEST['fechaentrega'])) {
+                    $this->fecha_entrega= $_REQUEST['fechaentrega'];
                 }
             }
 
@@ -206,6 +212,7 @@ class ventas_albaranes extends fbase_controller
                 . "&codgrupo=" . $this->codgrupo
                 . "&codpago=" . $this->codpago
                 . "&codserie=" . $this->codserie
+                . "&fechaentrega=" . $this->fecha_entrega
                 . "&desde=" . $this->desde
                 . "&hasta=" . $this->hasta;
 
@@ -388,6 +395,11 @@ class ventas_albaranes extends fbase_controller
 
         if ($this->codserie != '') {
             $sql .= $where . "codserie = " . $this->agente->var2str($this->codserie);
+            $where = ' AND ';
+        }
+
+        if ($this->fecha_entrega) {
+            $sql .= $where . "fechaentrega >= " . $this->agente->var2str($this->fecha_entrega);
             $where = ' AND ';
         }
 

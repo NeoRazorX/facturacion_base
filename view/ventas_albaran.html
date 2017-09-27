@@ -241,7 +241,7 @@
             </div>
          </div>
          {/if}
-         <div class="col-md-3 col-sm-4">
+         <div class="col-md-2 col-sm-4">
             <div class="form-group">
                <span class='text-capitalize'>{#FS_NUMERO2#}:</span>
                <input class="form-control" type="text" name="numero2" value="{$fsc->albaran->numero2}"/>
@@ -273,7 +273,7 @@
                {/if}
             </div>
          </div>
-         <div class="col-md-2 col-sm-3">
+         <div class="col-md-2 col-sm-2">
             <div class="form-group">
                Fecha:
                {if="$fsc->albaran->ptefactura"}
@@ -283,13 +283,23 @@
                {/if}
             </div>
          </div>
-         <div class="col-md-2 col-sm-3">
+         <div class="col-md-2 col-sm-2">
             <div class="form-group">
                Hora:
                {if="$fsc->albaran->ptefactura"}
                <input class="form-control" type="text" name="hora" value="{$fsc->albaran->hora}" autocomplete="off"/>
                {else}
                <div class="form-control">{$fsc->albaran->hora}</div>
+               {/if}
+            </div>
+         </div>
+         <div class="col-md-2 col-sm-2">
+            <div class="form-group">
+               Entrega:
+               {if="$fsc->albaran->ptefactura"}
+               <input class="form-control datepicker" type="text" name="fechaentrega" value="{$fsc->albaran->fechaentrega}" autocomplete="off"/>
+               {else}
+               <div class="form-control">{$fsc->albaran->fechaentrega}</div>
                {/if}
             </div>
          </div>

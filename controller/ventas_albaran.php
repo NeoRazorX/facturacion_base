@@ -139,6 +139,11 @@ class ventas_albaran extends fbase_controller
                 $this->albaran->fecha = $_POST['fecha'];
                 $this->albaran->hora = $_POST['hora'];
 
+                $this->albaran->fechaentrega = NULL;
+                if ($_POST['fechaentrega'] != '') {
+                    $this->albaran->fechaentrega = $_POST['fechaentrega'];
+                }
+
                 if ($this->albaran->codejercicio != $eje0->codejercicio) {
                     $this->albaran->codejercicio = $eje0->codejercicio;
                     $this->albaran->new_codigo();

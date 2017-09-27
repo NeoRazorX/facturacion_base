@@ -938,11 +938,11 @@ class informe_albaranes extends fbase_controller
                 'cliente' => '',
                 'proveedor' => '',
                 FS_CIFNIF => $doc->cifnif,
-                'neto' => round($doc->neto, FS_NF0),
-                'iva' => round($doc->totaliva, FS_NF0),
-                're' => round($doc->totalrecargo, FS_NF0),
-                'irpf' => round($doc->totalirpf, FS_NF0),
-                'total' => round($doc->total, FS_NF0),
+                'neto' => $doc->neto,
+                'iva' => $doc->totaliva,
+                're' => $doc->totalrecargo,
+                'irpf' => $doc->totalirpf,
+                'total' => $doc->total,
             );
 
             if ($tipo == 'compra') {
@@ -987,11 +987,11 @@ class informe_albaranes extends fbase_controller
                 'fecha' => $doc->fecha,
                 'cliente' => '',
                 'cifnif' => $doc->cifnif,
-                'neto' => round($doc->neto, FS_NF0),
-                'iva' => round($doc->totaliva, FS_NF0),
-                're' => round($doc->totalrecargo, FS_NF0),
-                'irpf' => round($doc->totalirpf, FS_NF0),
-                'total' => round($doc->total, FS_NF0),
+                'neto' => $doc->neto,
+                'iva' => $doc->totaliva,
+                're' => $doc->totalrecargo,
+                'irpf' => $doc->totalirpf,
+                'total' => $doc->total,
             );
 
             if ($tipo == 'compra') {

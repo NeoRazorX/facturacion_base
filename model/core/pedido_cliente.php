@@ -57,6 +57,12 @@ class pedido_cliente extends \fs_model
     public $fechasalida;
 
     /**
+     * Fecha de entrega solicitada para recibir el material.
+     * @var string
+     */
+    public $fechaentrega;
+
+    /**
      * Si este presupuesto es la versión de otro, aquí se almacena el idpresupuesto del original.
      * @var integer
      */
@@ -93,6 +99,11 @@ class pedido_cliente extends \fs_model
                 $this->fechasalida = Date('d-m-Y', strtotime($data['fechasalida']));
             }
             
+            $this->fechaentrega = NULL;
+            if (!is_null($data['fechaentrega'])) {
+                $this->fechaentrega = Date('d-m-Y', strtotime($data['fechaentrega']));
+            }
+            
             $this->idoriginal = $this->intval($data['idoriginal']);
         } else {
             $this->clear_trait($this->default_items);
@@ -101,6 +112,7 @@ class pedido_cliente extends \fs_model
             $this->status = 0;
             $this->editable = TRUE;
             $this->fechasalida = NULL;
+            $this->fechaentrega = NULL;
             $this->idoriginal = NULL;
         }
     }
@@ -282,6 +294,7 @@ class pedido_cliente extends \fs_model
                     . ", totaliva = " . $this->var2str($this->totaliva)
                     . ", totalrecargo = " . $this->var2str($this->totalrecargo)
                     . ", femail = " . $this->var2str($this->femail)
+                    . ", fechaentrega = " . $this->var2str($this->fechaentrega)
                     . ", fechasalida = " . $this->var2str($this->fechasalida)
                     . ", codtrans = " . $this->var2str($this->envio_codtrans)
                     . ", codigoenv = " . $this->var2str($this->envio_codigo)
@@ -305,7 +318,7 @@ class pedido_cliente extends \fs_model
                codcliente,coddir,coddivisa,codejercicio,codigo,codpais,codpago,codpostal,codserie,
                direccion,editable,fecha,hora,idalbaran,irpf,netosindto,neto,dtopor1,dtopor2,dtopor3,dtopor4,dtopor5,
                nombrecliente,numero,observaciones,status,porcomision,provincia,tasaconv,total,totaleuros,
-               totalirpf,totaliva,totalrecargo,numero2,femail,fechasalida,codtrans,codigoenv,nombreenv,
+               totalirpf,totaliva,totalrecargo,numero2,femail,fechaentrega,fechasalida,codtrans,codigoenv,nombreenv,
                apellidosenv,apartadoenv,direccionenv,codpostalenv,ciudadenv,provinciaenv,codpaisenv,
                numdocs,idoriginal) VALUES ("
                 . $this->var2str($this->apartado) . ","
@@ -349,6 +362,7 @@ class pedido_cliente extends \fs_model
                 . $this->var2str($this->totalrecargo) . ","
                 . $this->var2str($this->numero2) . ","
                 . $this->var2str($this->femail) . ","
+                . $this->var2str($this->fechaentrega) . ","
                 . $this->var2str($this->fechasalida) . ","
                 . $this->var2str($this->envio_codtrans) . ","
                 . $this->var2str($this->envio_codigo) . ","

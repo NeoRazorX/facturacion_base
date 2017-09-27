@@ -93,6 +93,11 @@
         <defecto>now()</defecto>
     </columna>
     <columna>
+        <nombre>fechaentrega</nombre>
+        <tipo>date</tipo>
+        <nulo>YES</nulo>
+    </columna>
+    <columna>
         <nombre>femail</nombre>
         <tipo>date</tipo>
     </columna>
