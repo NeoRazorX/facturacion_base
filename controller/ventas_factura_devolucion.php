@@ -17,12 +17,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+require_once 'plugins/facturacion_base/extras/fbase_controller.php';
+
 /**
  * Description of ventas_factura_devolucion
  *
  * @author Carlos Garcia Gomez
  */
-class ventas_factura_devolucion extends fs_controller
+class ventas_factura_devolucion extends fbase_controller
 {
 
     public $factura;

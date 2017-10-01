@@ -809,7 +809,7 @@ class Cezpdf extends Cpdf {
                             // then this must be starting page numbers
                             $status = 1;
                             $info = $tmp[$pageNum];
-                            $info['dnum'] = $info['num'] - $pageNum;
+                            $info['dnum'] = intval($info['num']) - intval($pageNum);
                             // also check for the special case of the numbering stopping and starting on the same page
                             if (isset($info['stopn']) || isset($info['stoptn'])) {
                                 $status = 2;

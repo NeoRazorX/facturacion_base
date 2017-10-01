@@ -161,10 +161,8 @@ class asiento_factura
                     $subcuenta_iva = FALSE;
 
                     /// ¿El impuesto tiene una subcuenta específica?
-                    if (isset($this->impuestos[$li->codimpuesto])) {
-                        if ($this->impuestos[$li->codimpuesto]->codsubcuentasop) {
-                            $subcuenta_iva = $this->subcuenta->get_by_codigo($this->impuestos[$li->codimpuesto]->codsubcuentasop, $asiento->codejercicio);
-                        }
+                    if (isset($this->impuestos[$li->codimpuesto]) && $this->impuestos[$li->codimpuesto]->codsubcuentasop) {
+                        $subcuenta_iva = $this->subcuenta->get_by_codigo($this->impuestos[$li->codimpuesto]->codsubcuentasop, $asiento->codejercicio);
                     }
 
                     /// si no hemos encontrado una subcuenta, usamos la primera de IVASOP
@@ -578,10 +576,8 @@ class asiento_factura
                     $subcuenta_iva = FALSE;
 
                     /// ¿El impuesto tiene una subcuenta específica?
-                    if (isset($this->impuestos[$li->codimpuesto])) {
-                        if ($this->impuestos[$li->codimpuesto]->codsubcuentarep) {
-                            $subcuenta_iva = $this->subcuenta->get_by_codigo($this->impuestos[$li->codimpuesto]->codsubcuentarep, $asiento->codejercicio);
-                        }
+                    if (isset($this->impuestos[$li->codimpuesto]) && $this->impuestos[$li->codimpuesto]->codsubcuentarep) {
+                        $subcuenta_iva = $this->subcuenta->get_by_codigo($this->impuestos[$li->codimpuesto]->codsubcuentarep, $asiento->codejercicio);
                     }
 
                     /// si no hemos encontrado una subcuenta, usamos la primera de IVAREP
@@ -769,7 +765,7 @@ class asiento_factura
                             }
                         } else {
                             $asiento_correcto = FALSE;
-                            $this->new_error_msg("¡Imposible generar la partida para la subcuenta ". $partidaA->codsubcuenta . "!");
+                            $this->new_error_msg("¡Imposible generar la partida para la subcuenta " . $partidaA->codsubcuenta . "!");
                         }
                     }
                 }
@@ -885,14 +881,12 @@ class asiento_factura
              * asociada a la cuenta bancaria.
              */
             $formap = $this->forma_pago->get($codpago);
-            if ($formap) {
-                if ($formap->codcuenta) {
-                    $cuentab = $this->cuenta_banco->get($formap->codcuenta);
-                    if ($cuentab) {
-                        $subc = $this->subcuenta->get_by_codigo($cuentab->codsubcuenta, $nasientop->codejercicio);
-                        if ($subc) {
-                            $subcaja = $subc;
-                        }
+            if ($formap && $formap->codcuenta) {
+                $cuentab = $this->cuenta_banco->get($formap->codcuenta);
+                if ($cuentab) {
+                    $subc = $this->subcuenta->get_by_codigo($cuentab->codsubcuenta, $nasientop->codejercicio);
+                    if ($subc) {
+                        $subcaja = $subc;
                     }
                 }
             }
@@ -995,20 +989,29 @@ class asiento_factura
     }
 
     /**
-     * Invierte los valores debe/haber de las líneas del asiento
+     * Invierte los valores debe/haber de las líneas del asiento. Además de recalcular el importe.
      * @param asiento $asiento
      */
     public function invertir_asiento(&$asiento)
     {
+        $t_debe = $t_haber = 0;
         foreach ($asiento->get_partidas() as $part) {
-            $debe = abs($part->debe);
-            $haber = abs($part->haber);
+            if ($part->debe < 0 || $part->haber < 0) {
+                $debe = abs($part->debe);
+                $haber = abs($part->haber);
 
-            $part->debe = $haber;
-            $part->haber = $debe;
-            $part->baseimponible = abs($part->baseimponible);
-            $part->save();
+                $part->debe = $haber;
+                $part->haber = $debe;
+                $part->baseimponible = abs($part->baseimponible);
+                $part->save();
+
+                $t_debe += $part->debe;
+                $t_haber += $part->haber;
+            }
         }
+
+        $asiento->importe = max(array(abs($t_debe), abs($t_haber)));
+        $asiento->save();
     }
 
     /**
