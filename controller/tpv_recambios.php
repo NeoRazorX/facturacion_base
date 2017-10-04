@@ -402,7 +402,7 @@ class tpv_recambios extends fbase_controller
                 $factura->pagada = TRUE;
             }
 
-            $factura->vencimiento = Date('d-m-Y', strtotime($factura->fecha . ' ' . $forma_pago->vencimiento));
+            $factura->vencimiento = $forma_pago->calcular_vencimiento($factura->fecha, $this->cliente_s->diaspago);
 
             $factura->codcliente = $this->cliente_s->codcliente;
             $factura->cifnif = $_POST['cifnif'];

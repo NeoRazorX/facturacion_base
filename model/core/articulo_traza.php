@@ -278,9 +278,9 @@ class articulo_traza extends \fs_model
      * @param integer $idlinea
      * @return \articulo_traza
      */
-    public function all_from_linea($tipo, $idlinea)
+    public function all_from_linea($tipo, $idlinea, $order = 'id DESC')
     {
-        $sql = "SELECT * FROM " . $this->table_name . " WHERE " . $tipo . " = " . $this->var2str($idlinea) . " ORDER BY id DESC;";
+        $sql = "SELECT * FROM " . $this->table_name . " WHERE " . $tipo . " = " . $this->var2str($idlinea) . " ORDER BY " . $order . ";";
         return $this->all_from($sql);
     }
 

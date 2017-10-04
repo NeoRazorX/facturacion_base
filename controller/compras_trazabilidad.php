@@ -25,12 +25,12 @@
 class compras_trazabilidad extends fs_controller
 {
 
+    private $articulo;
+    private $articulo_traza;
     public $documento;
     public $lineas;
     public $tab;
     public $tipo;
-    private $articulo;
-    private $articulo_traza;
 
     public function __construct()
     {
@@ -58,11 +58,10 @@ class compras_trazabilidad extends fs_controller
             $this->articulo = new articulo();
             $this->articulo_traza = new articulo_traza();
 
-            if (isset($_POST['id_0'])) {
+            $this->get_lineas();
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $this->modificar();
             }
-
-            $this->get_lineas();
 
             /**
              * Cargamos las extensiones solamente si se usa trazabilidad,
@@ -107,15 +106,18 @@ class compras_trazabilidad extends fs_controller
 
             if (get_class_name($this->documento) == 'albaran_proveedor') {
                 return parent::url() . '&doc=albaran&id=' . $this->documento->idalbaran . $extra;
-            } else
-                return parent::url() . '&doc=factura&id=' . $this->documento->idfactura . $extra;
-        } else
-            return parent::url();
+            }
+
+            return parent::url() . '&doc=factura&id=' . $this->documento->idfactura . $extra;
+        }
+
+        return parent::url();
     }
 
     private function get_lineas()
     {
         $this->lineas = array();
+        $order = 'numserie DESC, lote DESC, id DESC';
 
         /**
          * ¿Existen ya las lineas de trazabilidad para este documento?
@@ -125,83 +127,74 @@ class compras_trazabilidad extends fs_controller
         foreach ($this->documento->get_lineas() as $lindoc) {
             if ($lindoc->referencia) {
                 $articulo = $this->articulo->get($lindoc->referencia);
-                if ($articulo) {
-                    if ($articulo->trazabilidad) {
-                        $num = 0;
-                        if (get_class_name($this->documento) == 'albaran_proveedor') {
-                            foreach ($this->articulo_traza->all_from_linea('idlalbcompra', $lindoc->idlinea) as $traza) {
-                                if ($num > $lindoc->cantidad) {
-                                    /// si hay más líneas de trazabilidad que cantidad, las eliminamos
-                                    $traza->delete();
-                                } else {
-                                    $this->lineas[] = $traza;
-                                    $num++;
-                                }
-                            }
-                        } else {
-                            /// primero comprobamos albaranes previos
-                            if ($lindoc->idlineaalbaran) {
-                                foreach ($this->articulo_traza->all_from_linea('idlalbcompra', $lindoc->idlineaalbaran) as $traza) {
-                                    if (is_null($traza->idlfaccompra)) {
-                                        $traza->idlfaccompra = $lindoc->idlinea;
-                                        $traza->save();
-                                    }
-                                }
-                            }
-
-                            /// ahora comprobamos de la factura
-                            foreach ($this->articulo_traza->all_from_linea('idlfaccompra', $lindoc->idlinea) as $traza) {
-                                if ($num > $lindoc->cantidad) {
-                                    $traza->delete();
-                                } else {
-                                    $this->lineas[] = $traza;
-                                    $num++;
-                                }
-                            }
-                        }
-
-                        /// creamos las lineas que falten
-                        while ($num < $lindoc->cantidad) {
-                            $traza = new articulo_traza();
-                            $traza->referencia = $articulo->referencia;
-                            $traza->fecha_entrada = $this->documento->fecha;
-
-                            if (get_class_name($this->documento) == 'albaran_proveedor') {
-                                $traza->idlalbcompra = $lindoc->idlinea;
+                if ($articulo && $articulo->trazabilidad) {
+                    $num = 0;
+                    if (get_class_name($this->documento) == 'albaran_proveedor') {
+                        foreach ($this->articulo_traza->all_from_linea('idlalbcompra', $lindoc->idlinea, $order) as $traza) {
+                            if ($num >= $lindoc->cantidad) {
+                                /// si hay más líneas de trazabilidad que cantidad, las eliminamos
+                                $traza->delete();
+                                $this->new_message('Eliminada la línea ' . $num);
                             } else {
-                                $traza->idlfaccompra = $lindoc->idlinea;
+                                $this->lineas[$traza->id] = $traza;
+                                $num++;
                             }
-
-                            if ($traza->save()) {
-                                $this->lineas[] = $traza;
-                            }
-                            $num++;
-                            $nuevas = TRUE;
                         }
+                    } else {
+                        /// primero comprobamos albaranes previos
+                        if ($lindoc->idlineaalbaran) {
+                            foreach ($this->articulo_traza->all_from_linea('idlalbcompra', $lindoc->idlineaalbaran, $order) as $traza) {
+                                if (is_null($traza->idlfaccompra)) {
+                                    $traza->idlfaccompra = $lindoc->idlinea;
+                                    $traza->save();
+                                }
+                            }
+                        }
+
+                        /// ahora comprobamos de la factura
+                        foreach ($this->articulo_traza->all_from_linea('idlfaccompra', $lindoc->idlinea, $order) as $traza) {
+                            if ($num >= $lindoc->cantidad) {
+                                $traza->delete();
+                                $this->new_message('Eliminada la línea ' . $num);
+                            } else {
+                                $this->lineas[$traza->id] = $traza;
+                                $num++;
+                            }
+                        }
+                    }
+
+                    /// creamos las lineas que falten
+                    while ($num < $lindoc->cantidad) {
+                        $traza = new articulo_traza();
+                        $traza->referencia = $articulo->referencia;
+                        $traza->fecha_entrada = $this->documento->fecha;
+
+                        if (get_class_name($this->documento) == 'albaran_proveedor') {
+                            $traza->idlalbcompra = $lindoc->idlinea;
+                        } else {
+                            $traza->idlfaccompra = $lindoc->idlinea;
+                        }
+
+                        if ($traza->save()) {
+                            $this->lineas[$traza->id] = $traza;
+                        }
+                        $num++;
+                        $nuevas = TRUE;
                     }
                 }
             }
         }
 
-        /// si hay lineas nuevas reordenamos
-        if ($nuevas) {
-            usort($this->lineas, function($a, $b) {
-                if ($a->id > $b->id) {
-                    return -1;
-                } else if ($a->id < $b->id) {
-                    return 1;
-                } else {
-                    return 0;
-                }
-            });
-        }
+        /// reordenamos
+        uasort($this->lineas, function($a, $b) {
+            return strcmp($a->referencia, $b->referencia);
+        });
     }
 
     private function modificar()
     {
         $ok = TRUE;
-
-        $this->get_lineas();
+        $num = 1;
         foreach ($this->lineas as $i => $value) {
             if ($_POST['id_' . $i] == $value->id) {
                 $this->lineas[$i]->numserie = NULL;
@@ -216,18 +209,16 @@ class compras_trazabilidad extends fs_controller
 
                 if (is_null($this->lineas[$i]->numserie) && is_null($this->lineas[$i]->lote)) {
                     if ($ok) {
-                        $this->new_error_msg('En la <b>linea ' . ($i + 1) . '</b> debes escribir un número de serie'
+                        $this->new_error_msg('En la <b>linea ' . $num . '</b> debes escribir un número de serie'
                             . ' o un lote o ambos, pero algo debes escribir.');
                     }
                     $ok = FALSE;
                 } else if (!$this->lineas[$i]->save()) {
                     $ok = FALSE;
                 }
-            } else {
-                $this->new_error_msg('Error al comprobar los datos del formulario.');
-                $ok = FALSE;
-                break;
             }
+
+            $num++;
         }
 
         if ($ok) {
