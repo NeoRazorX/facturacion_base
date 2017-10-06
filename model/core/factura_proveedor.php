@@ -187,10 +187,25 @@ class factura_proveedor extends \fs_model
 
         return FALSE;
     }
+    
+    /**
+     * Devuelve la factura de compra con el numproveedor proporcionado.
+     * @param integer $numproveedor
+     * @return boolean|\factura_proveedor
+     */
+    public function get_by_numproveedor($id)
+    {
+        $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE upper(numproveedor) = " . strtoupper($this->var2str($numproveedor)) . ";");
+        if ($data) {
+            return new \factura_proveedor($data[0]);
+        }
+
+        return FALSE;
+    }
 
     public function get_by_codigo($cod)
     {
-        $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codigo = " . $this->var2str($cod) . ";");
+        $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE upper(codigo) = " . strtoupper($this->var2str($cod)) . ";");
         if ($data) {
             return new \factura_proveedor($data[0]);
         }

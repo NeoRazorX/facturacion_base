@@ -139,6 +139,11 @@ class ventas_albaran extends fbase_controller
                 $this->albaran->fecha = $_POST['fecha'];
                 $this->albaran->hora = $_POST['hora'];
 
+                $this->albaran->fechaentrega = NULL;
+                if ($_POST['fechaentrega'] != '') {
+                    $this->albaran->fechaentrega = $_POST['fechaentrega'];
+                }
+
                 if ($this->albaran->codejercicio != $eje0->codejercicio) {
                     $this->albaran->codejercicio = $eje0->codejercicio;
                     $this->albaran->new_codigo();
@@ -287,6 +292,7 @@ class ventas_albaran extends fbase_controller
                             if ($value->idlinea == intval($_POST['idlinea_' . $num])) {
                                 $encontrada = TRUE;
                                 $cantidad_old = $value->cantidad;
+                                $lineas[$k]->orden = $num;
                                 $lineas[$k]->cantidad = floatval($_POST['cantidad_' . $num]);
                                 $lineas[$k]->pvpunitario = floatval($_POST['pvp_' . $num]);
                                 $lineas[$k]->dtopor = floatval(fs_filter_input_post('dto_' . $num, 0));
@@ -350,6 +356,8 @@ class ventas_albaran extends fbase_controller
                                 $linea->recargo = floatval(fs_filter_input_post('recargo_' . $num, 0));
                             }
 
+                            $linea->orden = $num;
+                            $linea->irpf = floatval($_POST['irpf_' . $num]);
                             $linea->irpf = floatval(fs_filter_input_post('irpf_' . $num, 0));
                             $linea->cantidad = floatval($_POST['cantidad_' . $num]);
                             $linea->pvpunitario = floatval($_POST['pvp_' . $num]);

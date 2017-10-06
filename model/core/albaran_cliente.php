@@ -50,6 +50,12 @@ class albaran_cliente extends \fs_model
      */
     public $ptefactura;
 
+    /**
+     * Fecha de entrega solicitada para recibir el material.
+     * @var string
+     */
+    public $fechaentrega;
+
     public function __construct($data = FALSE)
     {
         parent::__construct('albaranescli');
@@ -67,11 +73,17 @@ class albaran_cliente extends \fs_model
                 /// si ya hay una factura enlazada, no puede estar pendiente de factura
                 $this->ptefactura = FALSE;
             }
+
+            $this->fechaentrega = NULL;
+            if (!is_null($data['fechaentrega'])) {
+                $this->fechaentrega = Date('d-m-Y', strtotime($data['fechaentrega']));
+            }
         } else {
             $this->clear_trait($this->default_items);
             $this->idalbaran = NULL;
             $this->idfactura = NULL;
             $this->ptefactura = TRUE;
+            $this->fechaentrega = NULL;
         }
     }
 
@@ -119,6 +131,21 @@ class albaran_cliente extends \fs_model
     public function get($id)
     {
         $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idalbaran = " . $this->var2str($id) . ";");
+        if ($data) {
+            return new \albaran_cliente($data[0]);
+        }
+
+        return FALSE;
+    }
+
+    /**
+     * Devuelve el albarán solicitado o false si no se encuentra.
+     * @param string $numero2
+     * @return \albaran_cliente|boolean
+     */
+    public function get_by_numero2($numero2)
+    {
+        $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE upper(numero2) = " . strtoupper($this->var2str($numero2)) . ";");
         if ($data) {
             return new \albaran_cliente($data[0]);
         }
@@ -280,6 +307,7 @@ class albaran_cliente extends \fs_model
                     . ", totaliva = " . $this->var2str($this->totaliva)
                     . ", totalrecargo = " . $this->var2str($this->totalrecargo)
                     . ", femail = " . $this->var2str($this->femail)
+                    . ", fechaentrega = " . $this->var2str($this->fechaentrega)
                     . ", codtrans = " . $this->var2str($this->envio_codtrans)
                     . ", codigoenv = " . $this->var2str($this->envio_codigo)
                     . ", nombreenv = " . $this->var2str($this->envio_nombre)
@@ -301,7 +329,7 @@ class albaran_cliente extends \fs_model
                codserie,codejercicio,codcliente,codpago,coddivisa,codalmacen,codpais,coddir,
                codpostal,numero,numero2,nombrecliente,cifnif,direccion,ciudad,provincia,apartado,
                fecha,hora,netosindto,neto,dtopor1,dtopor2,dtopor3,dtopor4,dtopor5,total,totaliva,totaleuros,irpf,totalirpf,porcomision,tasaconv,
-               totalrecargo,observaciones,ptefactura,femail,codtrans,codigoenv,nombreenv,apellidosenv,
+               totalrecargo,observaciones,ptefactura,femail,fechaentrega,codtrans,codigoenv,nombreenv,apellidosenv,
                apartadoenv,direccionenv,codpostalenv,ciudadenv,provinciaenv,codpaisenv,numdocs) VALUES "
                 . "(" . $this->var2str($this->idfactura)
                 . "," . $this->var2str($this->codigo)
@@ -343,6 +371,7 @@ class albaran_cliente extends \fs_model
                 . "," . $this->var2str($this->observaciones)
                 . "," . $this->var2str($this->ptefactura)
                 . "," . $this->var2str($this->femail)
+                . "," . $this->var2str($this->fechaentrega)
                 . "," . $this->var2str($this->envio_codtrans)
                 . "," . $this->var2str($this->envio_codigo)
                 . "," . $this->var2str($this->envio_nombre)

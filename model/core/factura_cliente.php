@@ -239,9 +239,19 @@ class factura_cliente extends \fs_model
         return FALSE;
     }
 
+    public function get_by_numero2($numero2)
+    {
+        $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE upper(numero2) = " . strtoupper($this->var2str($numero2)) . ";");
+        if ($data) {
+            return new \factura_cliente($data[0]);
+        }
+
+        return FALSE;
+    }
+
     public function get_by_codigo($cod)
     {
-        $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codigo = " . $this->var2str($cod) . ";");
+        $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE upper(codigo) = " . strtoupper($this->var2str($cod)) . ";");
         if ($data) {
             return new \factura_cliente($data[0]);
         }
