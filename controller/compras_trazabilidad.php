@@ -21,6 +21,7 @@
  * Description of compras_trazabilidad
  *
  * @author Carlos Garcia Gomez
+ * @author Fco. Antonio Moreno Pérez <famphuelva@gmail.com>
  */
 class compras_trazabilidad extends fs_controller
 {
@@ -31,6 +32,8 @@ class compras_trazabilidad extends fs_controller
     public $tipo;
     private $articulo;
     private $articulo_traza;
+    public $all;
+    public $fin;
 
     public function __construct()
     {
@@ -201,6 +204,18 @@ class compras_trazabilidad extends fs_controller
     {
         $ok = TRUE;
 
+        $this->all = FALSE;
+        $this->fin = FALSE;
+        if (isset($_POST['all'])){
+            $this->new_message('Proceso por lote activado.');
+            $ok = FALSE;
+            $this->all = TRUE;
+        }
+        if ($_REQUEST['fin']){
+             $this->new_message('Proceso por lote desactivado.');
+            $ok = FALSE;         
+            $this->fin =TRUE;
+        }
         $this->get_lineas();
         foreach ($this->lineas as $i => $value) {
             if ($_POST['id_' . $i] == $value->id) {
@@ -214,17 +229,42 @@ class compras_trazabilidad extends fs_controller
                     $this->lineas[$i]->lote = $_POST['lote_' . $i];
                 }
 
-                if (is_null($this->lineas[$i]->numserie) && is_null($this->lineas[$i]->lote)) {
-                    if ($ok) {
+                if (is_null($this->lineas[$i]->numserie) AND is_null($this->lineas[$i]->lote)) {
+                    if (($ok) and (!$this->all)) {
                         $this->new_error_msg('En la <b>linea ' . ($i + 1) . '</b> debes escribir un número de serie'
                             . ' o un lote o ambos, pero algo debes escribir.');
                     }
                     $ok = FALSE;
-                } else if (!$this->lineas[$i]->save()) {
+                } 
+                else if ($this->all){
+                    
+                    if ($this->lineas[$i]->all_save()) {
+                    $ok = TRUE;
+                }
+                    
+                }
+                else if (!$this->lineas[$i]->save()) {
                     $ok = FALSE;
                 }
-            } else {
-                $this->new_error_msg('Error al comprobar los datos del formulario.');
+            } 
+                else if ($this->all){
+                     $this->lineas[$i]->lote = NULL;
+                if ($_POST['lote_' . $i]) {
+                    $this->lineas[$i]->lote = $_POST['lote_' . $i];
+                } 
+                if (isset($_POST['suma'])){
+                    if ($_POST['suma'==0]){
+                         if ($this->lineas[$i]->all_save()) {
+                    $ok = TRUE;
+                   
+                  
+                }
+                    }
+                } 
+                    }
+                    
+                else if (!$this->fin) {
+                $this->new_error_msg('Error al comprobar los datos erererer del formulario.');
                 $ok = FALSE;
                 break;
             }

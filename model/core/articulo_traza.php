@@ -25,6 +25,7 @@ namespace FacturaScripts\model;
  *
  * @author Luismipr              <luismipr@gmail.com>
  * @author Carlos García Gómez   <neorazorx@gmail.com>
+ * @author Fco. Antonio Moreno Pérez <famphuelva@gmail.com>
  */
 class articulo_traza extends \fs_model
 {
@@ -211,6 +212,22 @@ class articulo_traza extends \fs_model
         }
 
         return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE id = " . $this->var2str($this->id) . ";");
+    }
+    public function all_save(){
+         if ($this->exists()) {
+            $sql = "UPDATE " . $this->table_name . " SET referencia = " . $this->var2str($this->referencia)
+                . ", numserie = " . $this->var2str($this->numserie)
+                . ", lote = " . $this->var2str($this->lote)
+                . ", idlalbventa = " . $this->var2str($this->idlalbventa)
+                . ", idlfacventa = " . $this->var2str($this->idlfacventa)
+                . ", idlalbcompra = " . $this->var2str($this->idlalbcompra)
+                . ", idlfaccompra = " . $this->var2str($this->idlfaccompra)
+                . ", fecha_entrada = " . $this->var2str($this->fecha_entrada)
+                . ", fecha_salida = " . $this->var2str($this->fecha_salida)
+                . "  WHERE idlalbcompra = " . $this->var2str($this->idlalbcompra) . ";";
+
+            return $this->db->exec($sql);
+        }
     }
 
     public function save()
