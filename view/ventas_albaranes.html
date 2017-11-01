@@ -302,7 +302,7 @@
          </tr>
       </thead>
       {loop="$fsc->resultados"}
-      <tr class='clickableRow{if="!$value->ptefactura"} success{elseif="$value->total<=0"} warning{/if}' href="{$value->url()}">
+      <tr class='clickableRow{if="!$value->ptefactura"} success{elseif="$value->total<=0"} warning{/if}' href="{$value->url()}" data-codigo="{$value->codigo}" >
          <td class="text-center">
             {if="!$value->ptefactura"}
             <span class="glyphicon glyphicon-paperclip" title="El {#FS_ALBARAN#} tiene vinculado una factura"></span>
