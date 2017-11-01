@@ -22,9 +22,9 @@
                 <th class="text-right" width="90">Total</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody id="lineas_documento" data-codigo="{$fsc->factura->codigo}">
             {loop="$lineas"}
-            <tr{if="$value->cantidad<=0"} class="warning"{/if}>
+            <tr{if="$value->cantidad<=0"} class="warning"{/if} id="linea_{$counter}" data-ref="{$value->referencia}" data-line="{$value->idlinea}">
                 <td>
                     {if="$value->idalbaran"}
                     <a href="{$value->albaran_url()}">{$value->albaran_codigo()}</a>
