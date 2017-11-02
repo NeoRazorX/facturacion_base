@@ -29,6 +29,7 @@ class compras_trazabilidad extends fs_controller
     private $articulo_traza;
     public $documento;
     public $lineas;
+    public $lineas_simplificado;
     public $tab;
     public $tipo;
 
@@ -117,6 +118,7 @@ class compras_trazabilidad extends fs_controller
     private function get_lineas()
     {
         $this->lineas = array();
+        $this->lineas_simplificado = array();
         $order = 'numserie DESC, lote DESC, id DESC';
 
         /**
@@ -137,6 +139,7 @@ class compras_trazabilidad extends fs_controller
                                 $this->new_message('Eliminada la línea ' . $num);
                             } else {
                                 $this->lineas[$traza->id] = $traza;
+                                $this->lineas_simplificado[$traza->referencia] = $traza;
                                 $num++;
                             }
                         }
@@ -158,6 +161,7 @@ class compras_trazabilidad extends fs_controller
                                 $this->new_message('Eliminada la línea ' . $num);
                             } else {
                                 $this->lineas[$traza->id] = $traza;
+                                $this->lineas_simplificado[$traza->referencia] = $traza;
                                 $num++;
                             }
                         }
@@ -177,6 +181,7 @@ class compras_trazabilidad extends fs_controller
 
                         if ($traza->save()) {
                             $this->lineas[$traza->id] = $traza;
+                            $this->lineas_simplificado[$traza->referencia] = $traza;
                         }
                         $num++;
                         $nuevas = TRUE;
@@ -192,6 +197,23 @@ class compras_trazabilidad extends fs_controller
     }
 
     private function modificar()
+    {
+        if (isset($_POST['simplificado'])) {
+            $ok = $this->modificar_simplificado();
+        } else {
+            $ok = $this->modificar_completo();
+        }
+
+        if ($ok) {
+            if ($this->tab) {
+                $this->new_message('Datos guardados correctamente.');
+            } else {
+                header('Location: ' . $this->documento->url());
+            }
+        }
+    }
+
+    private function modificar_completo()
     {
         $ok = TRUE;
         $num = 1;
@@ -221,12 +243,32 @@ class compras_trazabilidad extends fs_controller
             $num++;
         }
 
-        if ($ok) {
-            if ($this->tab) {
-                $this->new_message('Datos guardados correctamente.');
-            } else {
-                header('Location: ' . $this->documento->url());
+        return $ok;
+    }
+
+    private function modificar_simplificado()
+    {
+        $ok = TRUE;
+        for ($key = 0; isset($_POST['ref_' . $key]); $key++) {
+            foreach ($this->lineas as $i => $value) {
+                if ($value->referencia == $_POST['ref_' . $key]) {
+                    $this->lineas[$i]->lote = NULL;
+                    if ($_POST['lote_' . $key]) {
+                        $this->lineas[$i]->lote = $_POST['lote_' . $key];
+                    }
+
+                    if (is_null($this->lineas[$i]->lote)) {
+                        if ($ok) {
+                            $this->new_error_msg('En la <b>linea ' . ($key + 1) . '</b> debes escribir un número de lote.');
+                        }
+                        $ok = FALSE;
+                    } else if (!$this->lineas[$i]->save()) {
+                        $ok = FALSE;
+                    }
+                }
             }
         }
+
+        return $ok;
     }
 }

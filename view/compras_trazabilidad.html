@@ -1,7 +1,15 @@
 {if="$fsc->tab"}{include="header2"}{else}{include="header"}{/if}
 
-{if="$fsc->documento"}
+<script type="text/javascript">
+    function replicar_lote(idlote, ref) {
+        var lote_val = $("#" + idlote).val();
+        $(".idlote").each(function () {
+            $(this).val(lote_val);
+        });
+    }
+</script>
 
+{if="$fsc->documento"}
 {if="!$fsc->tab"}
 <div class="container-fluid">
     <div class="row">
@@ -17,53 +25,109 @@
                     otro o ambos. Lo que necesites.
                 </p>
             </div>
+            <ul class="nav nav-pills" role="tablist">
+                <li role="presentation" class="active">
+                    <a href="#traza_completa" aria-controls="traza_completa" role="tab" data-toggle="tab">Completo</a>
+                </li>
+                <li role="presentation">
+                    <a href="#traza_simple" aria-controls="traza_simple" role="tab" data-toggle="tab">Simplificado</a>
+                </li>
+            </ul>
         </div>
     </div>
 </div>
 {/if}
 
-<form action="{$fsc->url()}" method="post" class="form">
-    <div class="table-responsive">
-        <table class="table table-hover">
-            <thead>
-                <tr>
-                    <th>Referencia</th>
-                    <th>Número de serie</th>
-                    <th>Lote</th>
-                </tr>
-            </thead>
-            {loop="$fsc->lineas"}
-            <tr>
-                <td>
-                    <input type="hidden" name="id_{$value->id}" value="{$value->id}"/>
-                    <input type="text" name="ref_{$value->id}" value="{$value->referencia}" class="form-control" readonly=""/>
-                </td>
-                <td>
-                    <input type="text" name="numserie_{$value->id}" value="{$value->numserie}" class="form-control" placeholder="opcional" maxlength="50" autocomplete="off"/>
-                </td>
-                <td>
-                    <input type="text" name="lote_{$value->id}" value="{$value->lote}" class="form-control" placeholder="opcional" maxlength="50" autocomplete="off"/>
-                </td>
-            </tr>
-            {else}
-            <tr class="warning">
-                <td colspan="3">Ningún producto del documento tiene trazabilidad activada.</td>
-            </tr>
-            {/loop}
-        </table>
-    </div>
-    {if="$fsc->lineas"}
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-sm-12 text-right">
-                <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled = true;this.form.submit();">
-                    <span class="glyphicon glyphicon-floppy-disk"></span>&nbsp; Guardar
-                </button>
+<div class="tab-content">
+    <div role="tabpanel" class="tab-pane active" id="traza_completa">
+        <form action="{$fsc->url()}" method="post" class="form">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Referencia</th>
+                            <th>Número de serie</th>
+                            <th>Lote</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    {loop="$fsc->lineas"}
+                    <tr>
+                        <td>
+                            <input type="hidden" name="id_{$value->id}" value="{$value->id}"/>
+                            <input type="text" name="ref_{$value->id}" value="{$value->referencia}" class="form-control" readonly=""/>
+                        </td>
+                        <td>
+                            <input type="text" name="numserie_{$value->id}" value="{$value->numserie}" class="form-control" placeholder="opcional" maxlength="50" autocomplete="off"/>
+                        </td>
+                        <td>
+                            <input type="text" name="lote_{$value->id}" value="{$value->lote}" id="lote_{$value->id}" class="form-control idlote" data-ref="{$value->referencia}" placeholder="opcional" maxlength="50" autocomplete="off"/>
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-xs btn-block btn-default" onclick="replicar_lote('lote_{$value->id}', '{$value->referencia}')">Replicar</button>
+                        </td>
+                    </tr>
+                    {else}
+                    <tr class="warning">
+                        <td colspan="4">Ningún producto del documento tiene trazabilidad activada.</td>
+                    </tr>
+                    {/loop}
+                </table>
             </div>
-        </div>
+            {if="$fsc->lineas"}
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-sm-12 text-right">
+                        <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled = true;this.form.submit();">
+                            <span class="glyphicon glyphicon-floppy-disk"></span>&nbsp; Guardar
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {/if}
+        </form>
     </div>
-    {/if}
-</form>
+    <div role="tabpanel" class="tab-pane" id="traza_simple">
+        <form action="{$fsc->url()}" method="post" class="form">
+            <input type="hidden" name="simplificado" value="TRUE"/>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Referencia</th>
+                            <th>Lote</th>
+                        </tr>
+                    </thead>
+                    {loop="$fsc->lineas_simplificado"}
+                    <tr>
+                        <td>
+                            <input type="text" name="ref_{$counter}" value="{$value->referencia}" class="form-control" readonly=""/>
+                        </td>
+                        <td>
+                            <input type="text" name="lote_{$counter}" value="{$value->lote}" class="form-control" maxlength="50" autocomplete="off" required=""/>
+                        </td>
+                    </tr>
+                    {else}
+                    <tr class="warning">
+                        <td colspan="3">Ningún producto del documento tiene trazabilidad activada.</td>
+                    </tr>
+                    {/loop}
+                </table>
+            </div>
+            {if="$fsc->lineas"}
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-sm-12 text-right">
+                        <button class="btn btn-sm btn-primary" type="submit">
+                            <span class="glyphicon glyphicon-floppy-disk"></span>&nbsp; Guardar
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {/if}
+        </form>
+    </div>
+</div>
 {else}
 <div class="thumbnail">
     <img src="{#FS_PATH#}view/img/fuuu_face.png" alt="fuuuuu"/>
