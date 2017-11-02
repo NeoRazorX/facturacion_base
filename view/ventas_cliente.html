@@ -84,6 +84,7 @@
             <span class="glyphicon glyphicon-plus"></span>
          </a>
          {if="$fsc->allow_delete"}
+         <div class="btn-group">
             {if="$fsc->cliente->debaja"}
             <a href="#" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#modal_debaja">
                <span class="glyphicon glyphicon-lock"></span>
@@ -95,15 +96,16 @@
                <span class="hidden-xs">&nbsp;Dar de baja</span>
             </a>
             {else}
+            <a href="#" class="btn btn-sm btn-warning" data-toggle="modal" data-target="#modal_debaja">
+                <span class="glyphicon glyphicon-lock"></span>
+                <span class="hidden-xs">&nbsp;Dar de baja</span>
+            </a>
             <a href="#" id="b_eliminar" class="btn btn-sm btn-danger">
                <span class="glyphicon glyphicon-trash"></span>
                <span class="hidden-xs">&nbsp;Eliminar</span>
             </a>
-            <a href="#" class="btn btn-sm btn-warning" data-toggle="modal" data-target="#modal_debaja">
-                <span class="glyphicon glyphicon-lock"></span>
-                <span class="hidden-xs">&nbsp;De baja</span>
-             </a>
             {/if}
+         </div>
          {/if}
       </div>
    </div>

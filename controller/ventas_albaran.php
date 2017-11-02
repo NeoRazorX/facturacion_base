@@ -399,7 +399,7 @@ class ventas_albaran extends fbase_controller
 
                 $this->albaran->total = round($this->albaran->neto + $this->albaran->totaliva - $this->albaran->totalirpf + $this->albaran->totalrecargo, FS_NF0);
 
-                if (abs(floatval($_POST['atotal']) - $this->albaran->total) > .01) {
+                if (abs(floatval($_POST['atotal']) - $this->albaran->total) >= .02) {
                     $this->new_error_msg("El total difiere entre el controlador y la vista (" . $this->albaran->total .
                         " frente a " . $_POST['atotal'] . "). Debes informar del error.");
                 }
