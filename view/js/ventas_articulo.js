@@ -29,7 +29,7 @@ function cambiar_pvp()
     $("#pvpi").val(pvp * (100 + iva) / 100);
 
     var margen = 0;
-    if (coste > 0) {
+    if (coste > 0 && pvp !== 0) {
         margen = ((pvp - coste) / pvp) * 100;
     }
 
@@ -51,7 +51,7 @@ function cambiar_pvpi()
     $("#pvp").val(pvp);
 
     var margen = 0;
-    if (coste > 0) {
+    if (coste > 0 && pvp !== 0) {
         margen = ((pvp - coste) / pvp) * 100;
     }
 
@@ -73,7 +73,7 @@ function cambiar_margen()
     var margen = parseFloat($("#margen").val());
 
     if (!isNaN(margen) && isFinite(margen)) {
-        var pvp =((margen*coste)/100)+coste;
+        var pvp = ((margen * coste) / 100) + coste;
         $("#pvp").val(pvp);
         $("#pvpi").val(pvp * (100 + iva) / 100);
     }
@@ -85,7 +85,7 @@ function calcular_margen()
     var pvp = parseFloat($("#pvp").val());
 
     var margen = 0;
-    if (coste > 0) {
+    if (coste > 0 && pvp !== 0) {
         margen = ((pvp - coste) / pvp) * 100;
     }
 
