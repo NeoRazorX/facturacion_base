@@ -30,7 +30,7 @@ function cambiar_pvp()
 
     var margen = 0;
     if (coste > 0) {
-        margen = ((pvp - coste) / pvp) * 100;
+        margen = (100*(pvp-coste)/coste);
     }
 
     $("#margen").val(margen);
@@ -52,7 +52,7 @@ function cambiar_pvpi()
 
     var margen = 0;
     if (coste > 0) {
-        margen = ((pvp - coste) / pvp) * 100;
+        margen = (100*(pvp-coste)/coste);
     }
 
     $("#margen").val(margen);
