@@ -71,12 +71,17 @@ function cambiar_margen()
     var iva = parseFloat($("#iva").val());
     var coste = parseFloat($("#coste").val());
     var margen = parseFloat($("#margen").val());
+    var pvp = parseFloat($("#pvp").val());
 
     if (!isNaN(margen) && isFinite(margen)) {
-        var pvp = ((margen * coste) / 100) + coste;
-        $("#pvp").val(pvp);
-        $("#pvpi").val(pvp * (100 + iva) / 100);
+        pvp = coste / (1 - (margen / 100));
+        if (margen >= 100) {
+            pvp = ((margen * coste) / 100) + coste;
+        }
     }
+
+    $("#pvp").val(pvp);
+    $("#pvpi").val(pvp * (100 + iva) / 100);
 }
 
 function calcular_margen()
