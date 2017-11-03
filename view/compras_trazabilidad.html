@@ -4,7 +4,9 @@
     function replicar_lote(idlote, ref) {
         var lote_val = $("#" + idlote).val();
         $(".idlote").each(function () {
-            $(this).val(lote_val);
+            if ($(this).attr('data-ref') == ref) {
+                $(this).val(lote_val);
+            }
         });
     }
 </script>
