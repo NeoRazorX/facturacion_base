@@ -56,11 +56,9 @@ function usar_serie()
             irpf = all_series[i].irpf;
 
             for (var j = 0; j < numlineas; j++) {
-                if ($("#linea_" + j).length > 0) {
-                    if (siniva) {
-                        $("#iva_" + j).val(0);
-                        $("#recargo_" + j).val(0);
-                    }
+                if ($("#linea_" + j).length > 0 && siniva) {
+                    $("#iva_" + j).val(0);
+                    $("#recargo_" + j).val(0);
                 }
             }
 
@@ -117,7 +115,7 @@ function recalcular()
             if (txt.length > 1) {
                 $("textarea[name='desc_" + i + "']").prop('rows', txt.length);
             }
-            
+
             /// calculamos los subtotales
             var l_codimpuesto = Math.round(l_iva * 100);
             if (subtotales[l_codimpuesto] === undefined) {
@@ -134,7 +132,7 @@ function recalcular()
             total_irpf += l_neto * l_irpf / 100;
         }
     }
-    
+
     /// redondeamos los subtotales
     var neto = 0;
     var total_iva = 0;

@@ -61,11 +61,9 @@ function usar_serie()
             irpf = all_series[i].irpf;
 
             for (var j = 0; j < numlineas; j++) {
-                if ($("#linea_" + j).length > 0) {
-                    if (siniva) {
-                        $("#iva_" + j).val(0);
-                        $("#recargo_" + j).val(0);
-                    }
+                if ($("#linea_" + j).length > 0 && siniva) {
+                    $("#iva_" + j).val(0);
+                    $("#recargo_" + j).val(0);
                 }
             }
 

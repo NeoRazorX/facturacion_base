@@ -251,7 +251,7 @@
             <div class="form-group">
                <a href="{$fsc->serie->url()}" class="text-capitalize">{#FS_SERIE#}</a>:
                {if="$fsc->albaran->ptefactura"}
-               <select class="form-control" name="serie" onchange="usar_serie();recalcular();">
+               <select class="form-control" name="serie" id="codserie" onchange="usar_serie();recalcular();">
                {loop="$fsc->serie->all()"}
                   {if="$value->codserie==$fsc->albaran->codserie"}
                   <option value="{$value->codserie}" selected="">{$value->descripcion}</option>
