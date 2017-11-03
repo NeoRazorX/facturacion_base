@@ -125,7 +125,6 @@ class compras_trazabilidad extends fs_controller
          * ¿Existen ya las lineas de trazabilidad para este documento?
          * Miramos linea a linea para ver si hay que crear o eliminar.
          */
-        $nuevas = FALSE;
         foreach ($this->documento->get_lineas() as $lindoc) {
             if ($lindoc->referencia) {
                 $articulo = $this->articulo->get($lindoc->referencia);
@@ -184,7 +183,6 @@ class compras_trazabilidad extends fs_controller
                             $this->lineas_simplificado[$traza->referencia] = $traza;
                         }
                         $num++;
-                        $nuevas = TRUE;
                     }
                 }
             }
