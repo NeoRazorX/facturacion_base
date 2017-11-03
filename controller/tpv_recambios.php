@@ -544,11 +544,11 @@ class tpv_recambios extends fbase_controller
 
     private function abrir_caja()
     {
-        if ($this->user->admin && $this->terminal) {
+        if ($this->terminal) {
             $this->terminal->abrir_cajon();
             $this->terminal->save();
         } else {
-            $this->new_error_msg('Sólo un administrador puede abrir la caja.');
+            $this->new_error_msg('Terminal no encontrado.');
         }
     }
 
