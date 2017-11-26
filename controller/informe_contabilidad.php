@@ -63,7 +63,7 @@ class informe_contabilidad extends fs_controller
                 $this->balance_perdidasyg();
             } else if ($_POST['informe'] == 'librom') {
                 if ($_POST['filtro'] == '') {
-                    $this->libro_diario_csv(
+                    $this->libro_mayor_csv(
                         $_POST['codejercicio'], $_POST['desde'], $_POST['hasta']
                     );
                 } else if (isset($_POST['codgrupo'])) {

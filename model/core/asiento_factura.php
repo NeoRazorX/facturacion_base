@@ -143,7 +143,9 @@ class asiento_factura
             $asiento = new \asiento();
             $asiento->codejercicio = $factura->codejercicio;
 
-            if ($factura->idfacturarect) {
+            if ($factura->numproveedor) {
+                $asiento->concepto = "Factura de compra " . $factura->numproveedor . " - " . $factura->nombre;
+            } else if ($factura->idfacturarect) {
                 $asiento->concepto = ucfirst(FS_FACTURA_RECTIFICATIVA) . " de " . $factura->codigorect . " (compras) - " . $factura->nombre;
             } else {
                 $asiento->concepto = "Factura de compra " . $factura->codigo . " - " . $factura->nombre;
