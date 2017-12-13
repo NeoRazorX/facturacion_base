@@ -710,7 +710,7 @@ class informe_albaranes extends fbase_controller
             $where = $this->where_ventas;
         }
 
-        $sql = "select * from " . $tabla . $where . " order by fecha asc, hora asc;";
+        $sql = "select * from " . $tabla . $where . " order by fecha asc, codigo asc;";
         $data = $this->db->select($sql);
         if ($data) {
             foreach ($data as $d) {
