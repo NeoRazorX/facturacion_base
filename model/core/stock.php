@@ -137,7 +137,7 @@ class stock extends \fs_model
         $sql = "SELECT * FROM " . $this->table_name . " WHERE referencia = " . $this->var2str($ref) . ";";
         if ($codalmacen) {
             $sql = "SELECT * FROM " . $this->table_name . " WHERE referencia = " . $this->var2str($ref)
-                . ", codalmacen = " . $this->var2str($codalmacen) . ";";
+                . " AND codalmacen = " . $this->var2str($codalmacen) . ";";
         }
 
         $data = $this->db->select($sql);
