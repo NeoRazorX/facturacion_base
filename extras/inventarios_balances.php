@@ -802,6 +802,16 @@ class inventarios_balances
         $total = 0;
         foreach ($this->balance_cuenta_a->search_by_codbalance($codbalance) as $bca) {
             $total += $bca->saldo($ejercicio);
+            
+            if($bca->codcuenta == '129') {
+                $cuenta_model = new cuenta();
+                $cuenta_129 = $cuenta_model->get_by_codigo('129', $ejercicio->codejercicio);
+                if($cuenta_129) {
+                    foreach($cuenta_129->get_subcuentas() as $subc) {
+                        $total += $subc->saldo;
+                    }
+                }
+            }
         }
 
         if ($naturaleza == 'A') {

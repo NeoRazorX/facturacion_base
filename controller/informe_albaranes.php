@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of facturacion_base
- * Copyright (C) 2015-2017    Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2015-2018    Carlos Garcia Gomez  neorazorx@gmail.com
  * Copyright (C) 2017         Itaca Software Libre contacta@itacaswl.com
  * Copyright (C) 2017         Francesc Pineda Segarra francesc.pìneda@x-netdigital.com
  *
@@ -433,7 +433,8 @@ class informe_albaranes extends fbase_controller
         $stats = array();
 
         /// inicializamos los resultados
-        foreach ($this->date_range($this->desde, $this->hasta, '+1 year', 'Y') as $date) {
+        $desde = date('1-1-Y', strtotime($this->desde));
+        foreach ($this->date_range($desde, $this->hasta, '+1 year', 'Y') as $date) {
             $i = intval($date);
             $stats[$i] = array('year' => $i, 'total' => 0);
         }

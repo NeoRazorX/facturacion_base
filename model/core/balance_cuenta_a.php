@@ -77,7 +77,7 @@ class balance_cuenta_a extends \fs_model
             $extra = " AND idasiento != " . $this->var2str($ejercicio->idasientocierre);
         }
 
-        if ($desde AND $hasta) {
+        if ($desde && $hasta) {
             $extra .= " AND idasiento IN (SELECT idasiento FROM co_asientos WHERE "
                 . "fecha >= " . $this->var2str($desde) . " AND "
                 . "fecha <= " . $this->var2str($hasta) . ")";
