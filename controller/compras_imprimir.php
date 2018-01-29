@@ -454,7 +454,7 @@ class compras_imprimir extends fbase_controller
         $titulo = array('pagina' => '<b>Página</b>', 'dto' => '<b>Dto.</b>', 'neto' => '<b>Neto</b>',);
         $fila = array(
             'pagina' => $pagina . '/' . $this->numpaginas,
-            'dto' => $this->show_numero($due_totales).' %',
+            'dto' => $this->show_numero($due_totales) . ' %',
             'neto' => $this->show_precio($this->documento->neto, $this->documento->coddivisa),
         );
 
@@ -477,9 +477,10 @@ class compras_imprimir extends fbase_controller
                 $titulo['iva' . $li['iva']] = '<b>' . FS_IVA . ' ' . $li['iva'] . '%</b>';
             }
 
-            $fila['iva' . $li['iva']] = $this->show_precio($li['totaliva'], $this->documento->coddivisa);
+            $fila['iva' . $li['iva']] = $this->show_precio($li['totaliva'] * (100 - $due_totales) / 100, $this->documento->coddivisa);
 
             if ($li['totalrecargo'] != 0) {
+                $li['totalrecargo'] = $li['totalrecargo'] * (100 - $due_totales) / 100;
                 $fila['iva' . $li['iva']] .= "\nR.E. " . $li['recargo'] . "%: " . $this->show_precio($li['totalrecargo'], $this->documento->coddivisa);
             }
 
