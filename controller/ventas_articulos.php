@@ -122,8 +122,11 @@ class ventas_articulos extends fbase_controller
         $this->b_publicos = isset($_REQUEST['b_publicos']);
 
         $this->b_codtarifa = '';
-        if (isset($_REQUEST['b_codtarifa'])) {
-            $this->b_codtarifa = ($_REQUEST['b_codtarifa']);
+        if (isset($_POST['b_codtarifa'])) {
+            $this->b_codtarifa = $_POST['b_codtarifa'];
+            setcookie('b_codtarifa', $this->b_codtarifa, time() + FS_COOKIES_EXPIRE);
+        } else if (isset($_GET['b_codtarifa'])) {
+            $this->b_codtarifa = $_GET['b_codtarifa'];
             setcookie('b_codtarifa', $this->b_codtarifa, time() + FS_COOKIES_EXPIRE);
         } else if (isset($_COOKIE['b_codtarifa'])) {
             $this->b_codtarifa = $_COOKIE['b_codtarifa'];

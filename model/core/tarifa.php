@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of facturacion_base
- * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2018  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -89,8 +89,8 @@ class tarifa extends \fs_model
             $this->incporcentual = 0.0;
             $this->inclineal = 0.0;
             $this->aplicar_a = 'pvp';
-            $this->mincoste = TRUE;
-            $this->maxpvp = TRUE;
+            $this->mincoste = false;
+            $this->maxpvp = false;
         }
     }
 
