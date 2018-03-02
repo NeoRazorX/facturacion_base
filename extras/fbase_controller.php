@@ -306,7 +306,9 @@ class fbase_controller extends fs_controller
 
         $factura->codserie = $albaranes[0]->codserie;
         $factura->irpf = $albaranes[0]->irpf;
-        $factura->observaciones = $albaranes[0]->observaciones;
+        if (count($albaranes) == 1) {
+            $factura->observaciones = $albaranes[0]->observaciones;
+        }
         $factura->apartado = $albaranes[0]->apartado;
         $factura->cifnif = $albaranes[0]->cifnif;
         $factura->ciudad = $albaranes[0]->ciudad;
@@ -499,7 +501,9 @@ class fbase_controller extends fs_controller
         $factura->codpago = $albaranes[0]->codpago;
         $factura->codserie = $albaranes[0]->codserie;
         $factura->irpf = $albaranes[0]->irpf;
-        $factura->observaciones = $albaranes[0]->observaciones;
+        if (count($albaranes) == 1) {
+            $factura->observaciones = $albaranes[0]->observaciones;
+        }
 
         /// obtenemos los datos actualizados del proveedor
         $proveedor_model = new proveedor();
