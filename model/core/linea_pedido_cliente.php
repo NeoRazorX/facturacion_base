@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of presupuestos_y_pedidos
- * Copyright (C) 2014-2017  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2014-2018  Carlos Garcia Gomez  neorazorx@gmail.com
  * Copyright (C) 2014-2017  Francesc Pineda Segarra  shawe.ewahs@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
@@ -273,6 +273,34 @@ class linea_pedido_cliente extends \fs_model
         } else {
             $buscar = str_replace(' ', '%', $query);
             $sql .= "lower(referencia) LIKE '%" . $buscar . "%' OR lower(descripcion) LIKE '%" . $buscar . "%'";
+        }
+        $sql .= " ORDER BY idpedido DESC, idlinea ASC";
+
+        $data = $this->db->select_limit($sql, FS_ITEM_LIMIT, $offset);
+        return $this->all_from_data($data);
+    }
+
+    /**
+     * Busca todas las coincidencias de $query en las líneas del cliente $codcliente
+     * @param string $codcliente
+     * @param string $ref
+     * @param string $obs
+     * @param integer $offset
+     * @return \linea_pedido_cliente
+     */
+    public function search_from_cliente2($codcliente, $ref = '', $obs = '', $offset = 0)
+    {
+        $ref = mb_strtolower($this->no_html($ref), 'UTF8');
+        $obs = mb_strtolower($this->no_html($obs), 'UTF8');
+
+        $sql = "SELECT * FROM " . $this->table_name . " WHERE idpedido IN
+         (SELECT idpedido FROM pedidoscli WHERE codcliente = " . $this->var2str($codcliente) . "
+         AND lower(observaciones) LIKE '" . $obs . "%') AND ";
+        if (is_numeric($ref)) {
+            $sql .= "(referencia LIKE '%" . $ref . "%' OR descripcion LIKE '%" . $ref . "%')";
+        } else {
+            $buscar = str_replace(' ', '%', $ref);
+            $sql .= "(lower(referencia) LIKE '%" . $buscar . "%' OR lower(descripcion) LIKE '%" . $buscar . "%')";
         }
         $sql .= " ORDER BY idpedido DESC, idlinea ASC";
 
