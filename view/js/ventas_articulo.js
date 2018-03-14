@@ -59,7 +59,7 @@ function cambiar_margen()
     var margen = parseFloat($("#margen").val());
 
     if (!isNaN(margen) && isFinite(margen)) {
-        var pvp = ((margen * coste) / 100) + coste;
+        var pvp = coste * (100 + margen) / 100;
         $("#pvp").val(pvp);
         $("#pvpi").val(pvp * (100 + iva) / 100);
     }
@@ -72,7 +72,7 @@ function calcular_margen()
 
     var margen = 0;
     if (coste > 0 && pvp !== 0) {
-        margen = ((pvp - coste) / pvp) * 100;
+        margen = (pvp * 100) / coste - 100;
     }
 
     $("#margen").val(margen);
