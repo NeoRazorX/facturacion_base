@@ -58,7 +58,17 @@
                         {/if}
                     </div>
                 </div>
-                <div class="col-sm-8">
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        Cálculo de margen:
+                        <div class="input-group">
+                            <span class="input-group-addon">%</span>
+                            <input type="text" class="form-control" id="margen" name="margen" value="0" autocomplete="off" onkeyup="cambiar_margen()" onclick="this.select()"/>
+                        </div>
+                        <p class="help-block">Este es el margen <b>actual</b> entre el precio de coste y el precio de venta.</p>
+                    </div>
+                </div>
+                <div class="col-sm-4">
                     <div class="hidden-xs"><br/></div>
                     <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled = true;this.form.submit();">
                         <span class="glyphicon glyphicon-floppy-disk"></span>&nbsp; Guardar

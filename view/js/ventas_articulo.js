@@ -26,6 +26,7 @@ function cambiar_pvp()
     var iva = parseFloat($("#iva").val());
     var pvp = parseFloat($("#pvp").val());
     $("#pvpi").val(pvp * (100 + iva) / 100);
+    calcular_margen();
 }
 
 function cambiar_pvpi()
@@ -40,9 +41,46 @@ function cambiar_pvpi()
 
     var pvp = (100 * pvpi) / (100 + iva);
     $("#pvp").val(pvp);
+    calcular_margen();
+}
+
+function cambiar_margen()
+{
+    /// cambiamos coma por punto
+    if ($("#coste").val().search(",") >= 0) {
+        $("#coste").val($("#coste").val().replace(",", "."));
+    }
+    if ($("#margen").val().search(",") >= 0) {
+        $("#margen").val($("#margen").val().replace(",", "."));
+    }
+
+    var iva = parseFloat($("#iva").val());
+    var coste = parseFloat($("#coste").val());
+    var margen = parseFloat($("#margen").val());
+
+    if (!isNaN(margen) && isFinite(margen)) {
+        var pvp = ((margen * coste) / 100) + coste;
+        $("#pvp").val(pvp);
+        $("#pvpi").val(pvp * (100 + iva) / 100);
+    }
+}
+
+function calcular_margen()
+{
+    var coste = parseFloat($("#coste").val());
+    var pvp = parseFloat($("#pvp").val());
+
+    var margen = 0;
+    if (coste > 0 && pvp !== 0) {
+        margen = ((pvp - coste) / pvp) * 100;
+    }
+
+    $("#margen").val(margen);
 }
 
 $(document).ready(function () {
+    calcular_margen();
+
     if (window.location.hash.substring(1) == 'precios') {
         $('#tab_articulo a[href="#precios"]').tab('show');
     } else if (window.location.hash.substring(1) == 'stock') {
