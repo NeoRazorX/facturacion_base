@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of facturacion_base
- * Copyright (C) 2014-2017    Carlos Garcia Gomez     neorazorx@gmail.com
+ * Copyright (C) 2014-2018    Carlos Garcia Gomez     neorazorx@gmail.com
  * Copyright (C) 2017         Francesc Pineda Segarra shawe.ewahs@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
@@ -136,99 +136,56 @@ class ventas_imprimir extends compras_imprimir
     {
         /// calculamos el número de páginas
         if (!isset($this->numpaginas)) {
-            $this->numpaginas = 0;
+            $this->numpaginas = 1;
             $linea_a = 0;
+            $lineas_size = 0;
             while ($linea_a < count($lineas)) {
-                $lppag2 = $lppag;
-                foreach ($lineas as $i => $lin) {
-                    if ($i >= $linea_a && $i < $linea_a + $lppag2) {
-                        $linea_size = 1;
-                        $len = mb_strlen($lin->referencia . ' ' . $lin->descripcion);
-                        while ($len > 85) {
-                            $len -= 85;
-                            $linea_size += 0.5;
-                        }
-
-                        $aux = explode("\n", $lin->descripcion);
-                        if (count($aux) > 1) {
-                            $linea_size += 0.5 * ( count($aux) - 1);
-                        }
-
-                        if ($linea_size > 1) {
-                            $lppag2 -= $linea_size - 1;
-                        }
-                    }
+                $lineas_size += $this->get_linea_size($lineas[$linea_a]->referencia . ' ' . $lineas[$linea_a]->descripcion);
+                if ($lineas_size > $lppag) {
+                    $this->numpaginas++;
+                    $lineas_size = $this->get_linea_size($lineas[$linea_a]->referencia . ' ' . $lineas[$linea_a]->descripcion);
                 }
 
-                $linea_a += $lppag2;
-                $this->numpaginas++;
-            }
-
-            if ($this->numpaginas == 0) {
-                $this->numpaginas = 1;
+                $linea_a++;
             }
         }
 
-        if ($this->impresion['print_dto']) {
-            $this->impresion['print_dto'] = FALSE;
-
-            /// leemos las líneas para ver si de verdad mostramos los descuentos
-            foreach ($lineas as $lin) {
-                if ($lin->dtopor != 0) {
-                    $this->impresion['print_dto'] = TRUE;
-                    break;
-                }
-            }
-        }
-
-        $dec_cantidad = 0;
-        $multi_iva = FALSE;
-        $multi_re = FALSE;
-        $multi_irpf = FALSE;
-        $iva = FALSE;
-        $re = FALSE;
-        $irpf = FALSE;
         /// leemos las líneas para ver si hay que mostrar los tipos de iva, re o irpf
-        foreach ($lineas as $i => $lin) {
-            if ($lin->cantidad != intval($lin->cantidad)) {
+        $lineas_size = 0;
+        $dec_cantidad = 0;
+        $iva = $re = $irpf = FALSE;
+        $multi_iva = $multi_re = $multi_irpf = FALSE;
+        $this->impresion['print_dto'] = FALSE;
+        for ($i = $linea_actual; $i < count($lineas) && $i < $linea_actual + $lppag; $i++) {
+            if ($lineas[$i]->cantidad != intval($lineas[$i]->cantidad)) {
                 $dec_cantidad = 2;
             }
 
+            if ($lineas[$i]->dtopor != 0) {
+                $this->impresion['print_dto'] = TRUE;
+            }
+
             if ($iva === FALSE) {
-                $iva = $lin->iva;
-            } else if ($lin->iva != $iva) {
+                $iva = $lineas[$i]->iva;
+            } else if ($lineas[$i]->iva != $iva) {
                 $multi_iva = TRUE;
             }
 
             if ($re === FALSE) {
-                $re = $lin->recargo;
-            } else if ($lin->recargo != $re) {
+                $re = $lineas[$i]->recargo;
+            } else if ($lineas[$i]->recargo != $re) {
                 $multi_re = TRUE;
             }
 
             if ($irpf === FALSE) {
-                $irpf = $lin->irpf;
-            } else if ($lin->irpf != $irpf) {
+                $irpf = $lineas[$i]->irpf;
+            } else if ($lineas[$i]->irpf != $irpf) {
                 $multi_irpf = TRUE;
             }
 
-            /// restamos líneas al documento en función del tamaño de la descripción
-            if ($i >= $linea_actual && $i < $linea_actual + $lppag) {
-                $linea_size = 1;
-                $len = mb_strlen($lin->referencia . ' ' . $lin->descripcion);
-                while ($len > 85) {
-                    $len -= 85;
-                    $linea_size += 0.5;
-                }
-
-                $aux = explode("\n", $lin->descripcion);
-                if (count($aux) > 1) {
-                    $linea_size += 0.5 * ( count($aux) - 1);
-                }
-
-                if ($linea_size > 1) {
-                    $lppag -= $linea_size - 1;
-                }
+            $lineas_size += $this->get_linea_size($lineas[$i]->referencia . ' ' . $lineas[$i]->descripcion);
+            if ($lineas_size > $lppag) {
+                $lppag = $i - $linea_actual;
             }
         }
 
