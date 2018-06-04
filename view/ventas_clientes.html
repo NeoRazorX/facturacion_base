@@ -2,498 +2,334 @@
 
 <script type="text/javascript" src="{$fsc->get_js_location('provincias.js')}"></script>
 <script type="text/javascript">
-   function show_nuevo_cliente()
-   {
-      $("#modal_nuevo_cliente").modal('show');
-      document.f_nuevo_cliente.nombre.focus();
-   }
-   function show_grupos()
-   {
-      $('#tab_clientes a[href="#grupos"]').tab('show');
-   }
-   $(document).ready(function() {
-      if(window.location.hash.substring(1) == 'nuevo')
-      {
-         show_nuevo_cliente();
-      }
-      else if(window.location.hash.substring(1) == 'grupos')
-      {
-         show_grupos();
-      }
-      else
-      {
-         document.f_custom_search.query.focus();
-      }
+    function show_nuevo_cliente()
+    {
+        $("#modal_nuevo_cliente").modal('show');
+        document.f_nuevo_cliente.nombre.focus();
+    }
+    function show_grupos()
+    {
+        $('#tab_clientes a[href="#grupos"]').tab('show');
+    }
+    $(document).ready(function () {
+        if (window.location.hash.substring(1) == 'nuevo') {
+            show_nuevo_cliente();
+        } else if (window.location.hash.substring(1) == 'grupos') {
+            show_grupos();
+        } else {
+            document.f_custom_search.query.focus();
+        }
 
-      $("#b_nuevo_cliente").click(function(event) {
-         event.preventDefault();
-         show_nuevo_cliente();
-      });
-   });
+        $("#b_nuevo_cliente").click(function (event) {
+            event.preventDefault();
+            show_nuevo_cliente();
+        });
+    });
 </script>
 
 <div class="container-fluid">
-   <div class="row">
-      <div class="col-sm-7 col-xs-6">
-         <div class="btn-group hidden-xs">
-            <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
-               <span class="glyphicon glyphicon-refresh"></span>
-            </a>
-            {if="$fsc->page->is_default()"}
-            <a class="btn btn-sm btn-default active" href="{$fsc->url()}&amp;default_page=FALSE" title="Marcada como página de inicio (pulsa de nuevo para desmarcar)">
-               <i class="fa fa-bookmark" aria-hidden="true"></i>
-            </a>
-            {else}
-            <a class="btn btn-sm btn-default" href="{$fsc->url()}&amp;default_page=TRUE" title="Marcar como página de inicio">
-               <i class="fa fa-bookmark-o" aria-hidden="true"></i>
-            </a>
-            {/if}
-         </div>
-         <div class="btn-group">
-            <a href="#" id="b_nuevo_cliente" class="btn btn-sm btn-success">
-               <span class="glyphicon glyphicon-plus"></span>
-               <span class="hidden-xs">&nbsp;Nuevo</span>
-            </a>
-            {loop="$fsc->extensions"}
-               {if="$value->type=='button'"}
-               <a href="index.php?page={$value->from}{$value->params}" class="btn btn-sm btn-default">{$value->text}</a>
-               {/if}
-            {/loop}
-         </div>
-      </div>
-      <div class="col-sm-5 col-xs-6 text-right">
-         <h2 style="margin-top: 0px;">
-            <i class="fa fa-users hidden-xs" aria-hidden="true"></i> Clientes
-         </h2>
-      </div>
-   </div>
+    <div class="row">
+        <div class="col-sm-7 col-xs-6">
+            <div class="btn-group hidden-xs">
+                <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
+                    <span class="glyphicon glyphicon-refresh"></span>
+                </a>
+                {if="$fsc->page->is_default()"}
+                <a class="btn btn-sm btn-default active" href="{$fsc->url()}&amp;default_page=FALSE" title="Marcada como página de inicio (pulsa de nuevo para desmarcar)">
+                    <i class="fa fa-bookmark" aria-hidden="true"></i>
+                </a>
+                {else}
+                <a class="btn btn-sm btn-default" href="{$fsc->url()}&amp;default_page=TRUE" title="Marcar como página de inicio">
+                    <i class="fa fa-bookmark-o" aria-hidden="true"></i>
+                </a>
+                {/if}
+            </div>
+            <div class="btn-group">
+                <a href="#" id="b_nuevo_cliente" class="btn btn-sm btn-success">
+                    <span class="glyphicon glyphicon-plus"></span>
+                    <span class="hidden-xs">&nbsp;Nuevo</span>
+                </a>
+                {loop="$fsc->extensions"}
+                {if="$value->type=='button'"}
+                <a href="index.php?page={$value->from}{$value->params}" class="btn btn-sm btn-default">{$value->text}</a>
+                {/if}
+                {/loop}
+            </div>
+        </div>
+        <div class="col-sm-5 col-xs-6 text-right">
+            <h2 style="margin-top: 0px;">
+                <i class="fa fa-users hidden-xs" aria-hidden="true"></i> Clientes
+            </h2>
+        </div>
+    </div>
 </div>
 
 <ul id="tab_clientes" class="nav nav-tabs" role="tablist">
-   <li role="presentation" class="active">
-      <a href="#home" aria-controls="home" role="tab" data-toggle="tab">
-         <span class="glyphicon glyphicon-search"></span>
-         <span class="hidden-xs">&nbsp;Resultados</span>
-         <span class="badge">{$fsc->total_resultados}</span>
-      </a>
-   </li>
-   <li role="presentation">
-      <a href="#grupos" aria-controls="grupos" role="tab" data-toggle="tab">
-         <span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span>
-         <span class="hidden-xs">&nbsp;Grupos</span>
-         <span class="badge">{function="count($fsc->grupos)"}</span>
-      </a>
-   </li>
-   {loop="$fsc->extensions"}
-      {if="$value->type=='tab'"}
-      <li role="presentation">
-         <a href="#ext_{$value->name}" aria-controls="ext_{$value->name}" role="tab" data-toggle="tab">{$value->text}</a>
-      </li>
-      {/if}
-   {/loop}
+    <li role="presentation" class="active">
+        <a href="#home" aria-controls="home" role="tab" data-toggle="tab">
+            <span class="glyphicon glyphicon-search"></span>
+            <span class="hidden-xs">&nbsp;Resultados</span>
+            <span class="badge">{$fsc->total_resultados}</span>
+        </a>
+    </li>
+    <li role="presentation">
+        <a href="#grupos" aria-controls="grupos" role="tab" data-toggle="tab">
+            <span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span>
+            <span class="hidden-xs">&nbsp;Grupos</span>
+            <span class="badge">{function="count($fsc->grupos)"}</span>
+        </a>
+    </li>
+    {loop="$fsc->extensions"}
+    {if="$value->type=='tab'"}
+    <li role="presentation">
+        <a href="#ext_{$value->name}" aria-controls="ext_{$value->name}" role="tab" data-toggle="tab">{$value->text}</a>
+    </li>
+    {/if}
+    {/loop}
 </ul>
 <div class="tab-content">
-   <div role="tabpanel" class="tab-pane active" id="home">
-      <form name="f_custom_search" action="{$fsc->url()}" method="post" class="form">
-         <div class="container-fluid" style="margin-top: 15px; margin-bottom: 10px;">
+    <div role="tabpanel" class="tab-pane active" id="home">
+        <form name="f_custom_search" action="{$fsc->url()}" method="post" class="form">
+            <div class="container-fluid" style="margin-top: 15px; margin-bottom: 10px;">
+                <div class="row">
+                    <div class="col-sm-2">
+                        <div class="input-group">
+                            <input class="form-control" type="text" name="query" value="{$fsc->query}" autocomplete="off" placeholder="Buscar">
+                            <span class="input-group-btn hidden-sm">
+                                <button class="btn btn-primary" type="submit">
+                                    <span class="glyphicon glyphicon-search"></span>
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-sm-2">
+                        <select name="codpais" class="form-control" onchange="this.form.submit()">
+                            <option value="">Cualquier pais</option>
+                            <option value="">------</option>
+                            {loop="$fsc->pais->all()"}
+                            {if="$value->codpais==$fsc->codpais"}
+                            <option value="{$value->codpais}" selected="">{$value->nombre}</option>
+                            {else}
+                            <option value="{$value->codpais}">{$value->nombre}</option>
+                            {/if}
+                            {/loop}
+                        </select>
+                    </div>
+                    <div class="col-sm-2">
+                        <select name="provincia" class="form-control" onchange="this.form.submit()">
+                            <option value="">Cualquier provincia</option>
+                            <option value="">------</option>
+                            {loop="$fsc->provincias()"}
+                            {if="$key===$fsc->provincia"}
+                            <option value="{$key}" selected="">{$value}</option>
+                            {else}
+                            <option value="{$key}">{$value}</option>
+                            {/if}
+                            {/loop}
+                        </select>
+                    </div>
+                    <div class="col-sm-2">
+                        <select name="ciudad" class="form-control" onchange="this.form.submit()">
+                            <option value="">Cualquier ciudad</option>
+                            <option value="">------</option>
+                            {loop="$fsc->ciudades()"}
+                            {if="$key===$fsc->ciudad"}
+                            <option value="{$key}" selected="">{$value}</option>
+                            {else}
+                            <option value="{$key}">{$value}</option>
+                            {/if}
+                            {/loop}
+                        </select>
+                    </div>
+                    <div class="col-sm-2">
+                        <select name="bcodgrupo" class="form-control" onchange="this.form.submit()">
+                            <option value="">Cualquier grupo</option>
+                            <option value="">------</option>
+                            {loop="$fsc->grupos"}
+                            {if="$value->codgrupo==$fsc->codgrupo"}
+                            <option value="{$value->codgrupo}" selected="">{$value->nombre}</option>
+                            {else}
+                            <option value="{$value->codgrupo}">{$value->nombre}</option>
+                            {/if}
+                            {/loop}
+                        </select>
+                    </div>
+                    <div class="col-sm-2">
+                        <div class="input-group">
+                            <div class="input-group-addon">
+                                <span class="glyphicon glyphicon-sort-by-attributes-alt"></span>
+                            </div>
+                            <select name="orden" class="form-control" onchange="this.form.submit()">
+                                {loop="$fsc->orden()"}
+                                {if="$fsc->orden==$key"}
+                                <option value="{$key}" selected="">{$value}</option>
+                                {else}
+                                <option value="{$key}">{$value}</option>
+                                {/if}
+                                {/loop}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="checkbox-inline">
+                            <label>
+                                {if="$fsc->nocifnif"}
+                                <input type="checkbox" name="nocifnif" value="TRUE" checked="" onchange="this.form.submit()"/>
+                                {else}
+                                <input type="checkbox" name="nocifnif" value="TRUE" onchange="this.form.submit()"/>
+                                {/if}
+                                sin {#FS_CIFNIF#}
+                            </label>
+                        </div>
+                        <div class="checkbox-inline">
+                            <label>
+                                {if="$fsc->debaja"}
+                                <input type="checkbox" name="debaja" value="TRUE" checked="" onchange="this.form.submit()"/>
+                                {else}
+                                <input type="checkbox" name="debaja" value="TRUE" onchange="this.form.submit()"/>
+                                {/if}
+                                de baja
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th class="text-left">Código + Nombre</th>
+                        <th class="text-left">{#FS_CIFNIF#}</th>
+                        <th class="text-left">email</th>
+                        <th class="text-left">Teléfono</th>
+                        <th class="text-left">Observaciones</th>
+                        <th class="text-right">Grupo</th>
+                    </tr>
+                </thead>
+                {loop="$fsc->resultados"}
+                <tr class='clickableRow{if="$value->debaja"} danger{elseif="$value->fechaalta==$fsc->today()"} success{/if}' href='{$value->url()}'>
+                    <td>
+                        <a href="{$value->url()}">{$value->codcliente}</a> {$value->nombre}
+                        {if="$value->nombre!=$value->razonsocial"}
+                        <span class="label label-default">{$value->razonsocial}</span>
+                        {/if}
+                        {if="$value->debaja"}
+                        &nbsp; <span class="label label-danger hidden-sm" title="cliente dado de baja">Baja</span>
+                        {elseif="$value->fechaalta==$fsc->today()"}
+                        &nbsp; <span class="label label-success hidden-sm" title="Nuevo cliente">Nuevo</span>
+                        {/if}
+                    </td>
+                    <td>{$value->cifnif}</td>
+                    <td>{$value->email}</td>
+                    <td>
+                        {if="$value->telefono1"}{$value->telefono1}{elseif="$value->telefono2"}{$value->telefono2}{/if}
+                    </td>
+                    <td>{$value->observaciones_resume()}</td>
+                    <td class="text-right">{$fsc->nombre_grupo($value->codgrupo)}</td>
+                </tr>
+                {else}
+                <tr class="warning">
+                    <td colspan="6">Ningún cliente encontrado. Pulse el botón <b>Nuevo</b> para crear uno.</td>
+                </tr>
+                {/loop}
+            </table>
+        </div>
+        <div class="container-fluid">
             <div class="row">
-               <div class="col-sm-2">
-                  <div class="input-group">
-                     <input class="form-control" type="text" name="query" value="{$fsc->query}" autocomplete="off" placeholder="Buscar">
-                     <span class="input-group-btn hidden-sm">
-                        <button class="btn btn-primary" type="submit">
-                           <span class="glyphicon glyphicon-search"></span>
-                        </button>
-                     </span>
-                  </div>
-               </div>
-               <div class="col-sm-2">
-                  <select name="codpais" class="form-control" onchange="this.form.submit()">
-                     <option value="">Cualquier pais</option>
-                     <option value="">------</option>
-                     {loop="$fsc->pais->all()"}
-                        {if="$value->codpais==$fsc->codpais"}
-                        <option value="{$value->codpais}" selected="">{$value->nombre}</option>
-                        {else}
-                        <option value="{$value->codpais}">{$value->nombre}</option>
-                        {/if}
-                     {/loop}
-                  </select>
-               </div>
-               <div class="col-sm-2">
-                  <select name="provincia" class="form-control" onchange="this.form.submit()">
-                     <option value="">Cualquier provincia</option>
-                     <option value="">------</option>
-                     {loop="$fsc->provincias()"}
-                        {if="$key===$fsc->provincia"}
-                        <option value="{$key}" selected="">{$value}</option>
-                        {else}
-                        <option value="{$key}">{$value}</option>
-                        {/if}
-                     {/loop}
-                  </select>
-               </div>
-               <div class="col-sm-2">
-                  <select name="ciudad" class="form-control" onchange="this.form.submit()">
-                     <option value="">Cualquier ciudad</option>
-                     <option value="">------</option>
-                     {loop="$fsc->ciudades()"}
-                        {if="$key===$fsc->ciudad"}
-                        <option value="{$key}" selected="">{$value}</option>
-                        {else}
-                        <option value="{$key}">{$value}</option>
-                        {/if}
-                     {/loop}
-                  </select>
-               </div>
-               <div class="col-sm-2">
-                  <select name="bcodgrupo" class="form-control" onchange="this.form.submit()">
-                     <option value="">Cualquier grupo</option>
-                     <option value="">------</option>
-                     {loop="$fsc->grupos"}
-                        {if="$value->codgrupo==$fsc->codgrupo"}
-                        <option value="{$value->codgrupo}" selected="">{$value->nombre}</option>
-                        {else}
-                        <option value="{$value->codgrupo}">{$value->nombre}</option>
-                        {/if}
-                     {/loop}
-                  </select>
-               </div>
-               <div class="col-sm-2">
-                  <div class="input-group">
-                     <div class="input-group-addon">
-                        <span class="glyphicon glyphicon-sort-by-attributes-alt"></span>
-                     </div>
-                     <select name="orden" class="form-control" onchange="this.form.submit()">
-                        {loop="$fsc->orden()"}
-                           {if="$fsc->orden==$key"}
-                           <option value="{$key}" selected="">{$value}</option>
-                           {else}
-                           <option value="{$key}">{$value}</option>
-                           {/if}
+                <div class="col-sm-12 text-center">
+                    <ul class="pagination">
+                        {loop="$fsc->paginas()"}
+                        <li{if="$value['actual']"} class="active"{/if}>
+                            <a href="{$value['url']}">{$value['num']}</a>
+                        </li>
                         {/loop}
-                     </select>
-                  </div>
-               </div>
+                    </ul>
+                </div>
             </div>
+        </div>
+    </div>
+    <div role="tabpanel" class="tab-pane" id="grupos">
+        <div class="container-fluid" style="margin-top: 15px;">
             <div class="row">
-               <div class="col-sm-12">
-                  <div class="checkbox-inline">
-                     <label>
-                        {if="$fsc->nocifnif"}
-                        <input type="checkbox" name="nocifnif" value="TRUE" checked="" onchange="this.form.submit()"/>
-                        {else}
-                        <input type="checkbox" name="nocifnif" value="TRUE" onchange="this.form.submit()"/>
-                        {/if}
-                        sin {#FS_CIFNIF#}
-                     </label>
-                  </div>
-                  <div class="checkbox-inline">
-                     <label>
-                        {if="$fsc->debaja"}
-                        <input type="checkbox" name="debaja" value="TRUE" checked="" onchange="this.form.submit()"/>
-                        {else}
-                        <input type="checkbox" name="debaja" value="TRUE" onchange="this.form.submit()"/>
-                        {/if}
-                        de baja
-                     </label>
-                  </div>
-               </div>
-            </div>
-         </div>
-      </form>
-      <div class="table-responsive">
-         <table class="table table-hover">
-            <thead>
-               <tr>
-                  <th class="text-left">Código + Nombre</th>
-                  <th class="text-left">{#FS_CIFNIF#}</th>
-                  <th class="text-left">email</th>
-                  <th class="text-left">Teléfono</th>
-                  <th class="text-left">Observaciones</th>
-                  <th class="text-right">Grupo</th>
-               </tr>
-            </thead>
-            {loop="$fsc->resultados"}
-               <tr class='clickableRow{if="$value->debaja"} danger{elseif="$value->fechaalta==$fsc->today()"} success{/if}' href='{$value->url()}'>
-                  <td>
-                     <a href="{$value->url()}">{$value->codcliente}</a> {$value->nombre}
-                     {if="$value->nombre!=$value->razonsocial"}
-                     <span class="label label-default">{$value->razonsocial}</span>
-                     {/if}
-                     {if="$value->debaja"}
-                     &nbsp; <span class="label label-danger hidden-sm" title="cliente dado de baja">Baja</span>
-                     {elseif="$value->fechaalta==$fsc->today()"}
-                     &nbsp; <span class="label label-success hidden-sm" title="Nuevo cliente">Nuevo</span>
-                     {/if}
-                  </td>
-                  <td>{$value->cifnif}</td>
-                  <td>{$value->email}</td>
-                  <td>
-                     {if="$value->telefono1"}{$value->telefono1}{elseif="$value->telefono2"}{$value->telefono2}{/if}
-                  </td>
-                  <td>{$value->observaciones_resume()}</td>
-                  <td class="text-right">{$fsc->nombre_grupo($value->codgrupo)}</td>
-               </tr>
-            {else}
-               <tr class="warning">
-                  <td colspan="6">Ningún cliente encontrado. Pulse el botón <b>Nuevo</b> para crear uno.</td>
-               </tr>
-            {/loop}
-         </table>
-      </div>
-      <div class="container-fluid">
-         <div class="row">
-            <div class="col-sm-12 text-center">
-               <ul class="pagination">
-                  {loop="$fsc->paginas()"}
-                  <li{if="$value['actual']"} class="active"{/if}>
-                     <a href="{$value['url']}">{$value['num']}</a>
-                  </li>
-                  {/loop}
-               </ul>
-            </div>
-         </div>
-      </div>
-   </div>
-   <div role="tabpanel" class="tab-pane" id="grupos">
-      <div class="container-fluid" style="margin-top: 15px;">
-         <div class="row">
-            <div class="col-sm-8">
-               <div class="table-responsive">
-                  <table class="table table-hover">
-                     <thead>
-                        <tr>
-                           <th class="text-left">Código + Nombre</th>
-                           <th class="text-right">Tarifa</th>
-                        </tr>
-                     </thead>
-                     {loop="$fsc->grupos"}
-                     <tr class="clickableRow" href="{$value->url()}">
-                        <td>
-                           <a href="{$value->url()}">{$value->codgrupo}</a> {$value->nombre}
-                        </td>
-                        <td class="text-right">
-                           {loop="$fsc->tarifas"}
-                              {if="$value1->codtarifa==$value2->codtarifa"}{$value2->nombre}{/if}
-                           {/loop}
-                        </td>
-                     </tr>
-                     {else}
-                     <tr class="warning">
-                        <td colspan="2">Sin resultados.</td>
-                     </tr>
-                     {/loop}
-                  </table>
-               </div>
-            </div>
-            <div class="col-sm-4">
-               <form name="f_new_grupo" action="{$fsc->url()}#grupos" method="post" class="form">
-                  <div class="panel panel-info">
-                     <div class="panel-heading">
-                        <h3 class="panel-title">
-                           <span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span>&nbsp; Nuevo grupo
-                        </h3>
-                     </div>
-                     <div class="panel-body">
-                        <div class="form-group">
-                           Código:
-                           <input class="form-control" type="text" name="codgrupo" value="{$fsc->grupo->get_new_codigo()}" maxlength="6" autocomplete="off"/>
+                <div class="col-sm-8">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th class="text-left">Código + Nombre</th>
+                                    <th class="text-right">Tarifa</th>
+                                </tr>
+                            </thead>
+                            {loop="$fsc->grupos"}
+                            <tr class="clickableRow" href="{$value->url()}">
+                                <td>
+                                    <a href="{$value->url()}">{$value->codgrupo}</a> {$value->nombre}
+                                </td>
+                                <td class="text-right">
+                                    {loop="$fsc->tarifas"}
+                                    {if="$value1->codtarifa==$value2->codtarifa"}{$value2->nombre}{/if}
+                                    {/loop}
+                                </td>
+                            </tr>
+                            {else}
+                            <tr class="warning">
+                                <td colspan="2">Sin resultados.</td>
+                            </tr>
+                            {/loop}
+                        </table>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <form name="f_new_grupo" action="{$fsc->url()}#grupos" method="post" class="form">
+                        <div class="panel panel-info">
+                            <div class="panel-heading">
+                                <h3 class="panel-title">
+                                    <span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span>&nbsp; Nuevo grupo
+                                </h3>
+                            </div>
+                            <div class="panel-body">
+                                <div class="form-group">
+                                    Código:
+                                    <input class="form-control" type="text" name="codgrupo" value="{$fsc->grupo->get_new_codigo()}" maxlength="6" autocomplete="off"/>
+                                </div>
+                                <div class="form-group">
+                                    Nombre:
+                                    <input class="form-control" type="text" name="nombre" maxlength="50" placeholder="Nuevo grupo..." autocomplete="off"/>
+                                </div>
+                                <div class="form-group">
+                                    <a href="{$fsc->tarifa->url()}">Tarifa</a>:
+                                    <select name="codtarifa" class="form-control">
+                                        <option value="---">Ninguna tarifa</option>
+                                        <option value="---">---</option>
+                                        {loop="$fsc->tarifas"}
+                                        <option value="{$value->codtarifa}">{$value->nombre}</option>
+                                        {/loop}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="panel-footer">
+                                <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled = true;this.form.submit();" title="Nuevo">
+                                    <span class="glyphicon glyphicon-plus-sign"></span>
+                                    <span class="hidden-sm">&nbsp;Nuevo</span>
+                                </button>
+                            </div>
                         </div>
-                        <div class="form-group">
-                           Nombre:
-                           <input class="form-control" type="text" name="nombre" maxlength="50" placeholder="Nuevo grupo..." autocomplete="off"/>
-                        </div>
-                        <div class="form-group">
-                           <a href="{$fsc->tarifa->url()}">Tarifa</a>:
-                           <select name="codtarifa" class="form-control">
-                              <option value="---">Ninguna tarifa</option>
-                              <option value="---">---</option>
-                              {loop="$fsc->tarifas"}
-                              <option value="{$value->codtarifa}">{$value->nombre}</option>
-                              {/loop}
-                           </select>
-                        </div>
-                     </div>
-                     <div class="panel-footer">
-                        <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();" title="Nuevo">
-                           <span class="glyphicon glyphicon-plus-sign"></span>
-                           <span class="hidden-sm">&nbsp;Nuevo</span>
-                        </button>
-                     </div>
-                  </div>
-               </form>
+                    </form>
+                </div>
             </div>
-         </div>
-      </div>
-   </div>
-   {loop="$fsc->extensions"}
-      {if="$value->type=='tab'"}
-      <div role="tabpanel" class="tab-pane" id="ext_{$value->name}">
-         <iframe src="index.php?page={$value->from}{$value->params}" width="100%" height="2000" frameborder="0"></iframe>
-      </div>
-      {/if}
-   {/loop}
+        </div>
+    </div>
+    {loop="$fsc->extensions"}
+    {if="$value->type=='tab'"}
+    <div role="tabpanel" class="tab-pane" id="ext_{$value->name}">
+        <iframe src="index.php?page={$value->from}{$value->params}" width="100%" height="2000" frameborder="0"></iframe>
+    </div>
+    {/if}
+    {/loop}
 </div>
 
-<form class="form-horizontal" role="form" name="f_nuevo_cliente" action="{$fsc->url()}" method="post">
-   <div class="modal" id="modal_nuevo_cliente">
-      <div class="modal-dialog">
-         <div class="modal-content">
-            <div class="modal-header">
-               <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-               <h4 class="modal-title">
-                  <span class="glyphicon glyphicon-user"></span>
-                  &nbsp; Nuevo cliente
-               </h4>
-               <p class="help-block">
-                  Si quieres, puedes cambiar las
-                  <a href="index.php?page=ventas_clientes_opciones">opciones para nuevos clientes</a>.
-               </p>
-            </div>
-            <div class="modal-body">
-               <div class="form-group">
-                  <label class="col-sm-2 control-label">Nombre</label>
-                  <div class="col-sm-10">
-                     <input type="text" name="nombre" class="form-control" autocomplete="off" required=""/>
-                  </div>
-               </div>
-               <div class="form-group{if="$fsc->nuevocli_setup['nuevocli_cifnif_req']"} has-warning{/if}">
-                  <label class="col-sm-2 control-label">{#FS_CIFNIF#}</label>
-                  <div class="col-sm-3">
-                     <select name="tipoidfiscal" class="form-control">
-                        {$tiposid=fs_tipos_id_fiscal()}
-                        {loop="$tiposid"}
-                        <option value="{$value}">{$value}</option>
-                        {/loop}
-                     </select>
-                  </div>
-                  <div class="col-sm-7">
-                     <input type="text" name="cifnif" class="form-control" maxlength="30" autocomplete="off"{if="$fsc->nuevocli_setup['nuevocli_cifnif_req']"} required=""{/if}/>
-                     <label class="checkbox-inline">
-                        <input type="checkbox" name="personafisica" value="TRUE" checked=""/> persona física (no empresa)
-                     </label>
-                  </div>
-               </div>
-               {if="$fsc->grupos"}
-               <div class="form-group">
-                  <label class="col-sm-2 control-label">Grupo</label>
-                  <div class="col-sm-10">
-                     <select name="scodgrupo" class="form-control">
-                        <option value="">Ninguno</option>
-                        <option value="">------</option>
-                        {loop="$fsc->grupos"}
-                           {if="$value->codgrupo==$fsc->nuevocli_setup['nuevocli_codgrupo']"}
-                           <option value="{$value->codgrupo}" selected="">{$value->nombre}</option>
-                           {else}
-                           <option value="{$value->codgrupo}">{$value->nombre}</option>
-                           {/if}
-                        {/loop}
-                     </select>
-                  </div>
-               </div>
-               {/if}
-               {if="$fsc->nuevocli_setup['nuevocli_telefono1']"}
-               <div class="form-group{if="$fsc->nuevocli_setup['nuevocli_telefono1_req']"} has-warning{/if}">
-                  <label class="col-sm-2 control-label">Teléfono 1</label>
-                  <div class="col-sm-10">
-                     <input type="text" name="telefono1" class="form-control" autocomplete="off"{if="$fsc->nuevocli_setup['nuevocli_telefono1_req']"} required=""{/if}/>
-                  </div>
-               </div>
-               {/if}
-               {if="$fsc->nuevocli_setup['nuevocli_telefono2']"}
-               <div class="form-group{if="$fsc->nuevocli_setup['nuevocli_telefono2_req']"} has-warning{/if}">
-                  <label class="col-sm-2 control-label">Teléfono 2</label>
-                  <div class="col-sm-10">
-                     <input type="text" name="telefono2" class="form-control" autocomplete="off"{if="$fsc->nuevocli_setup['nuevocli_telefono2_req']"} required=""{/if}/>
-                  </div>
-               </div>
-               {/if}
-               {if="$fsc->nuevocli_setup['nuevocli_email']"}
-               <div class="form-group{if="$fsc->nuevocli_setup['nuevocli_email_req']"} has-warning{/if}">
-                  <label class="col-sm-2 control-label">E-Mail</label>
-                  <div class="col-sm-10">
-                     <input type="text" name="email" class="form-control" autocomplete="off"{if="$fsc->nuevocli_setup['nuevocli_email_req']"} required=""{/if}/>
-                  </div>
-               </div>
-               {/if}
-               {if="$fsc->nuevocli_setup['nuevocli_pais']"}
-               <div class="form-group{if="$fsc->nuevocli_setup['nuevocli_pais_req']"} has-warning{/if}">
-                  <label class="col-sm-2 control-label">
-                     <a href="{$fsc->pais->url()}">País</a>
-                  </label>
-                  <div class="col-sm-10">
-                     <select class="form-control" name="pais">
-                     {loop="$fsc->pais->all()"}
-                        <option value="{$value->codpais}"{if="$value->is_default()"} selected=""{/if}>{$value->nombre}</option>
-                     {/loop}
-                     </select>
-                  </div>
-               </div>
-               {/if}
-               {if="$fsc->nuevocli_setup['nuevocli_provincia']"}
-               <div class="form-group{if="$fsc->nuevocli_setup['nuevocli_provincia_req']"} has-warning{/if}">
-                  <label class="col-sm-2 control-label text-capitalize">{#FS_PROVINCIA#}</label>
-                  <div class="col-sm-10">
-                     {if="$fsc->nuevocli_setup['nuevocli_provincia_req']"}
-                     <input type="text" name="provincia" id="ac_provincia" class="form-control" autocomplete="off" required=""/>
-                     {else}
-                     <input type="text" name="provincia" value="{$fsc->empresa->provincia}" id="ac_provincia" class="form-control" autocomplete="off"/>
-                     {/if}
-                  </div>
-               </div>
-               {/if}
-               {if="$fsc->nuevocli_setup['nuevocli_ciudad']"}
-               <div class="form-group{if="$fsc->nuevocli_setup['nuevocli_ciudad_req']"} has-warning{/if}">
-                  <label class="col-sm-2 control-label">Ciudad</label>
-                  <div class="col-sm-10">
-                     {if="$fsc->nuevocli_setup['nuevocli_ciudad_req']"}
-                     <input type="text" name="ciudad" class="form-control" required=""/>
-                     {else}
-                     <input type="text" name="ciudad" value="{$fsc->empresa->ciudad}" class="form-control"/>
-                     {/if}
-                  </div>
-               </div>
-               {/if}
-               {if="$fsc->nuevocli_setup['nuevocli_codpostal']"}
-               <div class="form-group{if="$fsc->nuevocli_setup['nuevocli_codpostal_req']"} has-warning{/if}">
-                  <label class="col-sm-2 control-label">Cód. Postal</label>
-                  <div class="col-sm-10">
-                     {if="$fsc->nuevocli_setup['nuevocli_codpostal_req']"}
-                     <input type="text" name="codpostal" class="form-control" maxlength="10" autocomplete="off" required=""/>
-                     {else}
-                     <input type="text" name="codpostal" class="form-control" maxlength="10" autocomplete="off"/>
-                     {/if}
-                  </div>
-               </div>
-               {/if}
-               {if="$fsc->nuevocli_setup['nuevocli_direccion']"}
-               <div class="form-group{if="$fsc->nuevocli_setup['nuevocli_direccion_req']"} has-warning{/if}">
-                  <label class="col-sm-2 control-label">Dirección</label>
-                  <div class="col-sm-10">
-                     {if="$fsc->nuevocli_setup['nuevocli_direccion_req']"}
-                     <input type="text" name="direccion" class="form-control" autocomplete="off" required=""/>
-                     {else}
-                     <input type="text" name="direccion" class="form-control" autocomplete="off"/>
-                     {/if}
-                  </div>
-               </div>
-               {/if}
-               <p class="help-block">
-                  Puedes importar, exportar o actualizar masivamente clientes usando el plugin
-                  <a href="https://www.facturascripts.com/plugin/import_export_csv" target="_blank">
-                     Importar/Exportar CSV
-                  </a>
-               </p>
-            </div>
-            <div class="modal-footer">
-               <button class="btn btn-sm btn-primary" type="submit">
-                  <span class="glyphicon glyphicon-floppy-disk"></span>&nbsp; Guardar
-               </button>
-            </div>
-         </div>
-      </div>
-   </div>
-</form>
-
+{include="block/ventas_clientes_nuevo"}
 {include="footer"}

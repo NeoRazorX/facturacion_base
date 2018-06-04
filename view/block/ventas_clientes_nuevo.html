@@ -1,0 +1,183 @@
+<form class="form-horizontal" role="form" name="f_nuevo_cliente" action="{$fsc->url()}" method="post">
+    <div class="modal" id="modal_nuevo_cliente">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">
+                        <span class="glyphicon glyphicon-user"></span>
+                        &nbsp; Nuevo cliente
+                    </h4>
+                    <p class="help-block">
+                        Si quieres, puedes cambiar las
+                        <a href="index.php?page=ventas_clientes_opciones">opciones para nuevos clientes</a>.
+                    </p>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">Código</label>
+                        <div class="col-sm-10">
+                            <input type="text" name="codigo" class="form-control" placeholder="automático" autocomplete="off"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">Nombre</label>
+                        <div class="col-sm-10">
+                            <input type="text" name="nombre" class="form-control" autocomplete="off" required=""/>
+                        </div>
+                    </div>
+                    {$divClass=''}
+                    {if="$fsc->nuevocli_setup['nuevocli_cifnif_req']"}{$divClass=' has-warning'}{/if}
+                    <div class="form-group{$divClass}">
+                        <label class="col-sm-2 control-label">{#FS_CIFNIF#}</label>
+                        <div class="col-sm-3">
+                            <select name="tipoidfiscal" class="form-control">
+                                {$tiposid=fs_tipos_id_fiscal()}
+                                {loop="$tiposid"}
+                                <option value="{$value}">{$value}</option>
+                                {/loop}
+                            </select>
+                        </div>
+                        <div class="col-sm-7">
+                            <input type="text" name="cifnif" class="form-control" maxlength="30" autocomplete="off"{if="$fsc->nuevocli_setup['nuevocli_cifnif_req']"} required=""{/if}/>
+                            <label class="checkbox-inline">
+                                <input type="checkbox" name="personafisica" value="TRUE" checked=""/> persona física (no empresa)
+                            </label>
+                        </div>
+                    </div>
+                    {if="$fsc->grupos"}
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">Grupo</label>
+                        <div class="col-sm-10">
+                            <select name="scodgrupo" class="form-control">
+                                <option value="">Ninguno</option>
+                                <option value="">------</option>
+                                {loop="$fsc->grupos"}
+                                {if="$value->codgrupo==$fsc->nuevocli_setup['nuevocli_codgrupo']"}
+                                <option value="{$value->codgrupo}" selected="">{$value->nombre}</option>
+                                {else}
+                                <option value="{$value->codgrupo}">{$value->nombre}</option>
+                                {/if}
+                                {/loop}
+                            </select>
+                        </div>
+                    </div>
+                    {/if}
+                    {if="$fsc->nuevocli_setup['nuevocli_telefono1']"}
+                    {$divClass=''}
+                    {if="$fsc->nuevocli_setup['nuevocli_telefono1_req']"}{$divClass=' has-warning'}{/if}
+                    <div class="form-group{$divClass}">
+                        <label class="col-sm-2 control-label">Teléfono 1</label>
+                        <div class="col-sm-10">
+                            <input type="text" name="telefono1" class="form-control" autocomplete="off"{if="$fsc->nuevocli_setup['nuevocli_telefono1_req']"} required=""{/if}/>
+                        </div>
+                    </div>
+                    {/if}
+                    {if="$fsc->nuevocli_setup['nuevocli_telefono2']"}
+                    {$divClass=''}
+                    {if="$fsc->nuevocli_setup['nuevocli_telefono2_req']"}{$divClass=' has-warning'}{/if}
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">Teléfono 2</label>
+                        <div class="col-sm-10">
+                            <input type="text" name="telefono2" class="form-control" autocomplete="off"{if="$fsc->nuevocli_setup['nuevocli_telefono2_req']"} required=""{/if}/>
+                        </div>
+                    </div>
+                    {/if}
+                    {if="$fsc->nuevocli_setup['nuevocli_email']"}
+                    {$divClass=''}
+                    {if="$fsc->nuevocli_setup['nuevocli_email_req']"}{$divClass=' has-warning'}{/if}
+                    <div class="form-group{$divClass}">
+                        <label class="col-sm-2 control-label">E-Mail</label>
+                        <div class="col-sm-10">
+                            <input type="text" name="email" class="form-control" autocomplete="off"{if="$fsc->nuevocli_setup['nuevocli_email_req']"} required=""{/if}/>
+                        </div>
+                    </div>
+                    {/if}
+                    {if="$fsc->nuevocli_setup['nuevocli_pais']"}
+                    {$divClass=''}
+                    {if="$fsc->nuevocli_setup['nuevocli_pais_req']"}{$divClass=' has-warning'}{/if}
+                    <div class="form-group{$divClass}">
+                        <label class="col-sm-2 control-label">
+                            <a href="{$fsc->pais->url()}">País</a>
+                        </label>
+                        <div class="col-sm-10">
+                            <select class="form-control" name="pais">
+                                {loop="$fsc->pais->all()"}
+                                <option value="{$value->codpais}"{if="$value->is_default()"} selected=""{/if}>{$value->nombre}</option>
+                                {/loop}
+                            </select>
+                        </div>
+                    </div>
+                    {/if}
+                    {if="$fsc->nuevocli_setup['nuevocli_provincia']"}
+                    {$divClass=''}
+                    {if="$fsc->nuevocli_setup['nuevocli_provincia_req']"}{$divClass=' has-warning'}{/if}
+                    <div class="form-group{$divClass}">
+                        <label class="col-sm-2 control-label text-capitalize">{#FS_PROVINCIA#}</label>
+                        <div class="col-sm-10">
+                            {if="$fsc->nuevocli_setup['nuevocli_provincia_req']"}
+                            <input type="text" name="provincia" id="ac_provincia" class="form-control" autocomplete="off" required=""/>
+                            {else}
+                            <input type="text" name="provincia" value="{$fsc->empresa->provincia}" id="ac_provincia" class="form-control" autocomplete="off"/>
+                            {/if}
+                        </div>
+                    </div>
+                    {/if}
+                    {if="$fsc->nuevocli_setup['nuevocli_ciudad']"}
+                    {$divClass=''}
+                    {if="$fsc->nuevocli_setup['nuevocli_ciudad_req']"}{$divClass=' has-warning'}{/if}
+                    <div class="form-group{$divClass}">
+                        <label class="col-sm-2 control-label">Ciudad</label>
+                        <div class="col-sm-10">
+                            {if="$fsc->nuevocli_setup['nuevocli_ciudad_req']"}
+                            <input type="text" name="ciudad" class="form-control" required=""/>
+                            {else}
+                            <input type="text" name="ciudad" value="{$fsc->empresa->ciudad}" class="form-control"/>
+                            {/if}
+                        </div>
+                    </div>
+                    {/if}
+                    {if="$fsc->nuevocli_setup['nuevocli_codpostal']"}
+                    {$divClass=''}
+                    {if="$fsc->nuevocli_setup['nuevocli_codpostal_req']"}{$divClass=' has-warning'}{/if}
+                    <div class="form-group{$divClass}">
+                        <label class="col-sm-2 control-label">Cód. Postal</label>
+                        <div class="col-sm-10">
+                            {if="$fsc->nuevocli_setup['nuevocli_codpostal_req']"}
+                            <input type="text" name="codpostal" class="form-control" maxlength="10" autocomplete="off" required=""/>
+                            {else}
+                            <input type="text" name="codpostal" class="form-control" maxlength="10" autocomplete="off"/>
+                            {/if}
+                        </div>
+                    </div>
+                    {/if}
+                    {if="$fsc->nuevocli_setup['nuevocli_direccion']"}
+                    {$divClass=''}
+                    {if="$fsc->nuevocli_setup['nuevocli_direccion_req']"}{$divClass=' has-warning'}{/if}
+                    <div class="form-group{$divClass}">
+                        <label class="col-sm-2 control-label">Dirección</label>
+                        <div class="col-sm-10">
+                            {if="$fsc->nuevocli_setup['nuevocli_direccion_req']"}
+                            <input type="text" name="direccion" class="form-control" autocomplete="off" required=""/>
+                            {else}
+                            <input type="text" name="direccion" class="form-control" autocomplete="off"/>
+                            {/if}
+                        </div>
+                    </div>
+                    {/if}
+                    <p class="help-block">
+                        Puedes importar, exportar o actualizar masivamente clientes usando el plugin
+                        <a href="https://www.facturascripts.com/plugin/import_export_csv" target="_blank">
+                            Importar/Exportar CSV
+                        </a>
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-sm btn-primary" type="submit">
+                        <span class="glyphicon glyphicon-floppy-disk"></span>&nbsp; Guardar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

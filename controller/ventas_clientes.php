@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of facturacion_base
- * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2018  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -278,6 +278,10 @@ class ventas_clientes extends fbase_controller
     {
         $cliente = new cliente();
         $cliente->codcliente = $cliente->get_new_codigo();
+        if (isset($_POST['codigo']) && !empty($_POST['codigo'])) {
+            $cliente->codcliente = $_POST['codigo'];
+        }
+
         $cliente->nombre = $_POST['nombre'];
         $cliente->razonsocial = $_POST['nombre'];
         $cliente->tipoidfiscal = $_POST['tipoidfiscal'];
@@ -288,10 +292,8 @@ class ventas_clientes extends fbase_controller
             $cliente->email = $_POST['email'];
         }
 
-        if (isset($_POST['scodgrupo'])) {
-            if ($_POST['scodgrupo'] != '') {
-                $cliente->codgrupo = $_POST['scodgrupo'];
-            }
+        if (isset($_POST['scodgrupo']) && $_POST['scodgrupo'] != '') {
+            $cliente->codgrupo = $_POST['scodgrupo'];
         }
 
         if (isset($_POST['telefono1'])) {

@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of facturacion_base
- * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2018  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -77,6 +77,10 @@ class compras_proveedores extends fbase_controller
     {
         $proveedor = new proveedor();
         $proveedor->codproveedor = $proveedor->get_new_codigo();
+        if (isset($_POST['codigo']) && !empty($_POST['codigo'])) {
+            $proveedor->codproveedor = $_POST['codigo'];
+        }
+
         $proveedor->nombre = $_POST['nombre'];
         $proveedor->razonsocial = $_POST['nombre'];
         $proveedor->tipoidfiscal = $_POST['tipoidfiscal'];
@@ -103,10 +107,12 @@ class compras_proveedores extends fbase_controller
 
                 /// redireccionamos a la página del proveedor
                 header('location: ' . $proveedor->url());
-            } else
+            } else {
                 $this->new_error_msg("¡Imposible guardar la dirección el proveedor!");
-        } else
+            }
+        } else {
             $this->new_error_msg("¡Imposible guardar el proveedor!");
+        }
     }
 
     private function eliminar_proveedor()
@@ -120,10 +126,12 @@ class compras_proveedores extends fbase_controller
                 $this->new_error_msg('No tienes permiso para eliminar en esta página.');
             } else if ($proveedor->delete()) {
                 $this->new_message('Proveedor eliminado correctamente.');
-            } else
+            } else {
                 $this->new_error_msg('Ha sido imposible borrar el proveedor.');
-        } else
+            }
+        } else {
             $this->new_message('Proveedor no encontrado.');
+        }
     }
 
     private function buscar()
