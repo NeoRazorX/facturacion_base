@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of facturacion_base
- * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2018  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -476,6 +476,16 @@ class ventas_articulo extends fbase_controller
             $com->impactoprecio = floatval($_POST['impactoprecio']);
             $com->stockfis = floatval($_POST['stockcombinacion']);
             $com->save();
+        }
+
+        /// recalculamos el stock, por si acaso
+        $stock = 0;
+        foreach ($this->combinaciones() as $combi) {
+            $stock += $combi->stockfis;
+        }
+
+        if ($stock != $this->articulo->stockfis) {
+            $this->articulo->set_stock($this->default_items->codalmacen(), $stock);
         }
 
         $this->new_message('Combinación modificada.');
