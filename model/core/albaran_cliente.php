@@ -552,8 +552,10 @@ class albaran_cliente extends \fs_model
          * Ponemos a NULL todos los idfactura que no están en facturascli.
          * ¿Por qué? Porque muchos usuarios se dedican a tocar la base de datos.
          */
+        $this->db->exec("UPDATE " . $this->table_name . " SET idfactura = NULL WHERE idfactura = 0;");
         $this->db->exec("UPDATE " . $this->table_name . " SET idfactura = NULL WHERE idfactura IS NOT NULL"
             . " AND idfactura NOT IN (SELECT idfactura FROM facturascli);");
+        
         /// asignamos netosindto a neto a todos los que estén a 0
         $this->db->exec("UPDATE " . $this->table_name . " SET netosindto = neto WHERE netosindto = 0;");
     }

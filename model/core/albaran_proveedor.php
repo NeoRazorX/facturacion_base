@@ -495,6 +495,7 @@ class albaran_proveedor extends \fs_model
         /**
          * Ponemos a NULL todos los idfactura que no están en facturasprov
          */
+        $this->db->exec("UPDATE " . $this->table_name . " SET idfactura = NULL WHERE idfactura = 0;");
         $this->db->exec("UPDATE " . $this->table_name . " SET idfactura = NULL WHERE idfactura IS NOT NULL"
             . " AND idfactura NOT IN (SELECT idfactura FROM facturasprov);");
     }

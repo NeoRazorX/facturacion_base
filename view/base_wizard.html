@@ -3,7 +3,7 @@
 {if="$fsc->recargar"}
 <script type="text/javascript">
     $(document).ready(function () {
-        setTimeout("location.href = '{$fsc->url()}';", 1000);
+        setTimeout("location.href = '{$fsc->url()}';", 2500);
     });
 </script>
 <div class="container-fluid">
@@ -211,7 +211,7 @@
                 <div class="form-group">
                     Decimales de los totales:
                     <select name="nf0" class="form-control">
-                        {loop="$fsc->nf0()"}
+                        {loop="$fsc->settings->nf0()"}
                         <option value="{$value}"{if="$value==$GLOBALS['config2']['nf0']"} selected=""{/if}>{$value}</option>
                         {/loop}
                     </select>
@@ -221,7 +221,7 @@
                 <div class="form-group">
                     Decimales de los precios:
                     <select name="nf0_art" class="form-control">
-                        {loop="$fsc->nf0()"}
+                        {loop="$fsc->settings->nf0()"}
                         <option value="{$value}"{if="$value==$GLOBALS['config2']['nf0_art']"} selected=""{/if}>{$value}</option>
                         {/loop}
                     </select>
@@ -231,7 +231,7 @@
                 <div class="form-group">
                     Separador para los Decimales:
                     <select name="nf1" class="form-control">
-                        {loop="$fsc->nf1()"}
+                        {loop="$fsc->settings->nf1()"}
                         <option value="{$key}"{if="$key==$GLOBALS['config2']['nf1']"} selected=""{/if}>{$value}</option>
                         {/loop}
                     </select>
@@ -244,7 +244,7 @@
                     Separador para los Millares:
                     <select name="nf2" class="form-control">
                         <option value="">(Ninguno)</option>
-                        {loop="$fsc->nf1()"}
+                        {loop="$fsc->settings->nf1()"}
                         <option value="{$key}"{if="$key==$GLOBALS['config2']['nf2']"} selected=""{/if}>{$value}</option>
                         {/loop}
                     </select>
@@ -276,7 +276,7 @@
             </div>
         </div>
         <div class="row">
-            {loop="$fsc->traducciones()"}
+            {loop="$fsc->settings->traducciones()"}
             <div class="col-sm-3">
                 <div class="form-group">
                     <span class="text-uppercase">{$value['nombre']}:</span>
@@ -363,12 +363,13 @@
                 <div class="form-group">
                     Algoritmo de nuevo código:
                     <select name="new_codigo" class="form-control">
-                        <option value="eneboo"{if="$GLOBALS['config2']['new_codigo']=='eneboo'"} selected=''{/if}>Compatible con Eneboo</option>
-                        <option value="new"{if="$GLOBALS['config2']['new_codigo']=='new'"} selected=''{/if}>TIPO + EJERCICIO + {function="strtoupper(FS_SERIE)"} + NÚMERO</option>
-                        <option value="0-NUM"{if="$GLOBALS['config2']['new_codigo']=='0-NUM'"} selected=''{/if}>Número continuo (con 0s)</option>
-                        <option value="NUM"{if="$GLOBALS['config2']['new_codigo']=='NUM'"} selected=''{/if}>Número continuo</option>
-                        <option value="SERIE-YY-0-NUM"{if="$GLOBALS['config2']['new_codigo']=='SERIE-YY-0-NUM'"} selected=''{/if}>{function="strtoupper(FS_SERIE)"} + AÑO (2 díg.) + NÚMERO (con 0s)</option>
-                        <option value="SERIE-YY-0-NUM-CORTO"{if="$GLOBALS['config2']['new_codigo']=='SERIE-YY-0-NUM-CORTO'"} selected=''{/if}>{function="strtoupper(FS_SERIE)"} + AÑO (2 díg.) + NÚMERO (mín. 4 car.)</option>
+                        {loop="$fsc->settings->new_codigo_options()"}
+                        {if="$GLOBALS['config2']['new_codigo']==$key"}
+                        <option value="{$key}" selected=''>{$value}</option>
+                        {else}
+                        <option value="{$key}">{$value}</option>
+                        {/if}
+                        {/loop}
                     </select>
                 </div>
             </div>
@@ -467,54 +468,14 @@
         </div>
     </div>
     <div class="row">
+        {loop="$fsc->country_plugins()"}
         <div class="col-sm-3">
-            <a href="index.php?page=admin_home&download=argentina#plugins" class="btn btn-sm btn-block btn-default">
-                <span class="glyphicon glyphicon-download-alt"></span>&nbsp; Argentina
+            <a href="index.php?page=admin_home&download={$value.id}#plugins" class="btn btn-sm btn-block btn-default">
+                <span class="glyphicon glyphicon-download-alt"></span>&nbsp; {$value.name}
             </a>
             <br/>
         </div>
-        <div class="col-sm-3">
-            <a href="index.php?page=admin_home&download=chile#plugins" class="btn btn-sm btn-block btn-default">
-                <span class="glyphicon glyphicon-download-alt"></span>&nbsp; Chile
-            </a>
-            <br/>
-        </div>
-        <div class="col-sm-3">
-            <a href="index.php?page=admin_home&download=colombia#plugins" class="btn btn-sm btn-block btn-default">
-                <span class="glyphicon glyphicon-download-alt"></span>&nbsp; Colombia
-            </a>
-            <br/>
-        </div>
-        <div class="col-sm-3">
-            <a href="index.php?page=admin_home&download=ecuador#plugins" class="btn btn-sm btn-block btn-default">
-                <span class="glyphicon glyphicon-download-alt"></span>&nbsp; Ecuador
-            </a>
-            <br/>
-        </div>
-        <div class="col-sm-3">
-            <a href="index.php?page=admin_home&download=panama#plugins" class="btn btn-sm btn-block btn-default">
-                <span class="glyphicon glyphicon-download-alt"></span>&nbsp; Panamá
-            </a>
-            <br/>
-        </div>
-        <div class="col-sm-3">
-            <a href="index.php?page=admin_home&download=peru#plugins" class="btn btn-sm btn-block btn-default">
-                <span class="glyphicon glyphicon-download-alt"></span>&nbsp; Perú
-            </a>
-            <br/>
-        </div>
-        <div class="col-sm-3">
-            <a href="index.php?page=admin_home&download=republica_dominicana#plugins" class="btn btn-sm btn-block btn-default">
-                <span class="glyphicon glyphicon-download-alt"></span>&nbsp; Rep. Dominicana
-            </a>
-            <br/>
-        </div>
-        <div class="col-sm-3">
-            <a href="index.php?page=admin_home&download=venezuela#plugins" class="btn btn-sm btn-block btn-default">
-                <span class="glyphicon glyphicon-download-alt"></span>&nbsp; Venezuela
-            </a>
-            <br/>
-        </div>
+        {/loop}
     </div>
     {/if}
     <div class="row">
