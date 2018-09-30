@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of facturacion_base
- * Copyright (C) 2012-2017  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2012-2018  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -792,8 +792,8 @@ class articulo extends \fs_model
                 if ($this->exists) {
                     $this->clean_cache();
                     $result = $this->db->exec("UPDATE " . $this->table_name
-                        . "  SET costemedio = " . $this->var2str($this->costemedio)
-                        . "  WHERE referencia = " . $this->var2str($this->referencia) . ";");
+                        . " SET costemedio = " . $this->var2str($this->costemedio)
+                        . " WHERE referencia = " . $this->var2str($this->referencia) . ";");
                 } else if (!$this->save()) {
                     $this->new_error_msg("¡Error al actualizar el stock del artículo!");
                     $result = FALSE;
