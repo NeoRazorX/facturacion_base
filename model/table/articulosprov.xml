@@ -33,10 +33,12 @@
     <columna>
         <nombre>precio</nombre>
         <tipo>double precision</tipo>
+        <defecto>0</defecto>
     </columna>
     <columna>
         <nombre>dto</nombre>
         <tipo>double precision</tipo>
+        <defecto>0</defecto>
     </columna>
     <columna>
         <nombre>codimpuesto</nombre>
@@ -45,6 +47,7 @@
     <columna>
         <nombre>stock</nombre>
         <tipo>double precision</tipo>
+        <defecto>0</defecto>
     </columna>
     <columna>
         <nombre>nostock</nombre>

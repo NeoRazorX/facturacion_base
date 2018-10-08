@@ -156,8 +156,9 @@ class compras_imprimir extends fbase_controller
         $multi_iva = $multi_re = $multi_irpf = FALSE;
         $this->impresion['print_dto'] = FALSE;
         for ($i = $linea_actual; $i < count($lineas) && $i < $linea_actual + $lppag; $i++) {
-            if ($lineas[$i]->cantidad != intval($lineas[$i]->cantidad)) {
-                $dec_cantidad = 2;
+            /// comprobamos el número de decimales en la cantidad
+            while ($dec_cantidad < 5 && $lineas[$i]->cantidad != round($lineas[$i]->cantidad, $dec_cantidad)) {
+                $dec_cantidad++;
             }
 
             if ($lineas[$i]->dtopor != 0) {
