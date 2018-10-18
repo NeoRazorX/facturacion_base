@@ -424,7 +424,7 @@ function buscar_codbarras()
 
         $.getJSON(url, function (json) {
             if (jQuery.isEmptyObject(json)) {
-                bootbox.alert('Ningún artículo encontrado.');
+                alert('Ningún artículo encontrado.');
             }
             $.each(json, function (key, val) {
                 if (val.codbarras == document.f_tpv.codbar.value) {
@@ -441,16 +441,12 @@ function buscar_codbarras()
 
                         eval(funcion);
                     } else if (val.sevende) {
-                        bootbox.alert({
-                            message: 'Sin stock.',
-                            title: '<b>Atención</b>'
-                        });
+                        alert('Sin stock.');
                     }
                 }
             });
 
-            document.f_tpv.codbar.value = '';
-            document.f_tpv.codbar.focus();
+            focus_codbar_input();
         });
     }
 }
@@ -468,6 +464,12 @@ function show_pvp_iva(pvp, codimpuesto)
     }
 
     return show_precio(pvp + pvp * iva / 100);
+}
+
+function focus_codbar_input()
+{
+    document.f_tpv.codbar.value = '';
+    document.f_tpv.codbar.focus();
 }
 
 $(document).ready(function () {
