@@ -65,7 +65,7 @@ trait factura
      * @var boolean
      */
     public $anulada;
-    
+
     public function asiento_url()
     {
         if (is_null($this->idasiento)) {
@@ -95,7 +95,7 @@ trait factura
         $asiento = new \asiento();
         return $asiento->get($this->idasientop);
     }
-    
+
     private function get_lineas_iva_trait($class_name, $due_totales = 1)
     {
         $linea_iva = new $class_name();
@@ -136,7 +136,7 @@ trait factura
             foreach ($subtotales as $codimp => $subt) {
                 $lineasi[$codimp] = new $class_name();
                 $lineasi[$codimp]->idfactura = $this->idfactura;
-                $lineasi[$codimp]->codimpuesto = $codimp;
+                $lineasi[$codimp]->codimpuesto = ($codimp === 0) ? null : $codimp;
                 $lineasi[$codimp]->iva = $subt['ivapor'];
                 $lineasi[$codimp]->recargo = $subt['recargopor'];
                 $lineasi[$codimp]->neto = $subt['neto'];
