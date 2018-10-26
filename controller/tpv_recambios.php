@@ -393,8 +393,15 @@ class tpv_recambios extends fbase_controller
             if ($_POST['tasaconv'] != '') {
                 $factura->tasaconv = floatval($_POST['tasaconv']);
             }
-
-            $factura->codagente = $this->agente->codagente;
+            
+            //Cambia el agente?
+            if(isset($_POST['codagente']))
+            {
+                $factura->codagente = $_POST['codagente'];
+            }
+            else
+                $factura->codagente = $this->agente->codagente;
+                
             $factura->observaciones = $_POST['observaciones'];
             $factura->porcomision = $this->agente->porcomision;
 
