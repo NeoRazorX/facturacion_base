@@ -120,7 +120,7 @@ class atributo extends \fs_model
     {
         $lista = array();
 
-        $data = $this->db->select("SELECT * FROM atributos ORDER BY nombre DESC;");
+        $data = $this->db->select("SELECT * FROM atributos ORDER BY LOWER(nombre) ASC;");
         if ($data) {
             foreach ($data as $d) {
                 $lista[] = new \atributo($d);
