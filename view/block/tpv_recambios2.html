@@ -85,8 +85,17 @@
                   <span class="input-group-addon">
                      <span class="glyphicon glyphicon-user"></span>
                   </span>
-                  <div class="form-control">
-                     <a href="{$fsc->agente->url()}">{$fsc->agente->get_fullname()}</a>
+                  <div class="form-group">
+                      <select name="codagente" class="form-control">
+                        {if="$fsc->user->admin"}
+                        {loop="$fsc->agente->all()"}
+                        <option value="{$value->codagente}" {if="$value->codagente == $fsc->agente->codagente"} selected="" {/if}>{$value->get_fullname()}</option>
+                        {/loop}
+                        {else}
+                        <option value="{$fsc->agente->codagente}">{$fsc->agente->get_fullname()}</option>
+                        {/else}
+                        {/if}
+                      </select>
                   </div>
                </div>
             </div>
