@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of facturacion_base
- * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2018  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -10,11 +10,11 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Lesser General Public License for more details.
  * 
  * You should have received a copy of the GNU Lesser General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 require_once 'plugins/facturacion_base/extras/fbase_controller.php';
@@ -393,15 +393,9 @@ class tpv_recambios extends fbase_controller
             if ($_POST['tasaconv'] != '') {
                 $factura->tasaconv = floatval($_POST['tasaconv']);
             }
-            
-            //Cambia el agente?
-            if(isset($_POST['codagente']))
-            {
-                $factura->codagente = $_POST['codagente'];
-            }
-            else
-                $factura->codagente = $this->agente->codagente;
-                
+
+            // Cambia el agente?
+            $factura->codagente = isset($_POST['codagente']) ? $_POST['codagente'] : $this->agente->codagente;
             $factura->observaciones = $_POST['observaciones'];
             $factura->porcomision = $this->agente->porcomision;
 
