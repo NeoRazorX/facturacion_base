@@ -435,20 +435,20 @@ class ventas_articulo extends fbase_controller
 
         $error = TRUE;
         $valor0 = new atributo_valor();
-        for ($i = 0; $i < 10; $i++) {
-            if (isset($_POST['idvalor_' . $i])) {
-                if ($_POST['idvalor_' . $i]) {
-                    $valor = $valor0->get($_POST['idvalor_' . $i]);
-                    if ($valor) {
-                        $comb1->id = NULL;
-                        $comb1->idvalor = $valor->id;
-                        $comb1->nombreatributo = $valor->nombre();
-                        $comb1->valor = $valor->valor;
-                        $error = !$comb1->save();
-                    }
-                }
-            } else {
+        for ($i = 0; $i < 100; $i++) {
+            if (!isset($_POST['idvalor_' . $i])) {
                 break;
+            }
+
+            if ($_POST['idvalor_' . $i]) {
+                $valor = $valor0->get($_POST['idvalor_' . $i]);
+                if ($valor) {
+                    $comb1->id = NULL;
+                    $comb1->idvalor = $valor->id;
+                    $comb1->nombreatributo = $valor->nombre();
+                    $comb1->valor = $valor->valor;
+                    $error = !$comb1->save();
+                }
             }
         }
 

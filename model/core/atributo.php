@@ -116,9 +116,13 @@ class atributo extends \fs_model
         return $this->db->exec("DELETE FROM atributos WHERE codatributo = " . $this->var2str($this->codatributo) . ";");
     }
 
+    /**
+     * 
+     * @return \atributo[]
+     */
     public function all()
     {
-        $lista = array();
+        $lista = [];
 
         $data = $this->db->select("SELECT * FROM atributos ORDER BY LOWER(nombre) ASC;");
         if ($data) {
