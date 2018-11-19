@@ -88,7 +88,9 @@ class compras_proveedores extends fbase_controller
         $proveedor->acreedor = isset($_POST['acreedor']);
         $proveedor->personafisica = isset($_POST['personafisica']);
 
-        if ($proveedor->save()) {
+        if ($proveedor->exists()) {
+            $this->new_error_msg("El proveedor ya existe.");
+        } elseif ($proveedor->save()) {
             $dirproveedor = new direccion_proveedor();
             $dirproveedor->codproveedor = $proveedor->codproveedor;
             $dirproveedor->descripcion = "Principal";

@@ -304,7 +304,9 @@ class ventas_clientes extends fbase_controller
             $cliente->telefono2 = $_POST['telefono2'];
         }
 
-        if ($cliente->save()) {
+        if ($cliente->exists()) {
+            $this->new_error_msg("El cliente ya existe.");
+        } elseif ($cliente->save()) {
             $dircliente = new direccion_cliente();
             $dircliente->codcliente = $cliente->codcliente;
             $dircliente->codpais = $this->empresa->codpais;
