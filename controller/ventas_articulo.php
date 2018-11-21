@@ -389,30 +389,59 @@ class ventas_articulo extends fbase_controller
             /**
              * Renombramos la referencia en el resto de tablas: lineasalbaranes, lineasfacturas...
              */
-            if ($this->db->table_exists('lineasalbaranescli')) {
-                $this->db->exec("UPDATE lineasalbaranescli SET referencia = " . $this->empresa->var2str($_POST['nreferencia'])
-                    . " WHERE referencia = " . $this->empresa->var2str($_POST['referencia']) . ";");
-            }
+            if ($_POST['nreferencia'] != $_POST['referencia']) {
+                if ($this->db->table_exists('lineasalbaranescli')) {
+                    $this->db->exec("UPDATE lineasalbaranescli SET referencia = " . $this->empresa->var2str($_POST['nreferencia'])
+                        . " WHERE referencia = " . $this->empresa->var2str($_POST['referencia']) . ";");
+                    $this->new_message("Reemplazo masivo en lineasalbaranescli reemplazada referencia " . $this->empresa->var2str($_POST['referencia']) . " por " . $this->empresa->var2str($_POST['nreferencia']), true);
+                }
 
-            if ($this->db->table_exists('lineasalbaranesprov')) {
-                $this->db->exec("UPDATE lineasalbaranesprov SET referencia = " . $this->empresa->var2str($_POST['nreferencia'])
-                    . " WHERE referencia = " . $this->empresa->var2str($_POST['referencia']) . ";");
-            }
+                if ($this->db->table_exists('lineasalbaranesprov')) {
+                    $this->db->exec("UPDATE lineasalbaranesprov SET referencia = " . $this->empresa->var2str($_POST['nreferencia'])
+                        . " WHERE referencia = " . $this->empresa->var2str($_POST['referencia']) . ";");
+                    $this->new_message("Reemplazo masivo en lineasalbaranesprov reemplazada referencia " . $this->empresa->var2str($_POST['referencia']) . " por " . $this->empresa->var2str($_POST['nreferencia']), true);
+                }
 
-            if ($this->db->table_exists('lineasfacturascli')) {
-                $this->db->exec("UPDATE lineasfacturascli SET referencia = " . $this->empresa->var2str($_POST['nreferencia'])
-                    . " WHERE referencia = " . $this->empresa->var2str($_POST['referencia']) . ";");
-            }
+                if ($this->db->table_exists('lineasfacturascli')) {
+                    $this->db->exec("UPDATE lineasfacturascli SET referencia = " . $this->empresa->var2str($_POST['nreferencia'])
+                        . " WHERE referencia = " . $this->empresa->var2str($_POST['referencia']) . ";");
+                    $this->new_message("Reemplazo masivo en lineasfacturascli reemplazada referencia " . $this->empresa->var2str($_POST['referencia']) . " por " . $this->empresa->var2str($_POST['nreferencia']), true);
+                }
 
-            if ($this->db->table_exists('lineasfacturasprov')) {
-                $this->db->exec("UPDATE lineasfacturasprov SET referencia = " . $this->empresa->var2str($_POST['nreferencia'])
-                    . " WHERE referencia = " . $this->empresa->var2str($_POST['referencia']) . ";");
-            }
+                if ($this->db->table_exists('lineasfacturasprov')) {
+                    $this->db->exec("UPDATE lineasfacturasprov SET referencia = " . $this->empresa->var2str($_POST['nreferencia'])
+                        . " WHERE referencia = " . $this->empresa->var2str($_POST['referencia']) . ";");
+                    $this->new_message("Reemplazo masivo en lineasfacturasprov reemplazada referencia " . $this->empresa->var2str($_POST['referencia']) . " por " . $this->empresa->var2str($_POST['nreferencia']), true);
+                }
 
-            /// esto es una personalización del plugin producción, será eliminado este código en futuras versiones.
-            if ($this->db->table_exists('lineasfabricados')) {
-                $this->db->exec("UPDATE lineasfabricados SET referencia = " . $this->empresa->var2str($_POST['nreferencia'])
-                    . " WHERE referencia = " . $this->empresa->var2str($_POST['referencia']) . ";");
+                /**
+                 * Renombramos la referencia en el resto de tablas: lineaspedidoscli, lineaspedidosprov, lineaspresupuestoscli
+                 * si está presupuestos_y_pedidos cargado.
+                 */
+                if ($this->db->table_exists('lineaspresupuestoscli')) {
+                    $this->db->exec("UPDATE lineaspresupuestoscli SET referencia = " . $this->empresa->var2str($_POST['nreferencia'])
+                        . " WHERE referencia = " . $this->empresa->var2str($_POST['referencia']) . ";");
+                    $this->new_message("Reemplazo masivo en lineaspresupuestoscli reemplazada referencia " . $this->empresa->var2str($_POST['referencia']) . " por " . $this->empresa->var2str($_POST['nreferencia']), true);
+                }
+
+                if ($this->db->table_exists('lineaspedidoscli')) {
+                    $this->db->exec("UPDATE lineaspedidoscli SET referencia = " . $this->empresa->var2str($_POST['nreferencia'])
+                        . " WHERE referencia = " . $this->empresa->var2str($_POST['referencia']) . ";");
+                    $this->new_message("Reemplazo masivo en lineaspedidoscli reemplazada referencia " . $this->empresa->var2str($_POST['referencia']) . " por " . $this->empresa->var2str($_POST['nreferencia']), true);
+                }
+
+                if ($this->db->table_exists('lineaspedidosprov')) {
+                    $this->db->exec("UPDATE lineaspedidosprov SET referencia = " . $this->empresa->var2str($_POST['nreferencia'])
+                        . " WHERE referencia = " . $this->empresa->var2str($_POST['referencia']) . ";");
+                    $this->new_message("Reemplazo masivo en lineaspedidosprov reemplazada referencia " . $this->empresa->var2str($_POST['referencia']) . " por " . $this->empresa->var2str($_POST['nreferencia']), true);
+                }
+
+                /// esto es una personalización del plugin producción, será eliminado este código en futuras versiones.
+                if ($this->db->table_exists('lineasfabricados')) {
+                    $this->db->exec("UPDATE lineasfabricados SET referencia = " . $this->empresa->var2str($_POST['nreferencia'])
+                        . " WHERE referencia = " . $this->empresa->var2str($_POST['referencia']) . ";");
+                    $this->new_message("Reemplazo masivo en lineasfabricados reemplazada referencia " . $this->empresa->var2str($_POST['referencia']) . " por " . $this->empresa->var2str($_POST['nreferencia']), true);
+                }
             }
         } else {
             $this->new_error_msg("¡Error al guardar el articulo!");
