@@ -389,7 +389,8 @@ class ventas_articulo extends fbase_controller
             /**
              * Renombramos la referencia en el resto de tablas: lineasalbaranes, lineasfacturas...
              */
-            if ($_POST['nreferencia'] != $_POST['referencia']) {
+            $new_art = (new articulo())->get($_POST['nreferencia']);
+            if ($_POST['nreferencia'] != $_POST['referencia'] && !$new_art) {
                 if ($this->db->table_exists('lineasalbaranescli')) {
                     $this->db->exec("UPDATE lineasalbaranescli SET referencia = " . $this->empresa->var2str($_POST['nreferencia'])
                         . " WHERE referencia = " . $this->empresa->var2str($_POST['referencia']) . ";");
@@ -442,6 +443,8 @@ class ventas_articulo extends fbase_controller
                         . " WHERE referencia = " . $this->empresa->var2str($_POST['referencia']) . ";");
                     $this->new_message("Reemplazo masivo en lineasfabricados reemplazada referencia " . $this->empresa->var2str($_POST['referencia']) . " por " . $this->empresa->var2str($_POST['nreferencia']), true);
                 }
+            } elseif ($_POST['nreferencia'] != $_POST['referencia'] && $new_art) {
+                $this->new_error_msg('No se puede cambiar la referencia de ' . $_POST['referencia'] . ' a ' . $_POST['nreferencia'] . ' porqué ya existe.');
             }
         } else {
             $this->new_error_msg("¡Error al guardar el articulo!");

@@ -36,12 +36,17 @@
          {/if}
       });
       
-      $("#b_guardar_articulo").click(function(event) {
-          var referencia = $("#form_articulo input[name=referencia]").val();
-          var nreferencia = $("#form_articulo input[name=nreferencia]").val();
-          console.log(referencia);
-          console.log(nreferencia);
+      $("#form_articulo").submit(function(event) {
+          $("#b_guardar_articulo").disabled = true;
+          
+          var referencia_sel = $("#form_articulo input[name=referencia]");
+          var referencia = referencia_sel.val();
+          var nreferencia_sel = $("#form_articulo input[name=nreferencia]");
+          var nreferencia = nreferencia_sel.val();
+
           if (referencia != nreferencia) {
+              event.preventDefault();
+              var $this = $(this);
               var msg = '¿Estas seguro de que quieres cambiar la referencia del articulo de <b>' + referencia + '</b> a <b>' + nreferencia + '</b>?<br/><br/>' +
                       'Este cambio reajustará la referencia en todos los documentos en los que aparezca.';
               bootbox.confirm({
@@ -53,18 +58,12 @@
                             message: 'Cambio de referencia confirmado, se almacenará como cambio masivo realizado por tu usuario.',
                             title: "<b>Atención</b>"
                         });
-                        $("#b_guardar_articulo").disabled = true;
-                        $("#form_articulo").submit();
                    } else {
-                       $("#form_articulo input[name=nreferencia]").val(referencia)
-                        $("#b_guardar_articulo").disabled = true;
-                        $("#form_articulo").submit();
+                       nreferencia_sel.val(referencia)
                    }
+                   $this.unbind('submit').submit();
                 }
              });
-          } else {
-              $("#b_guardar_articulo").disabled = true;
-              $("#form_articulo").submit();
           }
       });
    });
