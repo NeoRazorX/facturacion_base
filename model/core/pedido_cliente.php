@@ -26,6 +26,7 @@ require_once 'plugins/facturacion_base/extras/documento_venta.php';
  */
 class pedido_cliente extends \fs_model
 {
+
     use \documento_venta;
 
     /**
@@ -89,7 +90,7 @@ class pedido_cliente extends \fs_model
             if (!is_null($data['fechasalida'])) {
                 $this->fechasalida = Date('d-m-Y', strtotime($data['fechasalida']));
             }
-            
+
             $this->idoriginal = $this->intval($data['idoriginal']);
         } else {
             $this->clear_trait($this->default_items);

@@ -388,7 +388,7 @@ class proveedor extends \fs_model
 
                 $subc0 = $cpro->new_subcuenta($this->codproveedor);
                 if ($subc0) {
-                    if(empty($subc0->descripcion)) {
+                    if (empty($subc0->descripcion)) {
                         $subc0->descripcion = $this->razonsocial;
                     }
                     if ($subc0->save()) {

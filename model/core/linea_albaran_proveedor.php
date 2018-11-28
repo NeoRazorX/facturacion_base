@@ -47,7 +47,6 @@ class linea_albaran_proveedor extends \fs_model
      * @var integer 
      */
     public $idpedido;
-
     private $codigo;
     private $fecha;
     private static $albaranes;

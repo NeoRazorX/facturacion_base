@@ -117,7 +117,7 @@ class subcuenta extends \fs_model
 
         /// forzamos la creación de la tabla de cuentas
         new \cuenta();
-        
+
         return '';
     }
 

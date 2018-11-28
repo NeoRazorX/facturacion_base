@@ -26,6 +26,7 @@ require_once 'plugins/facturacion_base/extras/documento_venta.php';
  */
 class presupuesto_cliente extends \fs_model
 {
+
     use \documento_venta;
 
     /**
@@ -89,7 +90,7 @@ class presupuesto_cliente extends \fs_model
             } else {
                 $this->status = 2;
             }
-            
+
             $this->idoriginal = $this->intval($data['idoriginal']);
         } else {
             $this->clear_trait($this->default_items);
@@ -208,7 +209,7 @@ class presupuesto_cliente extends \fs_model
         } else if ($this->status == 2) {
             $this->editable = FALSE;
         }
-        
+
         return $this->test_trait();
     }
 

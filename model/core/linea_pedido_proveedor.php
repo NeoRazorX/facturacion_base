@@ -19,7 +19,7 @@
  */
 namespace FacturaScripts\model;
 
-require_once __DIR__.'/../../extras/linea_documento_compra.php';
+require_once __DIR__ . '/../../extras/linea_documento_compra.php';
 
 /**
  * Línea de pedido de proveedor.
@@ -30,13 +30,12 @@ class linea_pedido_proveedor extends \fs_model
 {
 
     use \linea_documento_compra;
-    
+
     /**
      * ID del pedido.
      * @var integer 
      */
     public $idpedido;
-    
     private static $pedidos;
 
     public function __construct($data = FALSE)

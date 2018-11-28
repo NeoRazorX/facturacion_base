@@ -18,7 +18,7 @@
  */
 namespace FacturaScripts\model;
 
-require_once __DIR__.'/../../extras/linea_documento_compra.php';
+require_once __DIR__ . '/../../extras/linea_documento_compra.php';
 
 /**
  * Línea de una factura de proveedor.
@@ -29,7 +29,7 @@ class linea_factura_proveedor extends \fs_model
 {
 
     use \linea_documento_compra;
-    
+
     /**
      * ID de la linea del albarán relacionado, si lo hay.
      * @var integer 
@@ -47,7 +47,6 @@ class linea_factura_proveedor extends \fs_model
      * @var integer 
      */
     public $idalbaran;
-
     private $codigo;
     private $fecha;
     private $albaran_codigo;

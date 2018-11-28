@@ -143,13 +143,12 @@ class cliente extends \fs_model
      * @var string
      */
     public $codproveedor;
-    
+
     /**
      * Código de la tarifa para este cliente
      * @var string
      */
     public $codtarifa;
-    
     private static $regimenes_iva;
 
     public function __construct($data = FALSE)

@@ -19,13 +19,14 @@
  */
 namespace FacturaScripts\model;
 
-require_once __DIR__.'/../../extras/documento_compra.php';
+require_once __DIR__ . '/../../extras/documento_compra.php';
 
 /**
  * Pedido de proveedor
  */
 class pedido_proveedor extends \fs_model
 {
+
     use \documento_compra;
 
     /**
@@ -59,7 +60,7 @@ class pedido_proveedor extends \fs_model
             $this->load_data_trait($data);
             $this->idpedido = $this->intval($data['idpedido']);
             $this->idalbaran = $this->intval($data['idalbaran']);
-            
+
             $this->editable = $this->str2bool($data['editable']);
             if ($this->idalbaran) {
                 $this->editable = FALSE;

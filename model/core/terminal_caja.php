@@ -262,10 +262,10 @@ class terminal_caja extends \fs_model
 
     public function save()
     {
-        if(strlen($this->tickets) > 50000) {
+        if (strlen($this->tickets) > 50000) {
             $this->tickets = '';
         }
-        
+
         if ($this->exists()) {
             $sql = "UPDATE cajas_terminales SET codalmacen = " . $this->var2str($this->codalmacen) .
                 ", codserie = " . $this->var2str($this->codserie) .

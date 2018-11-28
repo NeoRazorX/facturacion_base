@@ -63,7 +63,7 @@ class secuencia extends \fs_model
     {
         /// necesitamos comprobar este modelo para que cree la tabla, para la clave ajena
         new \secuencia_ejercicio();
-        
+
         return '';
     }
 

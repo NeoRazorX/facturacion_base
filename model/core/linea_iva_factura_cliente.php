@@ -144,12 +144,12 @@ class linea_iva_factura_cliente extends \fs_model
             if (!$li->test()) {
                 $status = FALSE;
             }
-            
+
             $li_neto += $li->neto;
             $li_iva += $li->totaliva;
             $li_recargo += $li->totalrecargo;
         }
-        
+
         if (!$this->floatcmp($neto, $li_neto, FS_NF0, TRUE)) {
             $this->new_error_msg("La suma de los netos de las líneas de IVA debería ser: " . $neto . " y tiene el valor " . $li_neto);
             $status = FALSE;

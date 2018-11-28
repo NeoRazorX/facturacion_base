@@ -19,7 +19,7 @@
  */
 namespace FacturaScripts\model;
 
-require_once __DIR__.'/../../extras/documento_venta.php';
+require_once __DIR__ . '/../../extras/documento_venta.php';
 
 /**
  * Albarán de cliente o albarán de venta. Representa la entrega a un cliente
@@ -30,6 +30,7 @@ require_once __DIR__.'/../../extras/documento_venta.php';
  */
 class albaran_cliente extends \fs_model
 {
+
     use \documento_venta;
 
     /**
@@ -175,7 +176,7 @@ class albaran_cliente extends \fs_model
     public function full_test($duplicados = TRUE)
     {
         $status = $this->full_test_trait(FS_ALBARAN);
-        
+
         if ($this->total != 0) {
             /// comprobamos las facturas asociadas
             $linea_factura = new \linea_factura_cliente();
@@ -555,7 +556,7 @@ class albaran_cliente extends \fs_model
         $this->db->exec("UPDATE " . $this->table_name . " SET idfactura = NULL WHERE idfactura = 0;");
         $this->db->exec("UPDATE " . $this->table_name . " SET idfactura = NULL WHERE idfactura IS NOT NULL"
             . " AND idfactura NOT IN (SELECT idfactura FROM facturascli);");
-        
+
         /// asignamos netosindto a neto a todos los que estén a 0
         $this->db->exec("UPDATE " . $this->table_name . " SET netosindto = neto WHERE netosindto = 0;");
     }

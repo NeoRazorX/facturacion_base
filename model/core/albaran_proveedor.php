@@ -18,7 +18,7 @@
  */
 namespace FacturaScripts\model;
 
-require_once __DIR__.'/../../extras/documento_compra.php';
+require_once __DIR__ . '/../../extras/documento_compra.php';
 
 /**
  * Albarán de proveedor o albarán de compra. Representa la recepción
@@ -29,6 +29,7 @@ require_once __DIR__.'/../../extras/documento_compra.php';
  */
 class albaran_proveedor extends \fs_model
 {
+
     use \documento_compra;
 
     /**
@@ -54,7 +55,7 @@ class albaran_proveedor extends \fs_model
         parent::__construct('albaranesprov');
         if ($data) {
             $this->load_data_trait($data);
-            
+
             $this->idalbaran = $this->intval($data['idalbaran']);
 
             $this->idfactura = $this->intval($data['idfactura']);
