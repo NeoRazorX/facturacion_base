@@ -206,4 +206,30 @@ class ventas_factura_devolucion extends fbase_controller
             . '<span class="hidden-xs">&nbsp; Devoluciones</span>';
         $fsxet2->save();
     }
+
+    /**
+     * Devuelve la suma de las cantidad devueltas para una factura y referencia
+     * en sus respectivas facturas rectificativas.
+     *
+     * @param int $idfactura
+     * @param string $referencia
+     *
+     * @return int
+     */
+    public function cantidad_devuelta($idfactura, $referencia)
+    {
+        $fact = (new factura_cliente())->get($idfactura);
+        $devolucion = 0;
+        if($fact) {
+            foreach ($fact->get_rectificativas() as $fact_rect) {
+                foreach ($fact_rect->get_lineas() as $lin_fact_rect) {
+                    if ($lin_fact_rect->referencia === $referencia) {
+                        $devolucion += $lin_fact_rect->cantidad;
+}
+                }
+            }
+        }
+
+        return $devolucion;
+    }
 }
