@@ -99,7 +99,7 @@ class ventas_articulo extends fbase_controller
             $this->stocks = $this->articulo->get_stock();
 
             /// metemos en un array los almacenes que no tengan stock de este producto
-            $this->nuevos_almacenes = array();
+            $this->nuevos_almacenes = [];
             foreach ($this->almacen->all() as $a) {
                 $encontrado = FALSE;
                 foreach ($this->stocks as $s) {
@@ -126,11 +126,7 @@ class ventas_articulo extends fbase_controller
 
     public function url()
     {
-        if ($this->articulo) {
-            return $this->articulo->url();
-        }
-
-        return $this->page->url();
+        return $this->articulo ? $this->articulo->url() : $this->page->url();
     }
 
     private function check_extensions()
@@ -215,10 +211,7 @@ class ventas_articulo extends fbase_controller
     {
         $this->articulo->set_impuesto($_POST['codimpuesto']);
         $this->articulo->set_pvp_iva(floatval($_POST['pvpiva']));
-
-        if (isset($_POST['preciocoste'])) {
-            $this->articulo->preciocoste = floatval($_POST['preciocoste']);
-        }
+        $this->articulo->preciocoste = isset($_POST['preciocoste']) ? floatval($_POST['preciocoste']) : $this->articulo->preciocoste;
 
         if ($this->articulo->save()) {
             $this->new_message("Precio modificado correctamente.");
@@ -331,21 +324,9 @@ class ventas_articulo extends fbase_controller
     private function modificar_articulo()
     {
         $this->articulo->descripcion = $_POST['descripcion'];
-
-        $this->articulo->tipo = NULL;
-        if ($_POST['tipo'] != '') {
-            $this->articulo->tipo = $_POST['tipo'];
-        }
-
-        $this->articulo->codfamilia = NULL;
-        if ($_POST['codfamilia'] != '') {
-            $this->articulo->codfamilia = $_POST['codfamilia'];
-        }
-
-        $this->articulo->codfabricante = NULL;
-        if ($_POST['codfabricante'] != '') {
-            $this->articulo->codfabricante = $_POST['codfabricante'];
-        }
+        $this->articulo->tipo = empty($_POST['tipo']) ? NULL : $_POST['tipo'];
+        $this->articulo->codfamilia = empty($_POST['codfamilia']) ? NULL : $_POST['codfamilia'];
+        $this->articulo->codfabricante = empty($_POST['codfabricante']) ? NULL : $_POST['codfabricante'];
 
         /// ¿Existe ya ese código de barras?
         if ($_POST['codbarras'] != '') {
@@ -389,30 +370,12 @@ class ventas_articulo extends fbase_controller
             /**
              * Renombramos la referencia en el resto de tablas: lineasalbaranes, lineasfacturas...
              */
-            if ($this->db->table_exists('lineasalbaranescli')) {
-                $this->db->exec("UPDATE lineasalbaranescli SET referencia = " . $this->empresa->var2str($_POST['nreferencia'])
-                    . " WHERE referencia = " . $this->empresa->var2str($_POST['referencia']) . ";");
-            }
-
-            if ($this->db->table_exists('lineasalbaranesprov')) {
-                $this->db->exec("UPDATE lineasalbaranesprov SET referencia = " . $this->empresa->var2str($_POST['nreferencia'])
-                    . " WHERE referencia = " . $this->empresa->var2str($_POST['referencia']) . ";");
-            }
-
-            if ($this->db->table_exists('lineasfacturascli')) {
-                $this->db->exec("UPDATE lineasfacturascli SET referencia = " . $this->empresa->var2str($_POST['nreferencia'])
-                    . " WHERE referencia = " . $this->empresa->var2str($_POST['referencia']) . ";");
-            }
-
-            if ($this->db->table_exists('lineasfacturasprov')) {
-                $this->db->exec("UPDATE lineasfacturasprov SET referencia = " . $this->empresa->var2str($_POST['nreferencia'])
-                    . " WHERE referencia = " . $this->empresa->var2str($_POST['referencia']) . ";");
-            }
-
-            /// esto es una personalización del plugin producción, será eliminado este código en futuras versiones.
-            if ($this->db->table_exists('lineasfabricados')) {
-                $this->db->exec("UPDATE lineasfabricados SET referencia = " . $this->empresa->var2str($_POST['nreferencia'])
-                    . " WHERE referencia = " . $this->empresa->var2str($_POST['referencia']) . ";");
+            $tables = ['lineasalbaranescli', 'lineasalbaranesprov', 'lineasfacturascli', 'lineasfacturasprov'];
+            foreach ($tables as $table) {
+                if ($this->db->table_exists($table)) {
+                    $this->db->exec("UPDATE " . $table . " SET referencia = " . $this->empresa->var2str($_POST['nreferencia'])
+                        . " WHERE referencia = " . $this->empresa->var2str($_POST['referencia']) . ";");
+                }
             }
         } else {
             $this->new_error_msg("¡Error al guardar el articulo!");
@@ -424,14 +387,8 @@ class ventas_articulo extends fbase_controller
         $comb1 = new articulo_combinacion();
         $comb1->referencia = $this->articulo->referencia;
         $comb1->impactoprecio = floatval($_POST['impactoprecio']);
-
-        if ($_POST['refcombinacion']) {
-            $comb1->refcombinacion = $_POST['refcombinacion'];
-        }
-
-        if ($_POST['codbarras']) {
-            $comb1->codbarras = $_POST['codbarras'];
-        }
+        $comb1->refcombinacion = isset($_POST['refcombinacion']) ? $_POST['refcombinacion'] : NULL;
+        $comb1->codbarras = isset($_POST['codbarras']) ? $_POST['codbarras'] : NULL;
 
         $error = TRUE;
         $valor0 = new atributo_valor();
@@ -463,16 +420,8 @@ class ventas_articulo extends fbase_controller
     {
         $comb1 = new articulo_combinacion();
         foreach ($comb1->all_from_codigo($_POST['editar_combi']) as $com) {
-            $com->refcombinacion = NULL;
-            if ($_POST['refcombinacion']) {
-                $com->refcombinacion = $_POST['refcombinacion'];
-            }
-
-            $com->codbarras = NULL;
-            if ($_POST['codbarras']) {
-                $com->codbarras = $_POST['codbarras'];
-            }
-
+            $com->refcombinacion = isset($_POST['refcombinacion']) ? $_POST['refcombinacion'] : NULL;
+            $com->codbarras = isset($_POST['codbarras']) ? $_POST['codbarras'] : NULL;
             $com->impactoprecio = floatval($_POST['impactoprecio']);
             $com->stockfis = floatval($_POST['stockcombinacion']);
             $com->save();
@@ -503,7 +452,7 @@ class ventas_articulo extends fbase_controller
 
     public function get_tarifas()
     {
-        $tarlist = array();
+        $tarlist = [];
         $tarifa = new tarifa();
 
         foreach ($tarifa->all() as $tar) {
@@ -600,7 +549,7 @@ class ventas_articulo extends fbase_controller
 
     public function combinaciones()
     {
-        $lista = array();
+        $lista = [];
 
         $comb1 = new articulo_combinacion();
         foreach ($comb1->all_from_ref($this->articulo->referencia) as $com) {

@@ -15,433 +15,440 @@
             }
         });
     }
-   $(document).ready(function() {
-      $("#b_eliminar_articulo").click(function(event) {
-         event.preventDefault();
-         {if="$fsc->articulo->publico"}
-         bootbox.alert({
-            message: 'Este artículo <b>es público</b>. Si estas seguro de que quieres eliminarlo, desmarcalo como público, guarda y pulsa eliminar.',
-            title: "<b>Atención</b>"
-         });
-         {else}
-         bootbox.confirm({
-            message: '¿Estas seguro de que deseas eliminar este articulo?',
-            title: '<b>Atención</b>',
-            callback: function(result) {
-               if (result) {
-                  window.location.href = "index.php?page=ventas_articulos&delete={function="urlencode($fsc->articulo->referencia)"}";
-               }
-            }
-         });
-         {/if}
-      });
-   });
+    $(document).ready(function() {
+        $("#b_eliminar_articulo").click(function(event) {
+            event.preventDefault();
+            {if="$fsc->articulo->publico"}
+            bootbox.alert({
+                message: 'Este artículo <b>es público</b>. Si estas seguro de que quieres eliminarlo, desmarcalo como público, guarda y pulsa eliminar.',
+                title: "<b>Atención</b>"
+            });
+            {else}
+            bootbox.confirm({
+                message: '¿Estas seguro de que deseas eliminar este articulo?',
+                title: '<b>Atención</b>',
+                callback: function(result) {
+                    if (result) {
+                        window.location.href = "index.php?page=ventas_articulos&delete={function="urlencode($fsc->articulo->referencia)"}";
+                    }
+                }
+            });
+            {/if}
+        });
+    });
 </script>
 
 <div class="container-fluid" style="margin-bottom: 10px;">
-   <div class="row">
-      <div class="col-xs-7">
-         <div class="btn-group">
-            <a href="index.php?page=ventas_articulos" class="btn btn-sm btn-default">
-               <span class="glyphicon glyphicon-arrow-left"></span>
-               <span class="hidden-xs">&nbsp;Todos</span>
+    <div class="row">
+        <div class="col-xs-7">
+            <div class="btn-group">
+                <a href="index.php?page=ventas_articulos" class="btn btn-sm btn-default">
+                    <span class="glyphicon glyphicon-arrow-left"></span>
+                    <span class="hidden-xs">&nbsp;Todos</span>
+                </a>
+                <a href="{$fsc->url()}" class="btn btn-sm btn-default hidden-xs" title="Recargar la página">
+                    <span class="glyphicon glyphicon-refresh"></span>
+                </a>
+            </div>
+            <div class="btn-group">
+                <a href="#" id="b_imagen" class="btn btn-sm btn-default">
+                    <span class="glyphicon glyphicon-picture"></span>
+                    <span class="hidden-xs">&nbsp;Imagen</span>
+                </a>
+                {if="$fsc->articulo->trazabilidad"}
+                <a href='index.php?page=articulo_trazabilidad&ref={function="urlencode($fsc->articulo->referencia)"}' class="btn btn-sm btn-default">
+                    <i class="fa fa-code-fork" aria-hidden="true"></i>
+                    <span class="hidden-xs">&nbsp;Trazabilidad</span>
+                </a>
+                {/if}
+            </div>
+            <div class="btn-group">
+                {loop="$fsc->extensions"}
+                {if="$value->type=='button'"}
+                <a href='index.php?page={$value->from}&ref={function="urlencode($fsc->articulo->referencia)"}{$value->params}' class="btn btn-sm btn-default">
+                    {$value->text}
+                </a>
+                {elseif="$value->type=='modal'"}
+                <!--{$txt=base64_encode($value->text)}-->
+                <!--{$url='index.php?page='.$value->from.'&ref='.urlencode($fsc->articulo->referencia).$value->params}-->
+                <a href="#" class="btn btn-sm btn-default" onclick="fs_modal('{$txt}','{$url}')">{$value->text}</a>
+                {/if}
+                {/loop}
+            </div>
+        </div>
+        <div class="col-xs-5 text-right">
+            <a class="btn btn-sm btn-success" href="index.php?page=ventas_articulos&b_codfamilia={$fsc->articulo->codfamilia}&b_codfabricante={$fsc->articulo->codfabricante}#nuevo" title="Nuevo artículo">
+                <span class="glyphicon glyphicon-plus"></span>
             </a>
-            <a href="{$fsc->url()}" class="btn btn-sm btn-default hidden-xs" title="Recargar la página">
-               <span class="glyphicon glyphicon-refresh"></span>
-            </a>
-         </div>
-         <div class="btn-group">
-            <a href="#" id="b_imagen" class="btn btn-sm btn-default">
-               <span class="glyphicon glyphicon-picture"></span>
-               <span class="hidden-xs">&nbsp;Imagen</span>
-            </a>
-            {if="$fsc->articulo->trazabilidad"}
-            <a href='index.php?page=articulo_trazabilidad&ref={function="urlencode($fsc->articulo->referencia)"}' class="btn btn-sm btn-default">
-               <i class="fa fa-code-fork" aria-hidden="true"></i>
-               <span class="hidden-xs">&nbsp;Trazabilidad</span>
+            {if="$fsc->allow_delete"}
+            <a href="#" id="b_eliminar_articulo" class="btn btn-sm btn-danger">
+                <span class="glyphicon glyphicon-trash"></span>
+                <span class="hidden-xs">&nbsp;Eliminar</span>
             </a>
             {/if}
-         </div>
-         <div class="btn-group">
-         {loop="$fsc->extensions"}
-            {if="$value->type=='button'"}
-            <a href='index.php?page={$value->from}&ref={function="urlencode($fsc->articulo->referencia)"}{$value->params}' class="btn btn-sm btn-default">
-               {$value->text}
-            </a>
-            {elseif="$value->type=='modal'"}
-            <!--{$txt=base64_encode($value->text)}-->
-            <!--{$url='index.php?page='.$value->from.'&ref='.urlencode($fsc->articulo->referencia).$value->params}-->
-            <a href="#" class="btn btn-sm btn-default" onclick="fs_modal('{$txt}','{$url}')">{$value->text}</a>
-            {/if}
-         {/loop}
-         </div>
-      </div>
-      <div class="col-xs-5 text-right">
-         <a class="btn btn-sm btn-success" href="index.php?page=ventas_articulos&b_codfamilia={$fsc->articulo->codfamilia}&b_codfabricante={$fsc->articulo->codfabricante}#nuevo" title="Nuevo artículo">
-            <span class="glyphicon glyphicon-plus"></span>
-         </a>
-         {if="$fsc->allow_delete"}
-         <a href="#" id="b_eliminar_articulo" class="btn btn-sm btn-danger">
-            <span class="glyphicon glyphicon-trash"></span>
-            <span class="hidden-xs">&nbsp;Eliminar</span>
-         </a>
-         {/if}
-      </div>
-   </div>
+        </div>
+    </div>
 </div>
 
 <div id="tab_articulo" role="tabpanel">
-   <ul class="nav nav-tabs" role="tablist">
-      <li role="presentation" class="active">
-         <a href="#home" aria-controls="home" role="tab" data-toggle="tab">
-            <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
-            <span class="hidden-xs">&nbsp;{$fsc->articulo->referencia}</span>
-         </a>
-      </li>
-      {if="$fsc->mostrar_tab_atributos"}
-      <li role="presentation">
-         <a href="#atributos" aria-controls="atributos" role="tab" data-toggle="tab">
-            <span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span>
-            <span class="hidden-xs">&nbsp;Atributos</span>
-         </a>
-      </li>
-      {/if}
-      {if="$fsc->mostrar_tab_precios"}
-      <li role="presentation">
-         <a href="#precios" aria-controls="precios" role="tab" data-toggle="tab">
-            <span class="glyphicon glyphicon-usd" aria-hidden="true"></span>
-            <span class="hidden-xs">&nbsp;Precios</span>
-         </a>
-      </li>
-      {/if}
-      {if="$fsc->mostrar_tab_stock"}
-      <li role="presentation">
-         <a href="#stock" aria-controls="stock" role="tab" data-toggle="tab">
-            <span class="glyphicon glyphicon-tasks" aria-hidden="true"></span>
-            <span class="hidden-xs">&nbsp;Stock</span>
-         </a>
-      </li>
-      {/if}
-      {if="$fsc->equivalentes"}
-      <li role="presentation">
-         <a href="#equivalentes" aria-controls="equivalentes" role="tab" data-toggle="tab">
-            <span class="glyphicon glyphicon-random" aria-hidden="true"></span>
-            <span class="hidden-xs">&nbsp;Equivalentes</span>
-         </a>
-      </li>
-      {/if}
-      {loop="$fsc->extensions"}
-         {if="$value->type=='tab'"}
-         <li role="presentation">
+    <ul class="nav nav-tabs" role="tablist">
+        <li role="presentation" class="active">
+            <a href="#home" aria-controls="home" role="tab" data-toggle="tab">
+                <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
+                <span class="hidden-xs">&nbsp;{$fsc->articulo->referencia}</span>
+            </a>
+        </li>
+        {if="$fsc->mostrar_tab_atributos"}
+        <li role="presentation">
+            <a href="#atributos" aria-controls="atributos" role="tab" data-toggle="tab">
+                <span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span>
+                <span class="hidden-xs">&nbsp;Atributos</span>
+            </a>
+        </li>
+        {/if}
+        {if="$fsc->mostrar_tab_precios"}
+        <li role="presentation">
+            <a href="#precios" aria-controls="precios" role="tab" data-toggle="tab">
+                <span class="glyphicon glyphicon-usd" aria-hidden="true"></span>
+                <span class="hidden-xs">&nbsp;Precios</span>
+            </a>
+        </li>
+        {/if}
+        {if="$fsc->mostrar_tab_stock"}
+        <li role="presentation">
+            <a href="#stock" aria-controls="stock" role="tab" data-toggle="tab">
+                <span class="glyphicon glyphicon-tasks" aria-hidden="true"></span>
+                <span class="hidden-xs">&nbsp;Stock</span>
+            </a>
+        </li>
+        {/if}
+        {if="$fsc->equivalentes"}
+        <li role="presentation">
+            <a href="#equivalentes" aria-controls="equivalentes" role="tab" data-toggle="tab">
+                <span class="glyphicon glyphicon-random" aria-hidden="true"></span>
+                <span class="hidden-xs">&nbsp;Equivalentes</span>
+            </a>
+        </li>
+        {/if}
+        {loop="$fsc->extensions"}
+        {if="$value->type=='tab'"}
+        <li role="presentation">
             <a href="#ext_{$value->name}" aria-controls="ext_{$value->name}" role="tab" data-toggle="tab">{$value->text}</a>
-         </li>
-         {/if}
-      {/loop}
-      <li class="dropdown">
-         <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-            <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
-            <span class="hidden-xs">&nbsp;Buscar en...</span>
-            <span class="caret"></span>
-         </a>
-         <ul class="dropdown-menu" role="menu">
-         {loop="$fsc->extensions"}
-            {if="$value->type=='tab_button'"}
-            <li>
-               <a href="index.php?page={$value->from}&ref={function="urlencode($fsc->articulo->referencia)"}{$value->params}">
-                  {$value->text}
-               </a>
+        </li>
+        {/if}
+        {/loop}
+        <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+                <span class="hidden-xs">&nbsp;Buscar en...</span>
+                <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu" role="menu">
+                {loop="$fsc->extensions"}
+                {if="$value->type=='tab_button'"}
+                <li>
+                    <a href="index.php?page={$value->from}&ref={function="urlencode($fsc->articulo->referencia)"}{$value->params}">
+                       {$value->text}
+                </a>
             </li>
             {/if}
-         {/loop}
-         </ul>
-      </li>
-   </ul>
-   <div class="tab-content">
-      <div role="tabpanel" class="tab-pane active" id="home">
-         <form action="{$fsc->url()}" method="post" class="post">
+            {/loop}
+        </ul>
+    </li>
+</ul>
+<div class="tab-content">
+    <div role="tabpanel" class="tab-pane active" id="home">
+        <form action="{$fsc->url()}" method="post" class="post">
             <input type="hidden" name="referencia" value="{$fsc->articulo->referencia}"/>
             <div class="container-fluid">
-               <div class="row" style="padding-top: 10px;">
-                  <div class="col-sm-3">
-                     <div class="form-group">
-                        Referencia:
-                        <input class="form-control" type="text" name="nreferencia" value="{$fsc->articulo->referencia}" maxlength="18" autocomplete="off"/>
-                     </div>
-                     <div class="form-group">
-                        Tipo:
-                        <select name="tipo" class="form-control" onchange="this.form.submit()">
-                           <option value="">Producto simple</option>
-                           {if="$fsc->hay_atributos"}
-                              {if="$fsc->articulo->tipo=='atributos'"}
-                              <option value="atributos" selected="">Producto con atributos</option>
-                              {else}
-                              <option value="atributos">Producto con atributos</option>
-                              {/if}
-                           {/if}
-                           {loop="$fsc->extensions"}
-                              {if="$value->type=='tipo_art'"}
-                                 {if="$fsc->articulo->tipo==$value->params"}
-                                 <option value="{$value->params}" selected="">{$value->text}</option>
-                                 {else}
-                                 <option value="{$value->params}">{$value->text}</option>
-                                 {/if}
-                              {/if}
-                           {/loop}
-                        </select>
-                     </div>
-                  </div>
-                  <div class="col-sm-9">
-                     <div class="form-group">
-                        Descripción:
-                        <textarea name="descripcion" class="form-control" rows="4">{$fsc->articulo->descripcion}</textarea>
-                     </div>
-                  </div>
-               </div>
-               <div class="row">
-                  <div class="col-sm-3">
-                     <div class="form-group">
-                        <a href="{$fsc->familia->url()}">Familia</a>:
-                        <select class="form-control" name="codfamilia">
-                           <option value="">Ninguna</option>
-                           <option value="">-------</option>
-                           {loop="$fsc->familia->all()"}
-                              {if="$value->codfamilia===$fsc->articulo->codfamilia"}
-                              <option value="{$value->codfamilia}" selected="">{$value->nivel}{$value->descripcion}</option>
-                              {else}
-                              <option value="{$value->codfamilia}">{$value->nivel}{$value->descripcion}</option>
-                              {/if}
-                           {/loop}
-                        </select>
-                     </div>
-                  </div>
-                   <div class="col-sm-2">
-                     <div class="form-group">
-                        <a href="{$fsc->fabricante->url()}">Fabricante</a>:
-                        <select class="form-control" name="codfabricante">
-                           <option value="">Ninguno</option>
-                           <option value="">-------</option>
-                           {loop="$fsc->fabricante->all()"}
-                              {if="$value->codfabricante===$fsc->articulo->codfabricante"}
-                              <option value="{$value->codfabricante}" selected="">{$value->nombre}</option>
-                              {else}
-                              <option value="{$value->codfabricante}">{$value->nombre}</option>
-                              {/if}
-                           {/loop}
-                        </select>
-                     </div>
-                  </div>
-                  <div class="col-sm-2">
-                     <div class="form-group">
-                        Código de barras:
-                        <div class="input-group">
-                           <span class="input-group-addon">
-                              <span class="glyphicon glyphicon-barcode" aria-hidden="true"></span>
-                           </span>
-                           <input class="form-control" type="text" name="codbarras" value="{$fsc->articulo->codbarras}" autocomplete="off"/>
+                <div class="row" style="padding-top: 10px;">
+                    <div class="col-sm-3">
+                        <div class="form-group">
+                            Referencia:
+                            <div class="input-group">
+                                <input id="referencia" class="form-control" type="text" name="nreferencia" value="{$fsc->articulo->referencia}" maxlength="18" autocomplete="off" readonly=""/>
+                                <span class="input-group-btn">
+                                    <button class="btn btn-default" type="button" onclick="$('#referencia').prop('readonly', false);">
+                                        <span class="glyphicon glyphicon-edit"></span>
+                                    </button>
+                                </span>
+                            </div>
                         </div>
-                     </div>
-                  </div>
-                  <div class="col-sm-2">
-                     <div class="form-group">
-                        PartNumber:
-                        <div class="input-group">
-                           <span class="input-group-addon">
-                              <span class="glyphicon glyphicon-tag" aria-hidden="true"></span>
-                           </span>
-                           <input class="form-control" type="text" name="partnumber" value="{$fsc->articulo->partnumber}" autocomplete="off"/>
+                        <div class="form-group">
+                            Tipo:
+                            <select name="tipo" class="form-control" onchange="this.form.submit()">
+                                <option value="">Producto simple</option>
+                                {if="$fsc->hay_atributos"}
+                                {if="$fsc->articulo->tipo=='atributos'"}
+                                <option value="atributos" selected="">Producto con atributos</option>
+                                {else}
+                                <option value="atributos">Producto con atributos</option>
+                                {/if}
+                                {/if}
+                                {loop="$fsc->extensions"}
+                                {if="$value->type=='tipo_art'"}
+                                {if="$fsc->articulo->tipo==$value->params"}
+                                <option value="{$value->params}" selected="">{$value->text}</option>
+                                {else}
+                                <option value="{$value->params}">{$value->text}</option>
+                                {/if}
+                                {/if}
+                                {/loop}
+                            </select>
                         </div>
-                     </div>
-                  </div>
-                  <div class="col-sm-3">
-                     <div class="form-group">
-                        Código de equivalencia:
-                        <input class="form-control" type="text" name="equivalencia" value="{$fsc->articulo->equivalencia}" autocomplete="off"/>
-                        <p class="help-block">Dos o más artículos son equivalentes si tienen el mismo código de equivalencia.</p>
-                     </div>
-                  </div>
-               </div>
-               <div class="row">
-                  <div class="col-sm-3">
-                     <div class="form-group">
-                        Stock:
-                        <input class="form-control" type="text" name="stockfis" value="{$fsc->articulo->stockfis}" disabled="disabled"/>
-                        <label>
-                           <input type="checkbox" name="nostock" value="TRUE"{if="$fsc->articulo->nostock"} checked=""{/if}/>
-                           No controlar stock
-                        </label>
-                     </div>
-                  </div>
-                  <div class="col-sm-2">
-                     <div class="form-group">
-                        Stock mínimo:
-                        <input class="form-control" type="number" name="stockmin" value="{$fsc->articulo->stockmin}" autocomplete="off"/>
-                     </div>
-                  </div>
-                  <div class="col-sm-2">
-                     <div class="form-group">
-                        Stock máximo:
-                        <input class="form-control" type="number" name="stockmax" value="{$fsc->articulo->stockmax}" autocomplete="off"/>
-                     </div>
-                  </div>
-                  <div class="col-sm-2">
-                     <div class="checkbox">
-                        <label>
-                           <input type="checkbox" name="secompra" value="TRUE"{if="$fsc->articulo->secompra"} checked=""{/if}/>
-                           Se compra
-                        </label>
-                     </div>
-                     <div class="checkbox">
-                        <label>
-                           <input type="checkbox" name="sevende" value="TRUE"{if="$fsc->articulo->sevende"} checked=""{/if}/>
-                           Se vende
-                        </label>
-                     </div>
-                     <div class="checkbox">
-                        <label>
-                           <input type="checkbox" name="controlstock" value="TRUE"{if="$fsc->articulo->controlstock"} checked=""{/if}/>
-                           Permitir ventas sin stock
-                        </label>
-                     </div>
-                  </div>
-                  <div class="col-sm-3">
-                     <div class="checkbox">
-                        <label>
-                           <input type="checkbox" name="trazabilidad" value="TRUE"{if="$fsc->articulo->trazabilidad"} checked=""{/if}/>
-                           <i class="fa fa-code-fork" aria-hidden="true"></i> Trazabilidad / números de serie
-                        </label>
-                     </div>
-                     <div class="checkbox">
-                        <label>
-                           <input type="checkbox" name="bloqueado" value="TRUE"{if="$fsc->articulo->bloqueado"} checked=""{/if}/>
-                           <span class="glyphicon glyphicon-lock" aria-hidden="true"></span> Bloqueado / Obsoleto
-                        </label>
-                     </div>
-                     {if="$fsc->mostrar_boton_publicar"}
-                     <div class="checkbox">
-                        <label title="Sincronizar con tienda online (si está disponible)">
-                           <input type="checkbox" name="publico" value="TRUE"{if="$fsc->articulo->publico"} checked=""{/if}/>
-                           <span class="glyphicon glyphicon-globe" aria-hidden="true"></span> Público
-                        </label>
-                     </div>
-                     {elseif="$fsc->articulo->publico"}
-                     <input type="hidden" name="publico" value="TRUE"/>
-                     {/if}
-                  </div>
-               </div>
-               <div class="row">
-                  <div class="col-sm-10">
-                     <div class="form-group">
-                        Observaciones:
-                        <textarea class="form-control" name="observaciones" rows="3">{$fsc->articulo->observaciones}</textarea>
-                     </div>
-                  </div>
-                  <div class="col-sm-2 text-right">
-                     <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
-                        <span class="glyphicon glyphicon-floppy-disk"></span>&nbsp; Guardar
-                     </button>
-                  </div>
-               </div>
-               <div class="row">
-                  <div class="col-sm-12">
-                     <p class="help-block">
-                        <span class="glyphicon glyphicon-question-sign"></span>
-                        &nbsp;Puedes aplicar cambios masivos a los artículos usando el
-                        <a href="https://www.facturascripts.com/plugin/articulos_megamod" target="_blank">plugin articulos_megamod</a>.
-                     </p>
-                  </div>
-               </div>
+                    </div>
+                    <div class="col-sm-9">
+                        <div class="form-group">
+                            Descripción:
+                            <textarea name="descripcion" class="form-control" rows="4">{$fsc->articulo->descripcion}</textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-3">
+                        <div class="form-group">
+                            <a href="{$fsc->familia->url()}">Familia</a>:
+                            <select class="form-control" name="codfamilia">
+                                <option value="">Ninguna</option>
+                                <option value="">-------</option>
+                                {loop="$fsc->familia->all()"}
+                                {if="$value->codfamilia===$fsc->articulo->codfamilia"}
+                                <option value="{$value->codfamilia}" selected="">{$value->nivel}{$value->descripcion}</option>
+                                {else}
+                                <option value="{$value->codfamilia}">{$value->nivel}{$value->descripcion}</option>
+                                {/if}
+                                {/loop}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-sm-2">
+                        <div class="form-group">
+                            <a href="{$fsc->fabricante->url()}">Fabricante</a>:
+                            <select class="form-control" name="codfabricante">
+                                <option value="">Ninguno</option>
+                                <option value="">-------</option>
+                                {loop="$fsc->fabricante->all()"}
+                                {if="$value->codfabricante===$fsc->articulo->codfabricante"}
+                                <option value="{$value->codfabricante}" selected="">{$value->nombre}</option>
+                                {else}
+                                <option value="{$value->codfabricante}">{$value->nombre}</option>
+                                {/if}
+                                {/loop}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-sm-2">
+                        <div class="form-group">
+                            Código de barras:
+                            <div class="input-group">
+                                <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-barcode" aria-hidden="true"></span>
+                                </span>
+                                <input class="form-control" type="text" name="codbarras" value="{$fsc->articulo->codbarras}" autocomplete="off"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-2">
+                        <div class="form-group">
+                            PartNumber:
+                            <div class="input-group">
+                                <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-tag" aria-hidden="true"></span>
+                                </span>
+                                <input class="form-control" type="text" name="partnumber" value="{$fsc->articulo->partnumber}" autocomplete="off"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="form-group">
+                            Código de equivalencia:
+                            <input class="form-control" type="text" name="equivalencia" value="{$fsc->articulo->equivalencia}" autocomplete="off"/>
+                            <p class="help-block">Dos o más artículos son equivalentes si tienen el mismo código de equivalencia.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-3">
+                        <div class="form-group">
+                            Stock:
+                            <input class="form-control" type="text" name="stockfis" value="{$fsc->articulo->stockfis}" disabled="disabled"/>
+                            <label>
+                                <input type="checkbox" name="nostock" value="TRUE"{if="$fsc->articulo->nostock"} checked=""{/if}/>
+                                No controlar stock
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-sm-2">
+                        <div class="form-group">
+                            Stock mínimo:
+                            <input class="form-control" type="number" name="stockmin" value="{$fsc->articulo->stockmin}" autocomplete="off"/>
+                        </div>
+                    </div>
+                    <div class="col-sm-2">
+                        <div class="form-group">
+                            Stock máximo:
+                            <input class="form-control" type="number" name="stockmax" value="{$fsc->articulo->stockmax}" autocomplete="off"/>
+                        </div>
+                    </div>
+                    <div class="col-sm-2">
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" name="secompra" value="TRUE"{if="$fsc->articulo->secompra"} checked=""{/if}/>
+                                Se compra
+                            </label>
+                        </div>
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" name="sevende" value="TRUE"{if="$fsc->articulo->sevende"} checked=""{/if}/>
+                                Se vende
+                            </label>
+                        </div>
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" name="controlstock" value="TRUE"{if="$fsc->articulo->controlstock"} checked=""{/if}/>
+                                Permitir ventas sin stock
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" name="trazabilidad" value="TRUE"{if="$fsc->articulo->trazabilidad"} checked=""{/if}/>
+                                <i class="fa fa-code-fork" aria-hidden="true"></i> Trazabilidad / números de serie
+                            </label>
+                        </div>
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" name="bloqueado" value="TRUE"{if="$fsc->articulo->bloqueado"} checked=""{/if}/>
+                                <span class="glyphicon glyphicon-lock" aria-hidden="true"></span> Bloqueado / Obsoleto
+                            </label>
+                        </div>
+                        {if="$fsc->mostrar_boton_publicar"}
+                        <div class="checkbox">
+                            <label title="Sincronizar con tienda online (si está disponible)">
+                                <input type="checkbox" name="publico" value="TRUE"{if="$fsc->articulo->publico"} checked=""{/if}/>
+                                <span class="glyphicon glyphicon-globe" aria-hidden="true"></span> Público
+                            </label>
+                        </div>
+                        {elseif="$fsc->articulo->publico"}
+                        <input type="hidden" name="publico" value="TRUE"/>
+                        {/if}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-10">
+                        <div class="form-group">
+                            Observaciones:
+                            <textarea class="form-control" name="observaciones" rows="3">{$fsc->articulo->observaciones}</textarea>
+                        </div>
+                    </div>
+                    <div class="col-sm-2 text-right">
+                        <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled= true; this.form.submit();">
+                            <span class="glyphicon glyphicon-floppy-disk"></span>&nbsp; Guardar
+                        </button>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <p class="help-block">
+                            <span class="glyphicon glyphicon-question-sign"></span>
+                            &nbsp;Puedes aplicar cambios masivos a los artículos usando el
+                            <a href="https://www.facturascripts.com/plugin/articulos_megamod" target="_blank">plugin articulos_megamod</a>.
+                        </p>
+                    </div>
+                </div>
             </div>
-         </form>
-      </div>
-      {if="$fsc->mostrar_tab_atributos"}{include="block/ventas_articulo_atributos"}{/if}
-      {if="$fsc->mostrar_tab_precios"}{include="block/ventas_articulo_precios"}{/if}
-      {if="$fsc->mostrar_tab_stock"}{include="block/ventas_articulo_stock"}{/if}
-      {if="$fsc->equivalentes"}
-      <div role="tabpanel" class="tab-pane" id="equivalentes">
-         <div class="table-responsive">
+        </form>
+    </div>
+    {if="$fsc->mostrar_tab_atributos"}{include="block/ventas_articulo_atributos"}{/if}
+    {if="$fsc->mostrar_tab_precios"}{include="block/ventas_articulo_precios"}{/if}
+    {if="$fsc->mostrar_tab_stock"}{include="block/ventas_articulo_stock"}{/if}
+    {if="$fsc->equivalentes"}
+    <div role="tabpanel" class="tab-pane" id="equivalentes">
+        <div class="table-responsive">
             <table class="table table-hover">
-               <thead>
-                  <tr>
-                     <th class="text-left">Artículo</th>
-                     <th class="text-right">Precio</th>
-                     <th class="text-right">Precio+{#FS_IVA#}</th>
-                     <th class="text-right">Stock</th>
-                  </tr>
-               </thead>
-               {loop="$fsc->equivalentes"}
-               <tr class="clickableRow" href="{$value->url()}">
-                  <td>
-                     <a href="{$value->url()}">{$value->referencia}</a>
-                     {$value->descripcion}
-                  </td>
-                  <td class="text-right">{$fsc->show_precio($value->pvp)}</td>
-                  <td class="text-right">{$fsc->show_precio($value->pvp_iva())}</td>
-                  <td class="text-right">{$value->stockfis}</td>
-               </tr>
-               {else}
-               <tr class="warning">
-                  <td colspan="3">Sin resultados.</td>
-               </tr>
-               {/loop}
+                <thead>
+                    <tr>
+                        <th class="text-left">Artículo</th>
+                        <th class="text-right">Precio</th>
+                        <th class="text-right">Precio+{#FS_IVA#}</th>
+                        <th class="text-right">Stock</th>
+                    </tr>
+                </thead>
+                {loop="$fsc->equivalentes"}
+                <tr class="clickableRow" href="{$value->url()}">
+                    <td>
+                        <a href="{$value->url()}">{$value->referencia}</a>
+                        {$value->descripcion}
+                    </td>
+                    <td class="text-right">{$fsc->show_precio($value->pvp)}</td>
+                    <td class="text-right">{$fsc->show_precio($value->pvp_iva())}</td>
+                    <td class="text-right">{$value->stockfis}</td>
+                </tr>
+                {else}
+                <tr class="warning">
+                    <td colspan="3">Sin resultados.</td>
+                </tr>
+                {/loop}
             </table>
-         </div>
-      </div>
-      {/if}
-      {loop="$fsc->extensions"}
-         {if="$value->type=='tab'"}
-         <div role="tabpanel" class="tab-pane" id="ext_{$value->name}">
-            <iframe src="index.php?page={$value->from}{$value->params}&ref={function="urlencode($fsc->articulo->referencia)"}" width="100%" height="2000" frameborder="0">
-            </iframe>
-         </div>
-         {/if}
-      {/loop}
-   </div>
+        </div>
+    </div>
+    {/if}
+    {loop="$fsc->extensions"}
+    {if="$value->type=='tab'"}
+    <div role="tabpanel" class="tab-pane" id="ext_{$value->name}">
+        <iframe src="index.php?page={$value->from}{$value->params}&ref={function="urlencode($fsc->articulo->referencia)"}" width="100%" height="2000" frameborder="0">
+    </iframe>
+</div>
+{/if}
+{/loop}
+</div>
 </div>
 
 <form action="{$fsc->url()}" enctype="multipart/form-data" method="post" class="form">
-   <input type="hidden" name="referencia" value="{$fsc->articulo->referencia}"/>
-   <input type="hidden" name="imagen" value="TRUE"/>
-   <div class="modal fade" id="modal_articulo_imagen">
-      <div class="modal-dialog">
-         <div class="modal-content">
-            <div class="modal-header">
-               <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-               <h4 class="modal-title">
-                  <span class="glyphicon glyphicon-picture"></span>&nbsp; Imagen
-               </h4>
+    <input type="hidden" name="referencia" value="{$fsc->articulo->referencia}"/>
+    <input type="hidden" name="imagen" value="TRUE"/>
+    <div class="modal fade" id="modal_articulo_imagen">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">
+                        <span class="glyphicon glyphicon-picture"></span>&nbsp; Imagen
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    {if="$fsc->articulo->imagen_url()"}
+                    <div class="thumbnail">
+                        <img src="{$fsc->articulo->imagen_url()}" alt="{$fsc->articulo->referencia}"/>
+                        <div class="caption">
+                            <p>Esta imagen está guardada en {$fsc->articulo->imagen_url()}</p>
+                        </div>
+                    </div>
+                    {else}
+                    <div class="form-group">
+                        <input type="file" name="fimagen" accept="image/jpeg, image/png"/>
+                    </div>
+                    {/if}
+                </div>
+                <div class="modal-footer">
+                    {if="$fsc->articulo->imagen_url()"}
+                    <a class="btn btn-sm btn-danger" href="{$fsc->url()}&delete_img=TRUE">
+                        <span class="glyphicon glyphicon-trash"></span>&nbsp; Eliminar
+                    </a>
+                    {else}
+                    <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled = true; this.form.submit();">
+                        <span class="glyphicon glyphicon-floppy-disk"></span>&nbsp; Guardar
+                    </button>
+                    {/if}
+                </div>
             </div>
-            <div class="modal-body">
-               {if="$fsc->articulo->imagen_url()"}
-               <div class="thumbnail">
-                  <img src="{$fsc->articulo->imagen_url()}" alt="{$fsc->articulo->referencia}"/>
-                  <div class="caption">
-                     <p>Esta imagen está guardada en {$fsc->articulo->imagen_url()}</p>
-                  </div>
-               </div>
-               {else}
-               <div class="form-group">
-                  <input type="file" name="fimagen" accept="image/jpeg, image/png"/>
-               </div>
-               {/if}
-            </div>
-            <div class="modal-footer">
-               {if="$fsc->articulo->imagen_url()"}
-               <a class="btn btn-sm btn-danger" href="{$fsc->url()}&delete_img=TRUE">
-                  <span class="glyphicon glyphicon-trash"></span>&nbsp; Eliminar
-               </a>
-               {else}
-               <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
-                  <span class="glyphicon glyphicon-floppy-disk"></span>&nbsp; Guardar
-               </button>
-               {/if}
-            </div>
-         </div>
-      </div>
-   </div>
+        </div>
+    </div>
 </form>
 {else}
 <div class="thumbnail">
-   <img src="{#FS_PATH#}view/img/fuuu_face.png" alt="fuuuuu"/>
+    <img src="{#FS_PATH#}view/img/fuuu_face.png" alt="fuuuuu"/>
 </div>
 {/if}
 
