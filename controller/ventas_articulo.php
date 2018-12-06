@@ -327,22 +327,7 @@ class ventas_articulo extends fbase_controller
         $this->articulo->tipo = empty($_POST['tipo']) ? NULL : $_POST['tipo'];
         $this->articulo->codfamilia = empty($_POST['codfamilia']) ? NULL : $_POST['codfamilia'];
         $this->articulo->codfabricante = empty($_POST['codfabricante']) ? NULL : $_POST['codfabricante'];
-
-        /// ¿Existe ya ese código de barras?
-        if ($_POST['codbarras'] != '') {
-            $arts = $this->articulo->search_by_codbar($_POST['codbarras']);
-            if ($arts) {
-                foreach ($arts as $art2) {
-                    if ($art2->referencia != $this->articulo->referencia) {
-                        $this->new_advice('Ya hay un artículo con este mismo código de barras. '
-                            . 'En concreto, el artículo <a href="' . $art2->url() . '">' . $art2->referencia . '</a>.');
-                        break;
-                    }
-                }
-            }
-        }
-
-        $this->articulo->codbarras = $_POST['codbarras'];
+        $this->modificar_codbarras();
         $this->articulo->partnumber = $_POST['partnumber'];
         $this->articulo->equivalencia = $_POST['equivalencia'];
         $this->articulo->bloqueado = isset($_POST['bloqueado']);
@@ -355,18 +340,19 @@ class ventas_articulo extends fbase_controller
         $this->articulo->stockmin = floatval($_POST['stockmin']);
         $this->articulo->stockmax = floatval($_POST['stockmax']);
         $this->articulo->trazabilidad = isset($_POST['trazabilidad']);
+        if (!$this->articulo->save()) {
+            $this->new_error_msg("¡Error al guardar el articulo!");
+            return false;
+        }
 
-        if ($this->articulo->save()) {
+        /// save ok
+        if ($_POST['nreferencia'] == $this->articulo->referencia) {
             $this->new_message("Datos del articulo modificados correctamente");
+            return true;
+        }
 
-            $img = $this->articulo->imagen_url();
-            $this->articulo->set_referencia($_POST['nreferencia']);
-
-            /// ¿Renombramos la imagen?
-            if ($img) {
-                @rename($img, $this->articulo->imagen_url());
-            }
-
+        /// cambio de referencia
+        if ($this->articulo->set_referencia($_POST['nreferencia'])) {
             /**
              * Renombramos la referencia en el resto de tablas: lineasalbaranes, lineasfacturas...
              */
@@ -377,9 +363,33 @@ class ventas_articulo extends fbase_controller
                         . " WHERE referencia = " . $this->empresa->var2str($_POST['referencia']) . ";");
                 }
             }
-        } else {
-            $this->new_error_msg("¡Error al guardar el articulo!");
+
+            $this->new_message("Datos del articulo modificados correctamente");
+            return true;
         }
+
+        return false;
+    }
+
+    private function modificar_codbarras()
+    {
+        /// sin cambios?
+        if ($this->articulo->codbarras == $_POST['codbarras']) {
+            return;
+        }
+
+        /// ¿Existe ya ese código de barras?
+        if ($_POST['codbarras'] != '') {
+            foreach ($this->articulo->search_by_codbar($_POST['codbarras']) as $art2) {
+                if ($art2->referencia != $this->articulo->referencia) {
+                    $this->new_advice('Ya hay un artículo con este mismo código de barras. '
+                        . 'En concreto, el artículo <a href="' . $art2->url() . '">' . $art2->referencia . '</a>.');
+                    return;
+                }
+            }
+        }
+
+        $this->articulo->codbarras = $_POST['codbarras'];
     }
 
     private function nueva_combinacion()

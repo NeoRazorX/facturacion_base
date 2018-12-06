@@ -659,22 +659,32 @@ class articulo extends \fs_model
         $ref = trim($ref);
         if (is_null($ref) || strlen($ref) < 1 || strlen($ref) > 18) {
             $this->new_error_msg("¡Referencia de artículo no válida! Debe tener entre 1 y 18 caracteres.");
-        } else if ($ref != $this->referencia && !is_null($this->referencia)) {
-            $sql = "UPDATE " . $this->table_name . " SET referencia = " . $this->var2str($ref)
-                . " WHERE referencia = " . $this->var2str($this->referencia) . ";";
-            if ($this->db->exec($sql)) {
-                /// renombramos la imagen, si la hay
-                if (file_exists(FS_MYDOCS . 'images/articulos/' . $this->image_ref() . '-1.png')) {
-                    rename(FS_MYDOCS . 'images/articulos/' . $this->image_ref() . '-1.png', FS_MYDOCS . 'images/articulos/' . $this->image_ref($ref) . '-1.png');
-                }
-
-                $this->referencia = $ref;
-            } else {
-                $this->new_error_msg('Imposible modificar la referencia.');
-            }
+            return false;
         }
 
-        $this->exists = FALSE;
+        if (is_null($this->referencia) || $ref == $this->referencia) {
+            /// nada que hacer
+            return false;
+        }
+
+        $sql = "UPDATE " . $this->table_name . " SET referencia = " . $this->var2str($ref)
+            . " WHERE referencia = " . $this->var2str($this->referencia) . ";";
+        if ($this->db->exec($sql)) {
+            /// renombramos la imagen, si la hay
+            $img_path = FS_MYDOCS . 'images/articulos/';
+            if (file_exists($img_path . $this->image_ref() . '-1.png')) {
+                rename($img_path . $this->image_ref() . '-1.png', $img_path . $this->image_ref($ref) . '-1.png');
+            } elseif (file_exists($img_path . $this->image_ref() . '-1.jpg')) {
+                rename($img_path . $this->image_ref() . '-1.jpg', $img_path . $this->image_ref($ref) . '-1.jpg');
+            }
+
+            $this->referencia = $ref;
+            $this->exists = FALSE;
+            return true;
+        }
+
+        $this->new_error_msg('Imposible modificar la referencia.');
+        return false;
     }
 
     /**
