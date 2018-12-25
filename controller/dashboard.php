@@ -1,7 +1,7 @@
 <?php
-/*
+/**
  * This file is part of facturacion_base
- * Copyright (C) 2016-2017  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2016-2018 Carlos Garcia Gomez <neorazorx@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -10,11 +10,11 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Lesser General Public License for more details.
  * 
  * You should have received a copy of the GNU Lesser General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 /**
@@ -27,7 +27,6 @@ class dashboard extends fs_controller
 
     public $anterior;
     public $anyo;
-    public $consejos;
     public $mes;
     public $neto;
     public $noticias;
@@ -181,7 +180,6 @@ class dashboard extends fs_controller
         );
         $this->calcula_periodo($this->anyo);
 
-        $this->elegir_consejos();
         $this->leer_noticias();
 
         if ((float) substr(phpversion(), 0, 3) < 5.4) {
@@ -404,93 +402,17 @@ class dashboard extends fs_controller
             } else if ($nuevo > 0 && $anterior == 0) {
                 return 100;
             }
-            
+
             return 0;
-        }
-        else if ($nuevo != $anterior) {
+        } else if ($nuevo != $anterior) {
             if ($anterior < 0) {
                 return 0 - (($nuevo * 100 / $anterior) - 100);
             }
-            
+
             return ($nuevo * 100 / $anterior) - 100;
         }
-        
+
         return 0;
-    }
-
-    private function elegir_consejos()
-    {
-        $this->consejos = array(
-            array(
-                'titulo' => '¡Vota por tus ideas favoritas!',
-                'html' => '<p class="help-block">Nos interesa conocer tus ideas para FacturaScripts.
-                 Comparte y <b>vota</b> las ideas que te parezcan más interesantes y necesarias.
-                 Tu participación es imprescindible.</p>
-                 <a href="https://www.facturascripts.com/ideas" target="_blank" class="btn btn-sm btn-default">
-                    <i class="fa fa-lightbulb-o" aria-hidden="true"></i>&nbsp; Ideas para FacturaScripts
-                 </a>',
-                'icono' => '<i class="fa fa-lightbulb-o" aria-hidden="true"></i>'
-            ),
-            array(
-                'titulo' => '¿Quieres cambiar el logotipo?',
-                'html' => '<p class="help-block">Puedes cambiar el logotipo cuando quieras. Simplemente va a las
-                 opciones de impresión de la empresa.</p>
-                 <a href="index.php?page=admin_empresa#impresion" target="_blank" class="btn btn-sm btn-default">
-                    <i class="fa fa-picture-o" aria-hidden="true"></i>&nbsp; Logotipo
-                 </a>',
-                'icono' => '<i class="fa fa-lightbulb-o" aria-hidden="true"></i>'
-            ),
-        );
-
-        /// ¿Presupuestos y pedidos?
-        if (in_array('presupuestos_y_pedidos', $GLOBALS['plugins'])) {
-            $this->consejos[] = array(
-                'titulo' => 'Copia ' . FS_PRESUPUESTOS . ' y ' . FS_PEDIDOS . ' con dos clics',
-                'html' => '<p class="help-block">¿Quieres reutilizar un ' . FS_PRESUPUESTO
-                . ' o un ' . FS_PEDIDO . '? Simplemente pulsa el botón <i class="fa fa-retweet" aria-hidden="true"></i>'
-                . ' al lado de eliminar. Se crea una copia automáticamente que puedes modificar libremente.</p>',
-                'icono' => '<i class="fa fa-retweet" aria-hidden="true"></i>'
-            );
-        } else {
-            $this->consejos[] = array(
-                'titulo' => '¿Necesitas gestionar ' . FS_PRESUPUESTOS . ' y ' . FS_PEDIDOS . '?',
-                'html' => '<p class="help-block">Instala el plugin <b>presupuestos_y_pedidos</b>
-                 para añadirlos a FacturaScripts.</p>
-                 <a href="index.php?page=admin_home#descargas" class="btn btn-sm btn-default">
-                    <i class="fa fa-puzzle-piece" aria-hidden="true"></i>&nbsp; Plugins
-                 </a>',
-                'icono' => '<i class="fa fa-puzzle-piece" aria-hidden="true"></i>'
-            );
-        }
-
-        /// ¿Principios de año?
-        if (date('m') == '01') {
-            $this->consejos[] = array(
-                'titulo' => '¡Feliz cambio de año fiscal!',
-                'html' => '<p class="help-block">Recuerda que cuando hayas terminado con las facturas del año anterior
-                 debes cerrar el ejercicio para traspasar los saldos contables al nuevo. Ve a Contabilidad &gt; Ejercicios,
-                 haz clic en el año anterior y pulsa el botón cerrar.</p>
-                 <a href="index.php?page=contabilidad_ejercicios" class="btn btn-sm btn-default">
-                    <i class="fa fa-balance-scale" aria-hidden="true"></i>&nbsp; Ejercicios contables
-                 </a>',
-                'icono' => '<i class="fa fa-birthday-cake" aria-hidden="true"></i>'
-            );
-        }
-
-        if (!in_array('megacopiador', $GLOBALS['plugins'])) {
-            $this->consejos[] = array(
-                'titulo' => 'Copia ' . FS_ALBARANES . ' y ' . FS_FACTURAS . ' con dos clics',
-                'html' => '<p class="help-block">¿Quieres reutilizar un ' . FS_ALBARAN
-                . ' o una ' . FS_FACTURA . '? Instala el plugin megacopiador para hacer copias'
-                . ' de cualquier documentos con dos clics.</p>
-                 <a href="index.php?page=admin_home#descargas" class="btn btn-sm btn-default">
-                    <i class="fa fa-puzzle-piece" aria-hidden="true"></i>&nbsp; Plugins
-                 </a>',
-                'icono' => '<i class="fa fa-puzzle-piece" aria-hidden="true"></i>'
-            );
-        }
-
-        shuffle($this->consejos);
     }
 
     private function leer_noticias()

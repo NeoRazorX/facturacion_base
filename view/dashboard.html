@@ -476,24 +476,26 @@
             </form>
         </div>
     </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <ul class="nav nav-pills" role="tablist">
+                <li role="presentation" class="active">
+                    <a href="#comunidad" aria-controls="comunidad" role="tab" data-toggle="tab">
+                        <i class="fa fa-users"></i> Comunidad
+                    </a>
+                </li>
+                {loop="$fsc->extensions"}
+                {if="$value->type=='tab'"}
+                <li role="presentation">
+                    <a href="#ext_{$value->name}" aria-controls="ext_{$value->name}" role="tab" data-toggle="tab">{$value->text}</a>
+                </li>
+                {/if}
+                {/loop}
+            </ul>
+        </div>
+    </div>
 </div>
 
-<br/>
-
-<ul class="nav nav-tabs" role="tablist">
-    <li role="presentation" class="active">
-        <a href="#comunidad" aria-controls="comunidad" role="tab" data-toggle="tab">
-            <i class="fa fa-users"></i> Comunidad
-        </a>
-    </li>
-    {loop="$fsc->extensions"}
-    {if="$value->type=='tab'"}
-    <li role="presentation">
-        <a href="#ext_{$value->name}" aria-controls="ext_{$value->name}" role="tab" data-toggle="tab">{$value->text}</a>
-    </li>
-    {/if}
-    {/loop}
-</ul>
 <div class="tab-content">
     <div role="tabpanel" class="tab-pane active" id="comunidad">
         <br/>
@@ -514,7 +516,7 @@
                         </div>
                     </form>
                     {if="$fsc->anyo['ventas_neto']==0"}
-                    <a href="https://www.facturascripts.com/documentacion#primeros-pasos" target="_blank" class="btn btn-block btn-default">
+                    <a href="https://www.facturascripts.com/doc/2/primeros-pasos" target="_blank" class="btn btn-block btn-default">
                         <i class="fa fa-info-circle fa-3x" aria-hidden="true"></i>
                         <br/>Primeros pasos
                     </a>
@@ -546,16 +548,8 @@
                         descargas del panel de control. Hay de todo, y con un desarrollo constante ;-)
                     </p>
                     <br/>
-                    <a href="https://www.facturascripts.com/ideas#mejoras" target="_blank" class="btn btn-block btn-default">
-                        <i class="fa fa-trophy fa-3x" aria-hidden="true"></i>
-                        <br/>Mejoras
-                    </a>
-                    <p class="help-block">
-                        Tenemos una serie de mejoras en el horno que te pueden interesar,
-                        pero necesitan financiación ¿Te apuntas? Sólo necesitas <b>5 €</b>.
-                    </p>
                 </div>
-                <div class="col-sm-5">
+                <div class="col-sm-9">
                     {loop="$fsc->noticias"}
                     <blockquote class="bg-info">
                         <div class="row">
@@ -570,19 +564,6 @@
                             <div class="col-sm-1 text-right">
                                 <i class="fa fa-newspaper-o" aria-hidden="true"></i>
                             </div>
-                        </div>
-                    </blockquote>
-                    {/loop}
-                </div>
-                <div class="col-sm-4">
-                    {loop="$fsc->consejos"}
-                    <blockquote class="bg-success">
-                        <div class="row">
-                            <div class="col-sm-11">
-                                <b>{$value['titulo']}</b>
-                                <br/>{$value['html']}
-                            </div>
-                            <div class="col-sm-1 text-right">{$value['icono']}</div>
                         </div>
                     </blockquote>
                     {/loop}
