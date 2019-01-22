@@ -162,7 +162,7 @@
                                         </tr>
                                     </thead>
                                     {loop="$fsc->get_articulo_proveedores()"}
-                                    <tr>
+                                    <tr class="clickableRow" href="{$value->url()}">
                                         <td><a href="{$value->url_proveedor()}">{$value->nombre_proveedor()}</a></td>
                                         <td>{$value->refproveedor}</td>
                                         <td class="text-right">{$fsc->show_precio($value->precio)}</td>

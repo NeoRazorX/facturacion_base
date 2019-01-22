@@ -1,3 +1,19 @@
+<script type="text/javascript" src="{$fsc->get_js_location('provincias.js')}"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        document.f_custom_search.query.focus();
+        if (window.location.hash.substring(1) == 'nuevo') {
+            $("#modal_nuevo_proveedor").modal('show');
+            document.f_nuevo_proveedor.nombre.focus();
+        }
+        $("#btn_nuevo_proveedor").click(function (event) {
+            event.preventDefault();
+            $("#modal_nuevo_proveedor").modal('show');
+            document.f_nuevo_proveedor.nombre.focus();
+        });
+    });
+</script>
+
 <form class="form-horizontal" role="form" name="f_nuevo_proveedor" action="{$fsc->url()}" method="post">
     <div class="modal" id="modal_nuevo_proveedor">
         <div class="modal-dialog">

@@ -1,7 +1,7 @@
 <?php
-/*
+/**
  * This file is part of facturacion_base
- * Copyright (C) 2013-2018  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2019 Carlos Garcia Gomez <neorazorx@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -10,67 +10,127 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Lesser General Public License for more details.
  * 
  * You should have received a copy of the GNU Lesser General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_once 'plugins/facturacion_base/extras/fbase_controller.php';
-
-class compras_proveedores extends fbase_controller
+/**
+ * 
+ */
+class compras_proveedores extends fs_list_controller
 {
 
-    public $debaja;
-    public $num_resultados;
-    public $offset;
-    public $orden;
+    /**
+     *
+     * @var \pais
+     */
     public $pais;
-    public $proveedor;
-    public $resultados;
-    public $tipo;
 
     public function __construct()
     {
-        parent::__construct(__CLASS__, 'Proveedores / Acreedores', 'compras');
+        parent::__construct(__CLASS__, 'Proveedores y acreedores', 'compras');
     }
 
-    protected function private_core()
+    protected function create_tab_articulosprov($name = 'articulosprov')
     {
-        parent::private_core();
+        $this->add_tab($name, 'artículos', 'articulosprov', 'fa-cubes');
+        $this->add_search_columns($name, ['refproveedor', 'referencia', 'descripcion', 'codbarras', 'partnumber']);
+        $this->add_sort_option($name, ['refproveedor'], 1);
+        $this->add_sort_option($name, ['referencia']);
+        $this->add_sort_option($name, ['descripcion']);
+        $this->add_sort_option($name, ['precio']);
+        $this->add_sort_option($name, ['dto']);
 
+        /// botones
+        $this->add_button($name, 'Nuevo', 'index.php?page=edit_articulo_proveedor', 'fa-plus', 'btn-success');
+
+        /// filtros
+        $proveedores = $this->get_all_proveedores();
+        $this->add_filter_select($name, 'codproveedor', 'Proveedor', $proveedores);
+        $this->add_filter_checkbox($name, 'codbarras', 'cod. barras', 'IS NOT', null);
+        $this->add_filter_checkbox($name, 'dto', 'descuento', '>', 0);
+
+        /// decoración
+        $this->decoration->add_column($name, 'codproveedor', 'string', 'Proveedor');
+        $this->decoration->add_column($name, 'refproveedor', 'string', 'Ref. Proveedor');
+        $this->decoration->add_column($name, 'referencia', 'string', 'Referencia', '', 'index.php?page=ventas_articulo&ref=');
+        $this->decoration->add_column($name, 'descripcion', 'string', 'Descripción');
+        $this->decoration->add_column($name, 'precio', 'money', 'Precio', 'text-right');
+        $this->decoration->add_column($name, 'dto', 'number', '% dto.', 'text-right');
+        $this->decoration->add_row_option($name, 'precio', 0, 'warning');
+        $this->decoration->add_row_url($name, 'index.php?page=edit_articulo_proveedor&code=', 'id');
+    }
+
+    protected function create_tab_proveedores($name = 'proveedores')
+    {
+        $this->add_tab($name, 'proveedores', 'proveedores', 'fa-users');
+        $this->add_search_columns($name, ['codproveedor', 'nombre', 'razonsocial', 'cifnif', 'email', 'telefono1', 'observaciones']);
+        $this->add_sort_option($name, ['nombre']);
+        $this->add_sort_option($name, ['razonsocial']);
+        $this->add_sort_option($name, ['cifnif']);
+        $this->add_sort_option($name, ['codproveedor']);
+
+        /// botones
+        $this->add_button($name, 'Nuevo', '#', 'fa-plus', 'btn-success', 'btn_nuevo_proveedor');
+
+        /// filtros
+        $this->add_filter_checkbox($name, 'personafisica', 'persona física');
+        $this->add_filter_checkbox($name, 'acreedor', 'acreedor');
+        $this->add_filter_checkbox($name, 'debaja', 'de baja');
+
+        /// columnas
+        $this->decoration->add_column($name, 'codproveedor', 'string', 'Código', '', 'index.php?page=compras_proveedor&cod=');
+        $this->decoration->add_column($name, 'nombre', 'string', 'Nombre');
+        $this->decoration->add_column($name, 'cifnif', 'string', FS_CIFNIF);
+        $this->decoration->add_column($name, 'email');
+        $this->decoration->add_column($name, 'telefono1', 'string', 'Teléfono');
+        $this->decoration->add_column($name, 'observaciones');
+
+        /// clic
+        $this->decoration->add_row_url($name, 'index.php?page=compras_proveedor&cod=', 'codproveedor');
+
+        /// decoración
+        $this->decoration->add_row_option($name, 'debaja', true, 'danger');
+        $this->decoration->add_row_option($name, 'acreedor', true, 'warning');
+    }
+
+    protected function create_tabs()
+    {
+        $this->template_bottom = 'block/compras_proveedores_bottom';
         $this->pais = new pais();
-        $this->proveedor = new proveedor();
 
+        $this->create_tab_proveedores();
+        $this->create_tab_articulosprov();
+    }
+
+    protected function exec_previous_action($action)
+    {
         if (isset($_GET['delete'])) {
             $this->eliminar_proveedor();
         } else if (isset($_POST['cifnif'])) {
             $this->nuevo_proveedor();
         }
 
-        $this->ini_filters();
-        $this->buscar();
+        return parent::exec_previous_action($action);
     }
 
-    private function ini_filters()
+    /**
+     * 
+     * @return array
+     */
+    protected function get_all_proveedores()
     {
-        $this->offset = 0;
-        if (isset($_GET['offset'])) {
-            $this->offset = intval($_GET['offset']);
+        $proveedores = [];
+
+        $proveedor = new proveedor();
+        foreach ($proveedor->all_full() as $pro) {
+            $proveedores[$pro->codproveedor] = $pro->nombre;
         }
 
-        $this->orden = 'lower(nombre) ASC';
-        if (isset($_REQUEST['orden'])) {
-            $this->orden = $_REQUEST['orden'];
-        }
-
-        $this->tipo = '';
-        if (isset($_REQUEST['tipo'])) {
-            $this->tipo = $_REQUEST['tipo'];
-        }
-
-        $this->debaja = isset($_REQUEST['debaja']);
+        return $proveedores;
     }
 
     private function nuevo_proveedor()
@@ -119,7 +179,8 @@ class compras_proveedores extends fbase_controller
 
     private function eliminar_proveedor()
     {
-        $proveedor = $this->proveedor->get($_GET['delete']);
+        $proveedor0 = new proveedor();
+        $proveedor = $proveedor0->get($_GET['delete']);
         if ($proveedor) {
             if (FS_DEMO) {
                 $this->new_error_msg('En el modo demo no se pueden eliminar proveedores.
@@ -134,85 +195,5 @@ class compras_proveedores extends fbase_controller
         } else {
             $this->new_message('Proveedor no encontrado.');
         }
-    }
-
-    private function buscar()
-    {
-        $this->total_resultados = 0;
-        $query = mb_strtolower($this->proveedor->no_html($this->query), 'UTF8');
-        $sql = " FROM proveedores";
-        $and = ' WHERE ';
-
-        if (is_numeric($query)) {
-            $sql .= $and . "(nombre LIKE '%" . $query . "%'"
-                . " OR razonsocial LIKE '%" . $query . "%'"
-                . " OR codproveedor LIKE '%" . $query . "%'"
-                . " OR cifnif LIKE '%" . $query . "%'"
-                . " OR telefono1 LIKE '" . $query . "%'"
-                . " OR telefono2 LIKE '" . $query . "%'"
-                . " OR observaciones LIKE '%" . $query . "%')";
-            $and = ' AND ';
-        } else if ($query != '') {
-            $buscar = str_replace(' ', '%', $query);
-            $sql .= $and . "(lower(nombre) LIKE '%" . $buscar . "%'"
-                . " OR lower(razonsocial) LIKE '%" . $buscar . "%'"
-                . " OR lower(cifnif) LIKE '%" . $buscar . "%'"
-                . " OR lower(observaciones) LIKE '%" . $buscar . "%'"
-                . " OR lower(email) LIKE '%" . $buscar . "%')";
-            $and = ' AND ';
-        }
-
-        if ($this->tipo == 'acreedores') {
-            $sql .= $and . "acreedor = true";
-            $and = ' AND ';
-        } else if ($this->tipo == 'noacreedores') {
-            $sql .= $and . "acreedor = false";
-            $and = ' AND ';
-        }
-
-        if ($this->debaja) {
-            $sql .= $and . "debaja = true";
-            $and = ' AND ';
-        } else {
-            $sql .= $and . "(debaja = false OR debaja IS NULL)";
-            $and = ' AND ';
-        }
-
-        $data = $this->db->select("SELECT COUNT(codproveedor) as total" . $sql . ';');
-        if ($data) {
-            $this->num_resultados = intval($data[0]['total']);
-
-            $data2 = $this->db->select_limit("SELECT *" . $sql . " ORDER BY " . $this->orden, FS_ITEM_LIMIT, $this->offset);
-            if ($data2) {
-                foreach ($data2 as $d) {
-                    $this->resultados[] = new proveedor($d);
-                }
-            }
-        }
-    }
-
-    public function orden()
-    {
-        return array(
-            'lower(nombre) ASC' => 'Orden: nombre',
-            'lower(nombre) DESC' => 'Orden: nombre descendente',
-            'cifnif ASC' => 'Orden: ' . FS_CIFNIF,
-            'cifnif DESC' => 'Orden: ' . FS_CIFNIF . ' descendente',
-            'codproveedor ASC' => 'Orden: código',
-            'codproveedor DESC' => 'Orden: código descendente'
-        );
-    }
-
-    public function paginas()
-    {
-        $url = $this->url() . "&query=" . $this->query
-            . "&tipo=" . $this->tipo
-            . "&orden=" . $this->orden;
-
-        if ($this->debaja) {
-            $url .= '&debaja=TRUE';
-        }
-
-        return $this->fbase_paginas($url, $this->num_resultados, $this->offset);
     }
 }
