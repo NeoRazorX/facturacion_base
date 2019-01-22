@@ -1,7 +1,7 @@
 <?php
-/*
+/**
  * This file is part of facturacion_base
- * Copyright (C) 2015-2017  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2015-2019 Carlos Garcia Gomez <neorazorx@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -10,13 +10,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Lesser General Public License for more details.
  * 
  * You should have received a copy of the GNU Lesser General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-
 if (!function_exists('fs_tipos_id_fiscal')) {
 
     /**
@@ -25,7 +24,7 @@ if (!function_exists('fs_tipos_id_fiscal')) {
      */
     function fs_tipos_id_fiscal()
     {
-        return array(FS_CIFNIF, 'Pasaporte', 'DNI', 'NIF', 'CIF', 'VAT', 'CUIT');
+        return [FS_CIFNIF, 'Pasaporte', 'DNI', 'NIF', 'CIF', 'VAT', 'CUIT'];
     }
 }
 
@@ -59,7 +58,7 @@ if (!function_exists('fs_documento_new_numero')) {
 
         if (!$sec || $numero <= 1) {
             $sql = "SELECT MAX(" . $db->sql_to_int('numero') . ") as num FROM " . $table_name;
-            if (FS_NEW_CODIGO != 'NUM' && FS_NEW_CODIGO != '0-NUM') {
+            if (!in_array(FS_NEW_CODIGO, ['NUM', '0-NUM'])) {
                 $sql .= " WHERE codejercicio = " . $sec0->var2str($codejercicio) . " AND codserie = " . $sec0->var2str($codserie) . ";";
             }
 
@@ -85,34 +84,26 @@ if (!function_exists('fs_documento_new_codigo')) {
     {
         switch (FS_NEW_CODIGO) {
             case 'eneboo':
-                $codigo = $codejercicio . str_pad($codserie, 2, '0', STR_PAD_LEFT) . str_pad($numero, 6, '0', STR_PAD_LEFT);
-                break;
+                return $codejercicio . str_pad($codserie, 2, '0', STR_PAD_LEFT) . str_pad($numero, 6, '0', STR_PAD_LEFT);
 
             case '0-NUM':
-                $codigo = str_pad($numero, 12, '0', STR_PAD_LEFT);
-                break;
+                return str_pad($numero, 12, '0', STR_PAD_LEFT);
 
             case 'NUM':
-                $codigo = (string) $numero;
-                break;
+                return (string) $numero;
 
             case 'SERIE-YY-0-NUM':
-                $codigo = $codserie . substr($codejercicio, -2) . str_pad($numero, 12, '0', STR_PAD_LEFT);
-                break;
+                return $codserie . substr($codejercicio, -2) . str_pad($numero, 12, '0', STR_PAD_LEFT);
 
             case 'SERIE-YY-0-NUM-CORTO':
                 if (strlen((string) $numero) < 4) {
                     $numero = str_pad($numero, 4, '0', STR_PAD_LEFT);
                 }
-                $codigo = $codserie . substr($codejercicio, -2) . $numero;
-                break;
-
-            default:
-                /// TIPO + EJERCICIO + SERIE + NÚMERO
-                $codigo = strtoupper(substr($tipodoc, 0, 3)) . $codejercicio . $codserie . $numero . $sufijo;
+                return $codserie . substr($codejercicio, -2) . $numero;
         }
 
-        return $codigo;
+        /// TIPO + EJERCICIO + SERIE + NÚMERO
+        return strtoupper(substr($tipodoc, 0, 3)) . $codejercicio . $codserie . $numero . $sufijo;
     }
 }
 
@@ -120,13 +111,11 @@ if (!function_exists('fs_huecos_facturas_cliente')) {
 
     function fs_huecos_facturas_cliente(&$db, $table_name)
     {
-        $huecolist = array();
-
-        if (FS_NEW_CODIGO == 'NUM' || FS_NEW_CODIGO == '0-NUM') {
-            /// TODO: implementar la comprobación en numeración continua
-            return $huecolist;
+        if (in_array(FS_NEW_CODIGO, ['NUM', '0-NUM'])) {
+            return fs_huecos_facturas_cliente_continua($db, $table_name);
         }
 
+        $huecolist = [];
         $ejercicio = new \ejercicio();
         $serie = new \serie();
         foreach ($ejercicio->all_abiertos() as $eje) {
@@ -137,50 +126,108 @@ if (!function_exists('fs_huecos_facturas_cliente')) {
                 . " ORDER BY codserie ASC, numero ASC;";
 
             $data = $db->select($sql);
-            if ($data) {
-                foreach ($data as $d) {
-                    if ($d['codserie'] != $codserie) {
-                        $codserie = $d['codserie'];
-                        $num = 1;
+            if (empty($data)) {
+                continue;
+            }
 
-                        /// ¿Se ha definido un nº inicial de factura para esta serie y ejercicio?
-                        $se = $serie->get($codserie);
-                        if ($se && $eje->codejercicio == $se->codejercicio) {
-                            $num = $se->numfactura;
-                        }
-                    }
+            foreach ($data as $d) {
+                if ($d['codserie'] != $codserie) {
+                    $codserie = $d['codserie'];
+                    $num = 1;
 
-                    if (intval($d['numero']) < $num) {
-                        /**
-                         * El número de la factura es menor que el inicial.
-                         * El usuario ha cambiado el número inicial después de hacer
-                         * facturas.
-                         */
-                    } else if (intval($d['numero']) == $num) {
-                        /// el número es correcto, avanzamos
-                        $num++;
-                    } else {
-                        /**
-                         * Hemos encontrado un hueco y debemos usar el número y la fecha.
-                         * La variable pasos permite dejar de añadir huecos al llegar a 100,
-                         * así evitamos agotar la memoria en caso de error grave.
-                         */
-                        $pasos = 0;
-                        while ($num < intval($d['numero']) && $pasos < 100) {
-                            $huecolist[] = array(
-                                'codigo' => fs_documento_new_codigo(FS_FACTURA, $eje->codejercicio, $codserie, $num),
-                                'fecha' => Date('d-m-Y', strtotime($d['fecha'])),
-                                'hora' => $d['hora']
-                            );
-                            $num++;
-                            $pasos++;
-                        }
-
-                        /// avanzamos uno más
-                        $num++;
+                    /// ¿Se ha definido un nº inicial de factura para esta serie y ejercicio?
+                    $se = $serie->get($codserie);
+                    if ($se && $eje->codejercicio == $se->codejercicio) {
+                        $num = $se->numfactura;
                     }
                 }
+
+                if (intval($d['numero']) < $num) {
+                    /**
+                     * El número de la factura es menor que el inicial.
+                     * El usuario ha cambiado el número inicial después de hacer
+                     * facturas.
+                     */
+                    continue;
+                } else if (intval($d['numero']) == $num) {
+                    /// el número es correcto, avanzamos
+                    $num++;
+                    continue;
+                }
+
+                /**
+                 * Hemos encontrado un hueco y debemos usar el número y la fecha.
+                 * La variable pasos permite dejar de añadir huecos al llegar a 100,
+                 * así evitamos agotar la memoria en caso de error grave.
+                 */
+                $pasos = 0;
+                while ($num < intval($d['numero']) && $pasos < 100) {
+                    $huecolist[] = [
+                        'codigo' => fs_documento_new_codigo(FS_FACTURA, $eje->codejercicio, $codserie, $num),
+                        'fecha' => Date('d-m-Y', strtotime($d['fecha'])),
+                        'hora' => $d['hora']
+                    ];
+                    $num++;
+                    $pasos++;
+                }
+
+                /// avanzamos uno más
+                $num++;
             }
+        }
+
+        return $huecolist;
+    }
+
+    function fs_huecos_facturas_cliente_continua(&$db, $table_name)
+    {
+        /// número inicial
+        $num = 1;
+        $sql2 = "SELECT " . $db->sql_to_int('numero') . " as numero FROM " . $table_name . " ORDER BY numero ASC;";
+        $data2 = $db->select($sql2);
+        if ($data2) {
+            $num = max([$num, intval($data2[0]['numero'])]);
+        }
+
+        $sql = "SELECT " . $db->sql_to_int('numero') . " as numero,fecha,hora FROM " . $table_name . " ORDER BY numero ASC;";
+        $data = $db->select($sql);
+        if (empty($data)) {
+            return [];
+        }
+
+        $huecolist = [];
+        foreach ($data as $d) {
+            if (intval($d['numero']) < $num) {
+                /**
+                 * El número de la factura es menor que el inicial.
+                 * El usuario ha cambiado el número inicial después de hacer
+                 * facturas.
+                 */
+                continue;
+            } else if (intval($d['numero']) == $num) {
+                /// el número es correcto, avanzamos
+                $num++;
+                continue;
+            }
+
+            /**
+             * Hemos encontrado un hueco y debemos usar el número y la fecha.
+             * La variable pasos permite dejar de añadir huecos al llegar a 100,
+             * así evitamos agotar la memoria en caso de error grave.
+             */
+            $pasos = 0;
+            while ($num < intval($d['numero']) && $pasos < 100) {
+                $huecolist[] = [
+                    'codigo' => fs_documento_new_codigo(FS_FACTURA, '', '', $num),
+                    'fecha' => Date('d-m-Y', strtotime($d['fecha'])),
+                    'hora' => $d['hora']
+                ];
+                $num++;
+                $pasos++;
+            }
+
+            /// avanzamos uno más
+            $num++;
         }
 
         return $huecolist;

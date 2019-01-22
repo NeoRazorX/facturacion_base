@@ -1,8 +1,8 @@
 <?php
-/*
+/**
  * This file is part of facturacion_base
- * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
- * Copyright (C) 2017       Francesc Pineda Segarra  shawe.ewahs@gmail.com
+ * Copyright (C) 2013-2019  Carlos Garcia Gomez     <neorazorx@gmail.com>
+ * Copyright (C) 2017       Francesc Pineda Segarra <shawe.ewahs@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -11,11 +11,11 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Lesser General Public License for more details.
  * 
  * You should have received a copy of the GNU Lesser General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 namespace FacturaScripts\model;
 
@@ -286,12 +286,21 @@ class factura_cliente extends \fs_model
             $num = $serie->numfactura;
         }
 
+        /// ¿Numeración continua?
+        if (in_array(FS_NEW_CODIGO, ['NUM', '0-NUM'])) {
+            $sql2 = "SELECT " . $this->db->sql_to_int('numero') . " as numero FROM " . $this->table_name . " ORDER BY numero ASC;";
+            $data2 = $this->db->select($sql2);
+            if ($data2) {
+                $num = max([$num, intval($data2[0]['numero'])]);
+            }
+        }
+
         /// buscamos un hueco o el siguiente número disponible
         $encontrado = FALSE;
         $fecha = $this->fecha;
         $hora = $this->hora;
         $sql = "SELECT " . $this->db->sql_to_int('numero') . " as numero,fecha,hora FROM " . $this->table_name;
-        if (FS_NEW_CODIGO != 'NUM' && FS_NEW_CODIGO != '0-NUM') {
+        if (!in_array(FS_NEW_CODIGO, ['NUM', '0-NUM'])) {
             $sql .= " WHERE codejercicio = " . $this->var2str($this->codejercicio)
                 . " AND codserie = " . $this->var2str($this->codserie);
         }
