@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of facturacion_base
- * Copyright (C) 2016-2018 Carlos Garcia Gomez <neorazorx@gmail.com>
+ * Copyright (C) 2016-2019 Carlos Garcia Gomez <neorazorx@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -192,6 +192,9 @@ class dashboard extends fs_controller
     {
         $desde_anterior = date('d-m-Y', strtotime($stats['desde'] . ' ' . $stats['anterior']));
         $hasta_anterior = date('d-m-Y', strtotime($stats['hasta'] . ' ' . $stats['anterior']));
+        if ($stats['anterior'] == '-3 months') {
+            $hasta_anterior = date('t-m-Y', strtotime($stats['hasta'] . ' -1 day ' . $stats['anterior']));
+        }
 
         if ($this->db->table_exists('facturascli')) {
             /// calculamos las ventas e impuestos de este mes
