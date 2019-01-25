@@ -1,7 +1,7 @@
 <?php
-/*
+/**
  * This file is part of facturacion_base
- * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2019 Carlos Garcia Gomez <neorazorx@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -10,28 +10,76 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Lesser General Public License for more details.
  * 
  * You should have received a copy of the GNU Lesser General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-
 require_once 'extras/phpmailer/class.phpmailer.php';
 require_once 'extras/phpmailer/class.smtp.php';
 
 class admin_empresa extends fs_controller
 {
 
+    /**
+     *
+     * @var \almacen
+     */
     public $almacen;
+
+    /**
+     *
+     * @var \cuenta_banco
+     */
     public $cuenta_banco;
+
+    /**
+     *
+     * @var \divisa
+     */
     public $divisa;
+
+    /**
+     *
+     * @var \ejercicio
+     */
     public $ejercicio;
+
+    /**
+     *
+     * @var array
+     */
     public $email_plantillas;
+
+    /**
+     *
+     * @var \forma_pago
+     */
     public $forma_pago;
+
+    /**
+     *
+     * @var array
+     */
     public $impresion;
+
+    /**
+     *
+     * @var string
+     */
     public $logo;
+
+    /**
+     *
+     * @var \pais
+     */
     public $pais;
+
+    /**
+     *
+     * @var \serie
+     */
     public $serie;
 
     public function __construct()
@@ -71,29 +119,16 @@ class admin_empresa extends fs_controller
 
         if (isset($_POST['cifnif'])) {
             /// guardamos los datos de la empresa
-            $this->empresa->nombre = $_POST['nombre'];
-            $this->empresa->nombrecorto = $_POST['nombrecorto'];
-            $this->empresa->cifnif = $_POST['cifnif'];
-            $this->empresa->administrador = $_POST['administrador'];
-            $this->empresa->codpais = $_POST['codpais'];
-            $this->empresa->provincia = $_POST['provincia'];
-            $this->empresa->ciudad = $_POST['ciudad'];
-            $this->empresa->direccion = $_POST['direccion'];
-            $this->empresa->codpostal = $_POST['codpostal'];
-            $this->empresa->apartado = $_POST['apartado'];
-            $this->empresa->telefono = $_POST['telefono'];
-            $this->empresa->fax = $_POST['fax'];
-            $this->empresa->web = $_POST['web'];
-            $this->empresa->email = $_POST['email'];
-            $this->empresa->lema = $_POST['lema'];
-            $this->empresa->horario = $_POST['horario'];
+            $fields = [
+                'nombre', 'nombrecorto', 'cifnif', 'administrador', 'codpais', 'provincia',
+                'ciudad', 'direccion', 'codpostal', 'apartado', 'telefono', 'fax', 'web',
+                'email', 'lema', 'horario', 'codejercicio', 'codserie', 'coddivisa',
+                'codpago', 'codalmacen', 'pie_factura'
+            ];
+            foreach ($fields as $field) {
+                $this->empresa->{$field} = $_POST[$field];
+            }
             $this->empresa->contintegrada = isset($_POST['contintegrada']);
-            $this->empresa->codejercicio = $_POST['codejercicio'];
-            $this->empresa->codserie = $_POST['codserie'];
-            $this->empresa->coddivisa = $_POST['coddivisa'];
-            $this->empresa->codpago = $_POST['codpago'];
-            $this->empresa->codalmacen = $_POST['codalmacen'];
-            $this->empresa->pie_factura = $_POST['pie_factura'];
             $this->empresa->recequivalencia = isset($_POST['recequivalencia']);
 
             /// configuración de email
@@ -130,8 +165,9 @@ class admin_empresa extends fs_controller
                 }
 
                 $this->mail_test();
-            } else
+            } else {
                 $this->new_error_msg('Error al guardar los datos.');
+            }
 
             /// guardamos los datos de impresión
             $this->impresion['print_ref'] = ( isset($_POST['print_ref']) ? 1 : 0 );
@@ -157,12 +193,13 @@ class admin_empresa extends fs_controller
             if ($cuenta) {
                 if ($cuenta->delete()) {
                     $this->new_message('Cuenta bancaria eliminada correctamente.');
-                } else
+                } else {
                     $this->new_error_msg('Imposible eliminar la cuenta bancaria.');
-            } else
+                }
+            } else {
                 $this->new_error_msg('Cuenta bancaria no encontrada.');
-        }
-        else if (isset($_POST['iban'])) { /// añadir/modificar cuenta bancaria
+            }
+        } else if (isset($_POST['iban'])) { /// añadir/modificar cuenta bancaria
             if (isset($_POST['codcuenta'])) {
                 $cuentab = $this->cuenta_banco->get($_POST['codcuenta']);
             } else {
@@ -180,10 +217,10 @@ class admin_empresa extends fs_controller
 
             if ($cuentab->save()) {
                 $this->new_message('Cuenta bancaria guardada correctamente.');
-            } else
+            } else {
                 $this->new_error_msg('Imposible guardar la cuenta bancaria.');
-        }
-        else {
+            }
+        } else {
             $this->fix_logo();
         }
 
@@ -198,34 +235,37 @@ class admin_empresa extends fs_controller
     private function mail_test()
     {
         if ($this->empresa->can_send_mail()) {
-            /// Es imprescindible OpenSSL para enviar emails con los principales proveedores
-            if (extension_loaded('openssl')) {
-                $mail = $this->empresa->new_mail();
-                $mail->Timeout = 3;
-                $mail->FromName = $this->user->nick;
+            return;
+        }
 
-                $mail->Subject = 'TEST';
-                $mail->AltBody = 'TEST';
-                $mail->msgHTML('TEST');
-                $mail->isHTML(TRUE);
+        /// Es imprescindible OpenSSL para enviar emails con los principales proveedores
+        if (!extension_loaded('openssl')) {
+            $this->new_error_msg('No se encuentra la extensión OpenSSL,'
+                . ' imprescindible para enviar emails.');
+            return;
+        }
 
-                if (!$this->empresa->mail_connect($mail)) {
-                    $this->new_error_msg('No se ha podido conectar por email. ¿La contraseña es correcta?');
+        $mail = $this->empresa->new_mail();
+        $mail->Timeout = 3;
+        $mail->FromName = $this->user->nick;
 
-                    if ($mail->Host == 'smtp.gmail.com') {
-                        $this->new_error_msg('Aunque la contraseña de gmail sea correcta, en ciertas '
-                            . 'situaciones los servidores de gmail bloquean la conexión. '
-                            . 'Para superar esta situación debes crear y usar una '
-                            . '<a href="https://support.google.com/accounts/answer/185833?hl=es" '
-                            . 'target="_blank">contraseña de aplicación</a>');
-                    } else {
-                        $this->new_error_msg("¿<a href='" . FS_COMMUNITY_URL . "/index.php?page=community_item&id=74'"
-                            . " target='_blank'>Necesitas ayuda</a>?");
-                    }
-                }
+        $mail->Subject = 'TEST';
+        $mail->AltBody = 'TEST';
+        $mail->msgHTML('TEST');
+        $mail->isHTML(TRUE);
+
+        if (!$this->empresa->mail_connect($mail)) {
+            $this->new_error_msg('No se ha podido conectar por email. ¿La contraseña es correcta?');
+
+            if ($mail->Host == 'smtp.gmail.com') {
+                $this->new_error_msg('Aunque la contraseña de gmail sea correcta, en ciertas '
+                    . 'situaciones los servidores de gmail bloquean la conexión. '
+                    . 'Para superar esta situación debes crear y usar una '
+                    . '<a href="https://support.google.com/accounts/answer/185833?hl=es" '
+                    . 'target="_blank">contraseña de aplicación</a>');
             } else {
-                $this->new_error_msg('No se encuentra la extensión OpenSSL,'
-                    . ' imprescindible para enviar emails.');
+                $this->new_error_msg("¿<a href='" . FS_COMMUNITY_URL . "/index.php?page=community_item&id=74'"
+                    . " target='_blank'>Necesitas ayuda</a>?");
             }
         }
     }
@@ -304,23 +344,21 @@ class admin_empresa extends fs_controller
         );
     }
 
-    //Funcion que realice el autocomplete de la subcuentas. 
     private function buscar_subcuenta($aux)
     {
         /// desactivamos la plantilla HTML
         $this->template = FALSE;
 
+        $json = [];
         $subcuenta = new subcuenta();
-        $eje0 = new ejercicio();
-        $ejercicio = $eje0->get_by_fecha($this->today());
-        $json = array();
+        $ejercicio = $this->ejercicio->get_by_fecha($this->today());
         foreach ($subcuenta->search_by_ejercicio($ejercicio->codejercicio, $aux) as $subc) {
-            $json[] = array(
+            $json[] = [
                 'value' => $subc->codsubcuenta . ' - ' . $subc->descripcion,
                 'data' => $subc->codsubcuenta,
                 'saldo' => $subc->saldo,
                 'link' => $subc->url()
-            );
+            ];
         }
 
         header('Content-Type: application/json');

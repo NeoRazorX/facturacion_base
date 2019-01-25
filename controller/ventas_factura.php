@@ -1,7 +1,7 @@
 <?php
-/*
+/**
  * This file is part of facturacion_base
- * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2019 Carlos Garcia Gomez <neorazorx@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -10,31 +10,99 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Lesser General Public License for more details.
  * 
  * You should have received a copy of the GNU Lesser General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-
 require_once 'plugins/facturacion_base/extras/fbase_controller.php';
 
 class ventas_factura extends fbase_controller
 {
 
+    /**
+     *
+     * @var agencia_transporte
+     */
     public $agencia;
+
+    /**
+     *
+     * @var agente|bool
+     */
     public $agente;
+
+    /**
+     *
+     * @var agentes[]
+     */
     public $agentes;
+
+    /**
+     *
+     * @var almacen
+     */
     public $almacen;
+
+    /**
+     *
+     * @var cliente
+     */
     public $cliente;
+
+    /**
+     *
+     * @var divisa
+     */
     public $divisa;
+
+    /**
+     *
+     * @var ejercicio
+     */
     public $ejercicio;
+
+    /**
+     *
+     * @var factura_cliente|bool
+     */
     public $factura;
+
+    /**
+     *
+     * @var forma_pgo
+     */
     public $forma_pago;
+
+    /**
+     *
+     * @var bool
+     */
     public $mostrar_boton_pagada;
+
+    /**
+     *
+     * @var pais
+     */
     public $pais;
+
+    /**
+     *
+     * @var bool
+     */
     public $rectificada;
+
+    /**
+     *
+     * @var bool
+     */
     public $rectificativa;
+
+    /**
+     *
+     * @var serie
+     */
     public $serie;
 
     public function __construct()
@@ -50,7 +118,7 @@ class ventas_factura extends fbase_controller
 
         $this->agencia = new agencia_transporte();
         $this->agente = FALSE;
-        $this->agentes = array();
+        $this->agentes = [];
         $this->almacen = new almacen();
         $this->cliente = FALSE;
         $this->divisa = new divisa();
@@ -238,24 +306,16 @@ class ventas_factura extends fbase_controller
     {
         if ($factura->get_asiento()) {
             $this->new_error_msg('Ya hay un asiento asociado a esta factura.');
-        } else {
-            $asiento_factura = new asiento_factura();
-            $asiento_factura->soloasiento = TRUE;
-            if ($asiento_factura->generar_asiento_venta($factura)) {
-                $this->new_message("<a href='" . $asiento_factura->asiento->url() . "'>Asiento</a> generado correctamente.");
+            return;
+        }
 
-                if (!$this->empresa->contintegrada) {
-                    $this->new_message("¿Quieres que los asientos se generen automáticamente?"
-                        . " Activa la <a href='index.php?page=admin_empresa#facturacion'>Contabilidad integrada</a>.");
-                }
-            }
-
-            foreach ($asiento_factura->errors as $err) {
-                $this->new_error_msg($err);
-            }
-
-            foreach ($asiento_factura->messages as $msg) {
-                $this->new_message($msg);
+        $asiento_factura = new asiento_factura();
+        $asiento_factura->soloasiento = TRUE;
+        if ($asiento_factura->generar_asiento_venta($factura)) {
+            $this->new_message("<a href='" . $asiento_factura->asiento->url() . "'>Asiento</a> generado correctamente.");
+            if (!$this->empresa->contintegrada) {
+                $this->new_message("¿Quieres que los asientos se generen automáticamente?"
+                    . " Activa la <a href='index.php?page=admin_empresa#facturacion'>Contabilidad integrada</a>.");
             }
         }
     }
@@ -306,10 +366,6 @@ class ventas_factura extends fbase_controller
                     } else {
                         $this->new_error_msg('Error al marcar la factura como pagada.');
                     }
-                }
-
-                foreach ($asiento_factura->errors as $err) {
-                    $this->new_error_msg($err);
                 }
             } else {
                 $this->new_error_msg('No se ha encontrado el asiento de la factura.');
@@ -472,7 +528,7 @@ class ventas_factura extends fbase_controller
 
     public function get_cuentas_bancarias()
     {
-        $cuentas = array();
+        $cuentas = [];
 
         $cbc0 = new cuenta_banco_cliente();
         foreach ($cbc0->all_from_cliente($this->factura->codcliente) as $cuenta) {

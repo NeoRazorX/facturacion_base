@@ -1,7 +1,7 @@
 <?php
-/*
+/**
  * This file is part of facturacion_base
- * Copyright (C) 2013-2018  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2019 Carlos Garcia Gomez <neorazorx@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -16,31 +16,129 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-
 require_once 'plugins/facturacion_base/extras/fbase_controller.php';
 
 class tpv_recambios extends fbase_controller
 {
 
+    /**
+     *
+     * @var agente
+     */
     public $agente;
+
+    /**
+     *
+     * @var almacen
+     */
     public $almacen;
+
+    /**
+     *
+     * @var articulo
+     */
     public $articulo;
+
+    /**
+     *
+     * @var caja
+     */
     public $caja;
+
+    /**
+     *
+     * @var cliente
+     */
     public $cliente;
+
+    /**
+     *
+     * @var cliente
+     */
     public $cliente_s;
+
+    /**
+     *
+     * @var divisa
+     */
     public $divisa;
+
+    /**
+     *
+     * @var ejercicio
+     */
     public $ejercicio;
+
+    /**
+     *
+     * @var articulo[]
+     */
     public $equivalentes;
+
+    /**
+     *
+     * @var fabricante
+     */
     public $fabricante;
+
+    /**
+     *
+     * @var familia
+     */
     public $familia;
+
+    /**
+     *
+     * @var forma_pago
+     */
     public $forma_pago;
+
+    /**
+     *
+     * @var bool
+     */
     public $imprimir_descripciones;
+
+    /**
+     *
+     * @var bool
+     */
     public $imprimir_observaciones;
+
+    /**
+     *
+     * @var impuesto
+     */
     public $impuesto;
+
+    /**
+     *
+     * @var articulo[]
+     */
     public $results;
+
+    /**
+     *
+     * @var serie
+     */
     public $serie;
+
+    /**
+     *
+     * @var terminal_caja
+     */
     public $terminal;
+
+    /**
+     *
+     * @var array
+     */
     public $ultimas_compras;
+
+    /**
+     *
+     * @var array
+     */
     public $ultimas_ventas;
 
     public function __construct()
@@ -59,7 +157,7 @@ class tpv_recambios extends fbase_controller
         $this->fabricante = new fabricante();
         $this->familia = new familia();
         $this->impuesto = new impuesto();
-        $this->results = array();
+        $this->results = [];
 
         if (isset($_REQUEST['buscar_cliente'])) {
             $this->fbase_buscar_cliente($_REQUEST['buscar_cliente']);
@@ -291,7 +389,7 @@ class tpv_recambios extends fbase_controller
 
         $impuestos = $this->impuesto->all();
 
-        $this->results = array();
+        $this->results = [];
         $comb1 = new articulo_combinacion();
         foreach ($comb1->all_from_ref($_POST['referencia4combi']) as $com) {
             if (isset($this->results[$com->codigo])) {
@@ -324,7 +422,7 @@ class tpv_recambios extends fbase_controller
 
     public function get_tarifas_articulo($ref)
     {
-        $tarlist = array();
+        $tarlist = [];
         $articulo = new articulo();
         $tarifa = new tarifa();
 
@@ -662,18 +760,11 @@ class tpv_recambios extends fbase_controller
         if ($this->empresa->contintegrada) {
             $asiento_factura = new asiento_factura();
             $asiento_factura->generar_asiento_venta($factura);
-
-            foreach ($asiento_factura->errors as $err) {
-                $this->new_error_msg($err);
-            }
-
-            foreach ($asiento_factura->messages as $msg) {
-                $this->new_message($msg);
-            }
-        } else {
-            /// de todas formas forzamos la generación de las líneas de iva
-            $factura->get_lineas_iva();
+            return;
         }
+
+        /// de todas formas forzamos la generación de las líneas de iva
+        $factura->get_lineas_iva();
     }
 
     private function share_extensions()

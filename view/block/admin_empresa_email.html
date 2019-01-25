@@ -1,0 +1,198 @@
+<ul class="nav nav-tabs" role="tablist">
+    <li role="presentation" class="active">
+        <a href="#email_cfg" aria-controls="email_cfg" role="tab" data-toggle="tab">
+            Configuración
+        </a>
+    </li>
+    <li role="presentation">
+        <a href="#plantillas" aria-controls="plantillas" role="tab" data-toggle="tab">
+            Firma y plantillas
+        </a>
+    </li>
+</ul>
+<div class="tab-content">
+    <div role="tabpanel" class="tab-pane active" id="email_cfg">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-12">
+                    <p class="help-block">
+                        Si configuras tu cuenta de email, podrás usarla para enviar documentos.
+                    </p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <div class="input-group">
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-envelope"></span>
+                            </span>
+                            <input class="form-control" type="email" name="email" value="{$fsc->empresa->email}" autocomplete="off" placeholder="email" autofocus=""/>
+                        </div>
+                        <p class="help-block">
+                            ¿Quieres usar tunombre@tuempresa.com?
+                            Prueba gratis <a href="https://goo.gl/bRFlmv" target="_blank">Google Apps for Work</a>.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <div class="input-group">
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-eye-close"></span>
+                            </span>
+                            <input class="form-control" type="password" name="mail_password" value="{$fsc->empresa->email_config['mail_password']}" placeholder="contraseña"/>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <div class="input-group">
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-duplicate"></span>
+                            </span>
+                            <input class="form-control" type="text" name="mail_bcc" value="{$fsc->empresa->email_config['mail_bcc']}" placeholder="Enviar copias a (opcional)"/>
+                        </div>
+                        <p class="help-block">Puedes escribir un email para que se envíe copia de todo.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12 text-right">
+                    <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled = true; this.form.action = '{$fsc->url()}#email'; this.form.submit();">
+                        <span class="glyphicon glyphicon-floppy-disk"></span>&nbsp; Guardar
+                    </button>
+                </div>
+            </div>
+        </div>
+        <br/>
+        <div class="panel panel-warning" id="panel_email2">
+            <div class="panel-heading">
+                <h3 class="panel-title">Si no usas Gmail o Google Apps, rellena <b>también</b> estos datos</h3>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            Host:
+                            <div class="input-group">
+                                <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-globe"></span>
+                                </span>
+                                <input class="form-control" type="text" name="mail_host" value="{$fsc->empresa->email_config['mail_host']}" autocomplete="off"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-2">
+                        <div class="form-group">
+                            Puerto:
+                            <input class="form-control" type="number" name="mail_port" value="{$fsc->empresa->email_config['mail_port']}" autocomplete="off"/>
+                        </div>
+                    </div>
+                    <div class="col-sm-2">
+                        <div class="form-group">
+                            Encriptación:
+                            <select name="mail_enc" class="form-control">
+                                {loop="$fsc->encriptaciones()"}
+                                {if="$key==$fsc->empresa->email_config['mail_enc']"}
+                                <option value="{$key}" selected="">{$value}</option>
+                                {else}
+                                <option value="{$key}">{$value}</option>
+                                {/if}
+                                {/loop}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-sm-2">
+                        <div class="form-group">
+                            Envío por:
+                            <select name="mail_mailer" class="form-control">
+                                {loop="$fsc->mailers()"}
+                                {if="$key==$fsc->empresa->email_config['mail_mailer']"}
+                                <option value="{$key}" selected="">{$value}</option>
+                                {else}
+                                <option value="{$key}">{$value}</option>
+                                {/if}
+                                {/loop}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-sm-2">
+                        <div class="form-group">
+                            Usuario:
+                            <input class="form-control" type="text" name="mail_user" value="{$fsc->empresa->email_config['mail_user']}" autocomplete="off"/>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="checkbox">
+                            <label>
+                                {if="$fsc->empresa->email_config['mail_low_security']"}
+                                <input type="checkbox" name="mail_low_security" value="TRUE" checked=""/>
+                                {else}
+                                <input type="checkbox" name="mail_low_security" value="TRUE"/>
+                                {/if}
+                                Permitir certificados de servidor poco seguros: los certificados
+                                autofirmados son algo habitual en servidores dedicados,
+                                aunque poco seguros. Activa esta opción si no puedes conectar
+                                a tu servidor de correo aunque los datos sean correctos.
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-footer">
+                <p class="help-block">
+                    Si tienes problemas configurando el email de <b>loading.es</b>,
+                    usa el puerto 25 y la encriptación TLS.
+                </p>
+            </div>
+        </div>
+    </div>
+    <div role="tabpanel" class="tab-pane" id="plantillas">
+        <br/>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        Firma:
+                        <textarea class="form-control" name="mail_firma" rows="5">{$fsc->empresa->email_config['mail_firma']}</textarea>
+                    </div>
+                    <p class='help-block'>
+                        A continuación tienes las plantillas de emails para los documentos de venta.
+                        <br/>
+                        El texto <b>#DOCUMENTO#</b> será sustituido por el nombre del documento y su código.
+                        <br/>
+                        El texto <b>#FIRMA#</b> será sustituido por la firma predeterminada.
+                    </p>
+                    <div class="form-group">
+                        Factura:
+                        <textarea class="form-control" name="mail_factura" rows="6">{$fsc->email_plantillas['mail_factura']}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <span class="text-capitalize">{#FS_ALBARAN#}:</span>
+                        <textarea class="form-control" name="mail_albaran" rows="6">{$fsc->email_plantillas['mail_albaran']}</textarea>
+                    </div>
+                    {if="in_array('presupuestos_y_pedidos',$GLOBALS['plugins'])"}
+                    <div class="form-group">
+                        <span class="text-capitalize">{#FS_PEDIDO#}:</span>
+                        <textarea class="form-control" name="mail_pedido" rows="6">{$fsc->email_plantillas['mail_pedido']}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <span class="text-capitalize">{#FS_PRESUPUESTO#}:</span>
+                        <textarea class="form-control" name="mail_presupuesto" rows="6">{$fsc->email_plantillas['mail_presupuesto']}</textarea>
+                    </div>
+                    {/if}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12 text-right">
+                    <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled = true; this.form.action = '{$fsc->url()}#email'; this.form.submit();">
+                        <span class="glyphicon glyphicon-floppy-disk"></span>&nbsp; Guardar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

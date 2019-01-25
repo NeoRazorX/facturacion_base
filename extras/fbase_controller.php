@@ -1,7 +1,7 @@
 <?php
-/*
+/**
  * This file is part of facturacion_base
- * Copyright (C) 2017  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2017-2019 Carlos Garcia Gomez <neorazorx@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -10,11 +10,11 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Lesser General Public License for more details.
  * 
  * You should have received a copy of the GNU Lesser General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 /**
@@ -27,13 +27,15 @@ class fbase_controller extends fs_controller
 
     /**
      * TRUE si el usuario tiene permisos para eliminar en la página.
-     * @var boolean 
+     *
+     * @var bool
      */
     public $allow_delete;
 
     /**
      * TRUE si hay más de un almacén.
-     * @var boolean 
+     *
+     * @var bool
      */
     public $multi_almacen;
 
@@ -50,6 +52,7 @@ class fbase_controller extends fs_controller
     /**
      * Vuelca en la salida estándar un json con el listado de clientes
      * que coinciden con la búsqueda. Ideal para usar con el autocomplete en js.
+     *
      * @param string $query
      */
     protected function fbase_buscar_cliente($query)
@@ -58,7 +61,7 @@ class fbase_controller extends fs_controller
         $this->template = FALSE;
 
         $cli = new cliente();
-        $json = array();
+        $json = [];
         foreach ($cli->search($query) as $cli) {
             $nombre = $cli->nombre;
             if ($cli->nombre != $cli->razonsocial) {
@@ -75,6 +78,7 @@ class fbase_controller extends fs_controller
     /**
      * Vuelca en la salida estándar un json con el listado de proveedores
      * que coinciden con la búsqueda. Ideal para usar con el autocomplete en js.
+     *
      * @param string $query
      */
     protected function fbase_buscar_proveedor($query)
@@ -83,7 +87,7 @@ class fbase_controller extends fs_controller
         $this->template = FALSE;
 
         $prov = new proveedor();
-        $json = array();
+        $json = [];
         foreach ($prov->search($query) as $prov) {
             $nombre = $prov->nombre;
             if ($prov->nombre != $prov->razonsocial) {
@@ -100,14 +104,16 @@ class fbase_controller extends fs_controller
     /**
      * Devuelve un array con los enlaces a las páginas en función de la url,
      * total y el offset proporcionado.
-     * @param string $url
+     *
+     * @param string  $url
      * @param integer $total
      * @param integer $offset
+     *
      * @return array
      */
     protected function fbase_paginas($url, $total, $offset)
     {
-        $paginas = array();
+        $paginas = [];
         $i = 0;
         $num = 0;
         $actual = 1;
@@ -141,26 +147,24 @@ class fbase_controller extends fs_controller
             }
         }
 
-        if (count($paginas) > 1) {
-            return $paginas;
-        }
-
-        return array();
+        return count($paginas) > 1 ? $paginas : [];
     }
 
     /**
      * Devuelve un array con los valores distintos de la columna en la tabla.
      * Si se proporciona una columna2 y un valor, se filtran los valores
      * que coincidan con ese valor en la columna2.
+     *
      * @param string $tabla
      * @param string $columna
      * @param string $columna2
      * @param string $valor
+     *
      * @return array
      */
     public function fbase_sql_distinct($tabla, $columna, $columna2 = '', $valor = '')
     {
-        $final = array();
+        $final = [];
 
         if ($this->db->table_exists($tabla)) {
             $sql = "SELECT DISTINCT " . $columna . " FROM " . $tabla . " ORDER BY " . $columna . " ASC;";
@@ -186,9 +190,11 @@ class fbase_controller extends fs_controller
 
     /**
      * Devuelve el total de elementos en una tabla atendiendo a la columna.
+     *
      * @param string $tabla
      * @param string $columna
      * @param string $where
+     *
      * @return int
      */
     public function fbase_sql_total($tabla, $columna, $where = '')
@@ -206,6 +212,7 @@ class fbase_controller extends fs_controller
      * Por ejemplo: recibe descuentos = [50, 10] y devuelve 0.45
      * 
      * @param array $descuentos contiene un array de float.
+     *
      * @return float
      */
     public function fbase_calc_due($descuentos)
@@ -218,6 +225,7 @@ class fbase_controller extends fs_controller
      * Por ejemplo: recibe descuentos = [50, 10] y devuelve 55
      * 
      * @param array $descuentos contiene un array de float.
+     *
      * @return float
      */
     public function fbase_calc_desc_due($descuentos)
@@ -232,7 +240,8 @@ class fbase_controller extends fs_controller
     /**
      * 
      * @param linea_factura_cliente[] $lineas
-     * @param float $due_totales
+     * @param float                   $due_totales
+     *
      * @return array
      */
     public function fbase_get_subtotales_documento($lineas, $due_totales = 1)
@@ -284,8 +293,8 @@ class fbase_controller extends fs_controller
     /**
      * 
      * @param albaran_cliente[] $albaranes
-     * @param string $fecha
-     * @param string $codpago
+     * @param string            $fecha
+     * @param string            $codpago
      */
     protected function fbase_facturar_albaran_cliente($albaranes, $fecha = '', $codpago = '')
     {
@@ -487,7 +496,7 @@ class fbase_controller extends fs_controller
     /**
      * 
      * @param albaran_proveedor[] $albaranes
-     * @param string $fecha
+     * @param string              $fecha
      */
     protected function fbase_facturar_albaran_proveedor($albaranes, $fecha = '')
     {
@@ -623,6 +632,13 @@ class fbase_controller extends fs_controller
         return $continuar;
     }
 
+    /**
+     * 
+     * @param aobject $factura
+     * @param bool    $mensaje
+     *
+     * @return bool
+     */
     protected function fbase_generar_asiento(&$factura, $mensaje = true)
     {
         if ($this->empresa->contintegrada) {
@@ -633,14 +649,6 @@ class fbase_controller extends fs_controller
                 $ok = $asiento_factura->generar_asiento_venta($factura);
             } else if (get_class_name($factura) == 'factura_proveedor') {
                 $ok = $asiento_factura->generar_asiento_compra($factura);
-            }
-
-            foreach ($asiento_factura->errors as $err) {
-                $this->new_error_msg($err);
-            }
-
-            foreach ($asiento_factura->messages as $msg) {
-                $this->new_message($msg);
             }
         } else {
             /// de todas formas forzamos la generación de las líneas de iva

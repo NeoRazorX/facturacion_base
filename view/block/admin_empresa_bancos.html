@@ -1,0 +1,72 @@
+{loop="$fsc->cuenta_banco->all()"}
+<form action="{$fsc->url()}#cuentasb" method="post" class="form">
+    <input type="hidden" name="codcuenta" value="{$value->codcuenta}"/>
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <h3 class="panel-title">Cuenta bancaria #{$value->codcuenta}</h3>
+        </div>
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="form-group">
+                        <input class="form-control" type="text" name="descripcion" value="{$value->descripcion}" placeholder="Cuenta principal" autocomplete="off"/>
+                        <p class="help-block">
+                            Puedes asociar tus cuentas bancarias con las
+                            <a href="index.php?page=contabilidad_formas_pago">formas de pago</a>
+                            para que aparezcan en las facturas.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-4 text-right">
+                    <div class="btn-group">
+                        <a class="btn btn-sm btn-danger" onclick="delete_cuenta('{$value->codcuenta}');">
+                            <span class="glyphicon glyphicon-trash"></span>&nbsp; Eliminar
+                        </a>
+                        <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled = true; this.form.action = '{$fsc->url()}#facturacion;this.form.submit();">
+                            <span class="glyphicon glyphicon-floppy-disk"></span>&nbsp; Guardar
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-5">
+                    <div class="form-group">
+                        <a target="_blank" href="http://es.wikipedia.org/wiki/International_Bank_Account_Number">IBAN</a>:
+                        <input class="form-control" type="text" name="iban" value="{$value->iban}" maxlength="34" placeholder="ES12345678901234567890123456" autocomplete="off"/>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <a target="_blank" href="http://es.wikipedia.org/wiki/Society_for_Worldwide_Interbank_Financial_Telecommunication">SWIFT</a> o BIC:
+                        <input class="form-control" type="text" name="swift" value="{$value->swift}" maxlength="11" autocomplete="off"/>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        Contabilidad:
+                        <div class="input-group">
+                            <span class="input-group-addon">
+                                <i class="fa fa-balance-scale" aria-hidden="true"></i>
+                            </span>
+                            <input type="text" name="codsubcuenta" value="{$value->codsubcuenta}" class="form-control" maxlength="15" placeholder="subcuenta" autocomplete="off"/>
+                        </div>
+                        <p class="help-block">
+                            Subcuenta asociada para esta cuenta bancaria.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+{/loop}
+<div class="panel panel-success">
+    <div class="panel-heading">
+        <h3 class="panel-title">
+            <a id="b_nueva_cuenta" href="#">
+                <span class="glyphicon glyphicon-plus-sign"></span>
+                &nbsp; Nueva cuenta bancaria...
+            </a>
+        </h3>
+    </div>
+</div>

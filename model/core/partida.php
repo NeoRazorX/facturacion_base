@@ -1,7 +1,7 @@
 <?php
-/*
+/**
  * This file is part of facturacion_base
- * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2019 Carlos Garcia Gomez <neorazorx@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -10,11 +10,11 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Lesser General Public License for more details.
  * 
  * You should have received a copy of the GNU Lesser General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 namespace FacturaScripts\model;
 
@@ -24,14 +24,92 @@ namespace FacturaScripts\model;
  * 
  * @author Carlos García Gómez <neorazorx@gmail.com>
  */
-class partida extends \fs_model
+class partida extends \fs_extended_model
 {
 
     /**
-     * Clave primaria.
-     * @var integer
+     *
+     * @var float
      */
-    public $idpartida;
+    public $baseimponible;
+
+    /**
+     *
+     * @var string
+     */
+    public $cifnif;
+
+    /**
+     *
+     * @var string
+     */
+    public $codcontrapartida;
+
+    /**
+     *
+     * @var string
+     */
+    public $coddivisa;
+
+    /**
+     *
+     * @var string
+     */
+    public $codserie;
+
+    /**
+     * Código, que no ID, de la subcuenta relacionada.
+     * @var string 
+     */
+    public $codsubcuenta;
+
+    /**
+     *
+     * @var string
+     */
+    public $concepto;
+
+    /**
+     *
+     * @var float
+     */
+    public $debe;
+
+    /**
+     *
+     * @var float
+     */
+    public $debeme;
+
+    /**
+     *
+     * @var string
+     */
+    public $documento;
+
+    /**
+     *
+     * @var int
+     */
+    public $factura;
+
+    /**
+     *
+     * @var string
+     */
+    public $fecha;
+
+    /**
+     *
+     * @var float
+     */
+    public $haber;
+
+    /**
+     *
+     * @var float
+     */
+    public $haberme;
 
     /**
      * ID del asiento relacionado.
@@ -40,274 +118,139 @@ class partida extends \fs_model
     public $idasiento;
 
     /**
+     *
+     * @var int
+     */
+    public $idconcepto;
+
+    /**
+     *
+     * @var int
+     */
+    public $idcontrapartida;
+
+    /**
+     * Clave primaria.
+     * @var integer
+     */
+    public $idpartida;
+
+    /**
      * ID de la subcuenta relacionada.
      * @var integer
      */
     public $idsubcuenta;
 
     /**
-     * Código, que no ID, de la subcuenta relacionada.
-     * @var string 
+     *
+     * @var float
      */
-    public $codsubcuenta;
-    public $idconcepto;
-    public $concepto;
-    public $idcontrapartida;
-    public $codcontrapartida;
-    public $punteada;
-    public $tasaconv;
-    public $coddivisa;
-    public $haberme;
-    public $debeme;
-    public $recargo;
     public $iva;
-    public $baseimponible;
-    public $factura;
-    public $codserie;
-    public $tipodocumento;
-    public $documento;
-    public $cifnif;
-    public $haber;
-    public $debe;
+
+    /**
+     *
+     * @var string
+     */
     public $numero;
-    public $fecha;
+
+    /**
+     *
+     * @var bool
+     */
+    public $punteada;
+
+    /**
+     *
+     * @var float
+     */
+    public $recargo;
+
+    /**
+     *
+     * @var float
+     */
     public $saldo;
+    
+    /**
+     *
+     * @var \subcuenta
+     */
+    private static $subcuenta;
+
+    /**
+     *
+     * @var float
+     */
     public $sum_debe;
+
+    /**
+     *
+     * @var float
+     */
     public $sum_haber;
 
+    /**
+     *
+     * @var float
+     */
+    public $tasaconv;
+
+    /**
+     *
+     * @var string
+     */
+    public $tipodocumento;
+
+    /**
+     * 
+     * @param array|bool $data
+     */
     public function __construct($data = FALSE)
     {
-        parent::__construct('co_partidas');
-        if ($data) {
-            $this->idpartida = $this->intval($data['idpartida']);
-            $this->idasiento = $this->intval($data['idasiento']);
-            $this->idsubcuenta = $this->intval($data['idsubcuenta']);
-            $this->codsubcuenta = $data['codsubcuenta'];
-            $this->idconcepto = $this->intval($data['idconcepto']);
-            $this->concepto = $data['concepto'];
-            $this->idcontrapartida = $data['idcontrapartida'];
-            $this->codcontrapartida = $data['codcontrapartida'];
-            $this->punteada = $this->str2bool($data['punteada']);
-
-            $this->tasaconv = floatval($data['tasaconv']);
-            $this->coddivisa = $data['coddivisa'];
-            if (is_null($this->coddivisa)) {
-                $this->coddivisa = $this->default_items->coddivisa();
-            }
-
-            $this->haberme = floatval($data['haberme']);
-            $this->debeme = floatval($data['debeme']);
-            $this->recargo = floatval($data['recargo']);
-            $this->iva = floatval($data['iva']);
-            $this->baseimponible = floatval($data['baseimponible']);
-            $this->factura = $this->intval($data['factura']);
-            $this->codserie = $data['codserie'];
-            $this->tipodocumento = $data['tipodocumento'];
-            $this->documento = $data['documento'];
-            $this->cifnif = $data['cifnif'];
-            $this->debe = floatval($data['debe']);
-            $this->haber = floatval($data['haber']);
-        } else {
-            $this->idpartida = NULL;
-            $this->idasiento = NULL;
-            $this->idsubcuenta = NULL;
-            $this->codsubcuenta = NULL;
-            $this->idconcepto = NULL;
-            $this->concepto = '';
-            $this->idcontrapartida = NULL;
-            $this->codcontrapartida = NULL;
-            $this->punteada = FALSE;
-            $this->tasaconv = 1;
-            $this->coddivisa = $this->default_items->coddivisa();
-            $this->haberme = 0;
-            $this->debeme = 0;
-            $this->recargo = 0;
-            $this->iva = 0;
-            $this->baseimponible = 0;
-            $this->factura = NULL;
-            $this->codserie = NULL;
-            $this->tipodocumento = NULL;
-            $this->documento = NULL;
-            $this->cifnif = NULL;
-            $this->debe = 0;
-            $this->haber = 0;
-        }
-
+        parent::__construct('co_partidas', $data);
         $this->numero = 0;
         $this->fecha = Date('d-m-Y');
-        $this->saldo = 0;
-        $this->sum_debe = 0;
-        $this->sum_haber = 0;
-    }
-
-    protected function install()
-    {
-        return '';
-    }
-
-    public function url()
-    {
-        if (is_null($this->idasiento)) {
-            return 'index.php?page=contabilidad_asientos';
+        $this->saldo = 0.0;
+        $this->sum_debe = 0.0;
+        $this->sum_haber = 0.0;
+        
+        if(!isset(self::$subcuenta)) {
+            self::$subcuenta = new \subcuenta();
         }
-
-        return 'index.php?page=contabilidad_asiento&id=' . $this->idasiento;
     }
 
-    public function get_subcuenta()
+    /**
+     * 
+     * @param int $id
+     *
+     * @return \partida[]
+     */
+    public function all_from_asiento($id)
     {
-        $subcuenta = new \subcuenta();
-        return $subcuenta->get($this->idsubcuenta);
-    }
+        $plist = [];
+        $sql = "SELECT * FROM " . $this->table_name . " WHERE idasiento = "
+            . $this->var2str($id) . " ORDER BY codsubcuenta ASC;";
 
-    public function subcuenta_url()
-    {
-        $subc = $this->get_subcuenta();
-        if ($subc) {
-            return $subc->url();
-        }
-
-        return '#';
-    }
-
-    public function get_contrapartida()
-    {
-        if (is_null($this->idcontrapartida)) {
-            return FALSE;
-        }
-
-        $subc = new \subcuenta();
-        return $subc->get($this->idcontrapartida);
-    }
-
-    public function contrapartida_url()
-    {
-        $subc = $this->get_contrapartida();
-        if ($subc) {
-            return $subc->url();
-        }
-
-        return '#';
-    }
-
-    public function get($id)
-    {
-        $partida = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idpartida = " . $id . ";");
-        if ($partida) {
-            return new \partida($partida[0]);
-        }
-
-        return FALSE;
-    }
-
-    public function exists()
-    {
-        if (is_null($this->idpartida)) {
-            return FALSE;
-        }
-
-        return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idpartida = " . $this->var2str($this->idpartida) . ";");
-    }
-
-    public function save()
-    {
-        $this->concepto = $this->no_html($this->concepto);
-        $this->documento = $this->no_html($this->documento);
-        $this->cifnif = $this->no_html($this->cifnif);
-
-        if ($this->exists()) {
-            $sql = "UPDATE " . $this->table_name . " SET idasiento = " . $this->var2str($this->idasiento)
-                . ", idsubcuenta = " . $this->var2str($this->idsubcuenta)
-                . ", codsubcuenta = " . $this->var2str($this->codsubcuenta)
-                . ", idconcepto = " . $this->var2str($this->idconcepto)
-                . ", concepto = " . $this->var2str($this->concepto)
-                . ", idcontrapartida = " . $this->var2str($this->idcontrapartida)
-                . ", codcontrapartida = " . $this->var2str($this->codcontrapartida)
-                . ", punteada = " . $this->var2str($this->punteada)
-                . ", tasaconv = " . $this->var2str($this->tasaconv)
-                . ", coddivisa = " . $this->var2str($this->coddivisa)
-                . ", haberme = " . $this->var2str($this->haberme)
-                . ", debeme = " . $this->var2str($this->debeme)
-                . ", recargo = " . $this->var2str($this->recargo)
-                . ", iva = " . $this->var2str($this->iva)
-                . ", baseimponible = " . $this->var2str($this->baseimponible)
-                . ", factura = " . $this->var2str($this->factura)
-                . ", codserie = " . $this->var2str($this->codserie)
-                . ", tipodocumento = " . $this->var2str($this->tipodocumento)
-                . ", documento = " . $this->var2str($this->documento)
-                . ", cifnif = " . $this->var2str($this->cifnif)
-                . ", debe = " . $this->var2str($this->debe)
-                . ", haber = " . $this->var2str($this->haber)
-                . "  WHERE idpartida = " . $this->var2str($this->idpartida) . ";";
-
-            if ($this->db->exec($sql)) {
-                $subc = $this->get_subcuenta();
-                if ($subc) {
-                    $subc->save(); /// guardamos la subcuenta para actualizar su saldo
-                }
-                return TRUE;
+        $partidas = $this->db->select($sql);
+        if ($partidas) {
+            foreach ($partidas as $p) {
+                $plist[] = new \partida($p);
             }
-
-            return FALSE;
         }
 
-        $sql = "INSERT INTO " . $this->table_name . " (idasiento,idsubcuenta,codsubcuenta,idconcepto,
-            concepto,idcontrapartida,codcontrapartida,punteada,tasaconv,coddivisa,haberme,debeme,recargo,iva,
-            baseimponible,factura,codserie,tipodocumento,documento,cifnif,debe,haber) VALUES
-                   (" . $this->var2str($this->idasiento)
-            . "," . $this->var2str($this->idsubcuenta)
-            . "," . $this->var2str($this->codsubcuenta)
-            . "," . $this->var2str($this->idconcepto)
-            . "," . $this->var2str($this->concepto)
-            . "," . $this->var2str($this->idcontrapartida)
-            . "," . $this->var2str($this->codcontrapartida)
-            . "," . $this->var2str($this->punteada)
-            . "," . $this->var2str($this->tasaconv)
-            . "," . $this->var2str($this->coddivisa)
-            . "," . $this->var2str($this->haberme)
-            . "," . $this->var2str($this->debeme)
-            . "," . $this->var2str($this->recargo)
-            . "," . $this->var2str($this->iva)
-            . "," . $this->var2str($this->baseimponible)
-            . "," . $this->var2str($this->factura)
-            . "," . $this->var2str($this->codserie)
-            . "," . $this->var2str($this->tipodocumento)
-            . "," . $this->var2str($this->documento)
-            . "," . $this->var2str($this->cifnif)
-            . "," . $this->var2str($this->debe)
-            . "," . $this->var2str($this->haber) . ");";
-
-        if ($this->db->exec($sql)) {
-            $this->idpartida = $this->db->lastval();
-
-            $subc = $this->get_subcuenta();
-            if ($subc) {
-                $subc->save(); /// guardamos la subcuenta para actualizar su saldo
-            }
-
-            return TRUE;
-        }
-
-        return FALSE;
+        return $plist;
     }
 
-    public function delete()
-    {
-        if ($this->db->exec("DELETE FROM " . $this->table_name . " WHERE idpartida = " . $this->var2str($this->idpartida) . ";")) {
-            $subc = $this->get_subcuenta();
-            if ($subc) {
-                $subc->save(); /// guardamos la subcuenta para actualizar su saldo
-            }
-
-            return TRUE;
-        }
-
-        return FALSE;
-    }
-
+    /**
+     * 
+     * @param int $id
+     * @param int $offset
+     *
+     * @return \partida[]
+     */
     public function all_from_subcuenta($id, $offset = 0)
     {
-        $plist = array();
+        $plist = [];
         $sql = "SELECT a.numero,a.fecha,p.idpartida,p.debe,p.haber FROM co_asientos a, co_partidas p"
             . " WHERE a.idasiento = p.idasiento AND p.idsubcuenta = " . $this->var2str($id)
             . " ORDER BY a.numero ASC, p.idpartida ASC;";
@@ -341,25 +284,112 @@ class partida extends \fs_model
         return $plist;
     }
 
-    public function all_from_asiento($id)
+    public function clear()
     {
-        $plist = array();
-        $sql = "SELECT * FROM " . $this->table_name . " WHERE idasiento = "
-            . $this->var2str($id) . " ORDER BY codsubcuenta ASC;";
-
-        $partidas = $this->db->select($sql);
-        if ($partidas) {
-            foreach ($partidas as $p) {
-                $plist[] = new \partida($p);
-            }
-        }
-
-        return $plist;
+        parent::clear();
+        $this->concepto = '';
+        $this->punteada = FALSE;
+        $this->tasaconv = 1;
+        $this->coddivisa = $this->default_items->coddivisa();
+        $this->haberme = 0.0;
+        $this->debeme = 0.0;
+        $this->recargo = 0.0;
+        $this->iva = 0.0;
+        $this->baseimponible = 0.0;
+        $this->debe = 0.0;
+        $this->haber = 0.0;
+        $this->numero = 0;
+        $this->fecha = Date('d-m-Y');
+        $this->saldo = 0.0;
+        $this->sum_debe = 0.0;
+        $this->sum_haber = 0.0;
     }
 
+    /**
+     * 
+     * @return string
+     */
+    public function contrapartida_url()
+    {
+        $subc = $this->get_contrapartida();
+        if ($subc) {
+            return $subc->url();
+        }
+
+        return '#';
+    }
+
+    /**
+     * 
+     * @param int $id
+     *
+     * @return int
+     */
+    public function count_from_subcuenta($id)
+    {
+        $sql = "SELECT a.numero,a.fecha,p.idpartida FROM co_asientos a, co_partidas p"
+            . " WHERE a.idasiento = p.idasiento AND p.idsubcuenta = " . $this->var2str($id)
+            . " ORDER BY a.numero ASC, p.idpartida ASC;";
+
+        $ordenadas = $this->db->select($sql);
+        if ($ordenadas) {
+            return count($ordenadas);
+        }
+
+        return 0;
+    }
+
+    /**
+     * 
+     * @return bool
+     */
+    public function delete()
+    {
+        if (parent::delete()) {
+            $subc = $this->get_subcuenta();
+            if ($subc) {
+                $subc->save(); /// guardamos la subcuenta para actualizar su saldo
+            }
+
+            return TRUE;
+        }
+
+        return FALSE;
+    }
+
+    /**
+     * 
+     * @param string $codejercicio
+     * @param int    $offset
+     * @param int    $limit
+     *
+     * @return array
+     */
+    public function full_from_ejercicio($codejercicio, $offset = 0, $limit = FS_ITEM_LIMIT)
+    {
+        $sql = "SELECT a.numero,a.fecha,s.codsubcuenta,s.descripcion,p.concepto,p.debe,p.haber"
+            . " FROM co_asientos a, co_subcuentas s, co_partidas p"
+            . " WHERE a.codejercicio = " . $this->var2str($codejercicio)
+            . " AND p.idasiento = a.idasiento AND p.idsubcuenta = s.idsubcuenta"
+            . " ORDER BY a.numero ASC, p.codsubcuenta ASC";
+
+        $data = $this->db->select_limit($sql, $limit, $offset);
+        if ($data) {
+            return $data;
+        }
+
+        return [];
+    }
+
+    /**
+     * 
+     * @param int $id
+     *
+     * @return \partida[]
+     */
     public function full_from_subcuenta($id)
     {
-        $plist = array();
+        $plist = [];
         $sql = "SELECT a.numero,a.fecha,p.idpartida FROM co_asientos a, co_partidas p"
             . " WHERE a.idasiento = p.idasiento AND p.idsubcuenta = " . $this->var2str($id)
             . " ORDER BY a.numero ASC, p.idpartida ASC";
@@ -395,73 +425,117 @@ class partida extends \fs_model
         return $plist;
     }
 
-    public function full_from_ejercicio($eje, $offset = 0, $limit = FS_ITEM_LIMIT)
+    /**
+     * 
+     * @return \subcuenta|bool
+     */
+    public function get_contrapartida()
     {
-        $sql = "SELECT a.numero,a.fecha,s.codsubcuenta,s.descripcion,p.concepto,p.debe,p.haber"
-            . " FROM co_asientos a, co_subcuentas s, co_partidas p"
-            . " WHERE a.codejercicio = " . $this->var2str($eje)
-            . " AND p.idasiento = a.idasiento AND p.idsubcuenta = s.idsubcuenta"
-            . " ORDER BY a.numero ASC, p.codsubcuenta ASC";
-
-        $data = $this->db->select_limit($sql, $limit, $offset);
-        if ($data) {
-            return $data;
+        if (is_null($this->idcontrapartida)) {
+            return FALSE;
         }
 
-        return array();
+        return self::$subcuenta->get($this->idcontrapartida);
     }
 
-    public function count_from_subcuenta($id)
+    /**
+     * 
+     * @return \subcuenta
+     */
+    public function get_subcuenta()
     {
-        $sql = "SELECT a.numero,a.fecha,p.idpartida FROM co_asientos a, co_partidas p"
-            . " WHERE a.idasiento = p.idasiento AND p.idsubcuenta = " . $this->var2str($id)
-            . " ORDER BY a.numero ASC, p.idpartida ASC;";
+        return self::$subcuenta->get($this->idsubcuenta);
+    }
 
-        $ordenadas = $this->db->select($sql);
-        if ($ordenadas) {
-            return count($ordenadas);
+    /**
+     * 
+     * @return string
+     */
+    public function model_class_name()
+    {
+        return 'partida';
+    }
+
+    /**
+     * 
+     * @return string
+     */
+    public function primary_column()
+    {
+        return 'idpartida';
+    }
+
+    /**
+     * 
+     * @return bool
+     */
+    public function save()
+    {
+        $this->concepto = $this->no_html($this->concepto);
+        $this->documento = $this->no_html($this->documento);
+        $this->cifnif = $this->no_html($this->cifnif);
+
+        if (parent::save()) {
+            $subc = $this->get_subcuenta();
+            if ($subc) {
+                $subc->save(); /// guardamos la subcuenta para actualizar su saldo
+            }
+            return true;
         }
 
-        return 0;
+        return false;
     }
 
-    public function totales_from_subcuenta($id)
+    /**
+     * 
+     * @return string
+     */
+    public function subcuenta_url()
     {
-        $totales = array('debe' => 0, 'haber' => 0, 'saldo' => 0);
-        $sql = "SELECT COALESCE(SUM(debe), 0) as debe,COALESCE(SUM(haber), 0) as haber"
-            . " FROM " . $this->table_name . " WHERE idsubcuenta = " . $this->var2str($id) . ";";
-
-        $resultados = $this->db->select($sql);
-        if ($resultados) {
-            $totales['debe'] = floatval($resultados[0]['debe']);
-            $totales['haber'] = floatval($resultados[0]['haber']);
-            $totales['saldo'] = floatval($resultados[0]['debe']) - floatval($resultados[0]['haber']);
+        $subc = $this->get_subcuenta();
+        if ($subc) {
+            return $subc->url();
         }
 
-        return $totales;
+        return '#';
     }
 
+    /**
+     * 
+     * @param string $cod
+     *
+     * @return array
+     */
     public function totales_from_ejercicio($cod)
     {
-        $totales = array('debe' => 0, 'haber' => 0, 'saldo' => 0);
-        $sql = "SELECT COALESCE(SUM(p.debe), 0) as debe,COALESCE(SUM(p.haber), 0) as haber"
-            . " FROM co_partidas p, co_asientos a"
-            . " WHERE p.idasiento = a.idasiento AND a.codejercicio = " . $this->var2str($cod) . ";";
-
-        $resultados = $this->db->select($sql);
-        if ($resultados) {
-            $totales['debe'] = floatval($resultados[0]['debe']);
-            $totales['haber'] = floatval($resultados[0]['haber']);
-            $totales['saldo'] = floatval($resultados[0]['debe']) - floatval($resultados[0]['haber']);
-        }
-
-        return $totales;
+        return $this->totales_aux("SELECT COALESCE(SUM(p.debe), 0) as debe,COALESCE(SUM(p.haber), 0) as haber"
+                . " FROM co_partidas p, co_asientos a"
+                . " WHERE p.idasiento = a.idasiento AND a.codejercicio = " . $this->var2str($cod) . ";");
     }
 
+    /**
+     * 
+     * @param int $id
+     *
+     * @return array
+     */
+    public function totales_from_subcuenta($id)
+    {
+        return $this->totales_aux("SELECT COALESCE(SUM(debe), 0) as debe,COALESCE(SUM(haber), 0) as haber"
+                . " FROM " . $this->table_name . " WHERE idsubcuenta = " . $this->var2str($id) . ";");
+    }
+
+    /**
+     * 
+     * @param int        $id
+     * @param string     $fechaini
+     * @param string     $fechafin
+     * @param array|bool $excluir
+     *
+     * @return array
+     */
     public function totales_from_subcuenta_fechas($id, $fechaini, $fechafin, $excluir = FALSE)
     {
-        $totales = array('debe' => 0, 'haber' => 0, 'saldo' => 0);
-
         if ($excluir) {
             $resultados = $this->db->select("SELECT COALESCE(SUM(p.debe), 0) as debe,
             COALESCE(SUM(p.haber), 0) as haber FROM co_partidas p, co_asientos a
@@ -475,6 +549,34 @@ class partida extends \fs_model
                AND a.fecha BETWEEN " . $this->var2str($fechaini) . " AND " . $this->var2str($fechafin) . ";");
         }
 
+        return $this->totales_aux($resultados);
+    }
+
+    /**
+     * 
+     * @param string $type
+     *
+     * @return string
+     */
+    public function url($type = 'auto')
+    {
+        if (is_null($this->idasiento) || $type == 'list') {
+            return 'index.php?page=contabilidad_asientos';
+        }
+
+        return 'index.php?page=contabilidad_asiento&id=' . $this->idasiento;
+    }
+
+    /**
+     * 
+     * @param string $sql
+     *
+     * @return array
+     */
+    private function totales_aux($sql)
+    {
+        $totales = ['debe' => 0, 'haber' => 0, 'saldo' => 0];
+        $resultados = $this->db->select($sql);
         if ($resultados) {
             $totales['debe'] = floatval($resultados[0]['debe']);
             $totales['haber'] = floatval($resultados[0]['haber']);

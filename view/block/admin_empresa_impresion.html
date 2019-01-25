@@ -1,0 +1,80 @@
+<div class="panel-heading">
+    <h3 class="panel-title">Impresión</h3>
+</div>
+<div class="panel-body">
+    <div class="form-group">
+        <label class="checkbox-inline">
+            {if="$fsc->impresion['print_ref']"}
+            <input type="checkbox" name="print_ref" value="TRUE" checked=""/>
+            {else}
+            <input type="checkbox" name="print_ref" value="TRUE"/>
+            {/if}
+            mostrar referencias.
+        </label>
+        &nbsp;
+        <label class="checkbox-inline">
+            {if="$fsc->impresion['print_dto']"}
+            <input type="checkbox" name="print_dto" value="TRUE" checked=""/>
+            {else}
+            <input type="checkbox" name="print_dto" value="TRUE"/>
+            {/if}
+            mostrar descuentos.
+        </label>
+        &nbsp;
+        <label class="checkbox-inline">
+            {if="$fsc->impresion['print_alb']"}
+            <input type="checkbox" name="print_alb" value="TRUE" checked=""/>
+            {else}
+            <input type="checkbox" name="print_alb" value="TRUE"/>
+            {/if}
+            mostrar {#FS_ALBARANES#} relacionados.
+        </label>
+        &nbsp;
+        <label class="checkbox-inline">
+            {if="$fsc->impresion['print_formapago']"}
+            <input type="checkbox" name="print_formapago" value="TRUE" checked=""/>
+            {else}
+            <input type="checkbox" name="print_formapago" value="TRUE"/>
+            {/if}
+            mostrar forma de pago en las facturas.
+        </label>
+    </div>
+    <div class="form-group">
+        Pie de página de la factura:
+        <textarea name="pie_factura" rows="3" class="form-control">{$fsc->empresa->pie_factura}</textarea>
+    </div>
+    <div class="row">
+        <div class="col-sm-4">
+            {if="$fsc->logo"}
+            <div class="thumbnail">
+                <img src="{$fsc->logo}" alt="logotipo"/>
+            </div>
+            <button class="btn btn-sm btn-block btn-default" id="b_add_logo">
+                <span class="glyphicon glyphicon-picture"></span>
+                Cambiar logotipo
+            </button>
+            {else}
+            <button class="btn btn-sm btn-default" id="b_add_logo">
+                <span class="glyphicon glyphicon-picture"></span>
+                Añadir logotipo
+            </button>
+            {/if}
+        </div>
+        <div class="col-sm-8">
+            <div class="form-group">
+                Lema:
+                <input class="form-control" type="text" name="lema" value="{$fsc->empresa->lema}" autocomplete="off"/>
+                <p class="help-block">Lema y horario se utilizan solamente en los tickets.</p>
+            </div>
+            <div class="form-group">
+                Horario:
+                <input class="form-control" type="text" name="horario" value="{$fsc->empresa->horario}" autocomplete="off"/>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="panel-footer" style="text-align: right;">
+    <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled = true; this.form.action = '{$fsc->url()}#impresion'; this.form.submit();">
+        <span class="glyphicon glyphicon-floppy-disk"></span>&nbsp; Guardar
+    </button>
+</div>

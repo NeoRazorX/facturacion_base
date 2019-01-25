@@ -1,7 +1,7 @@
 <?php
-/*
+/**
  * This file is part of facturacion_base
- * Copyright (C) 2016-2017  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2016-2019 Carlos Garcia Gomez <neorazorx@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -10,13 +10,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Lesser General Public License for more details.
  * 
  * You should have received a copy of the GNU Lesser General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-
 require_once 'plugins/facturacion_base/extras/fbase_controller.php';
 
 /**
@@ -27,7 +26,16 @@ require_once 'plugins/facturacion_base/extras/fbase_controller.php';
 class ventas_factura_devolucion extends fbase_controller
 {
 
+    /**
+     *
+     * @var factura_cliente
+     */
     public $factura;
+
+    /**
+     *
+     * @var serie
+     */
     public $serie;
 
     public function __construct()
@@ -172,18 +180,11 @@ class ventas_factura_devolucion extends fbase_controller
         if ($this->empresa->contintegrada) {
             $asiento_factura = new asiento_factura();
             $asiento_factura->generar_asiento_venta($factura);
-
-            foreach ($asiento_factura->errors as $err) {
-                $this->new_error_msg($err);
-            }
-
-            foreach ($asiento_factura->messages as $msg) {
-                $this->new_message($msg);
-            }
-        } else {
-            /// generamos las líneas de IVA de todas formas
-            $factura->get_lineas_iva();
+            return;
         }
+
+        /// generamos las líneas de IVA de todas formas
+        $factura->get_lineas_iva();
     }
 
     private function share_extension()
@@ -211,7 +212,7 @@ class ventas_factura_devolucion extends fbase_controller
      * Devuelve la suma de las cantidad devueltas para una factura y referencia
      * en sus respectivas facturas rectificativas.
      *
-     * @param int $idfactura
+     * @param int    $idfactura
      * @param string $referencia
      *
      * @return int
@@ -220,12 +221,12 @@ class ventas_factura_devolucion extends fbase_controller
     {
         $fact = (new factura_cliente())->get($idfactura);
         $devolucion = 0;
-        if($fact) {
+        if ($fact) {
             foreach ($fact->get_rectificativas() as $fact_rect) {
                 foreach ($fact_rect->get_lineas() as $lin_fact_rect) {
                     if ($lin_fact_rect->referencia === $referencia) {
                         $devolucion += $lin_fact_rect->cantidad;
-}
+                    }
                 }
             }
         }
