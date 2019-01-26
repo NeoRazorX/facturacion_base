@@ -47,7 +47,7 @@ class compras_factura extends fbase_controller
 
     /**
      *
-     * @var factura_proveedor
+     * @var factura_proveedor|bool
      */
     public $factura;
 
@@ -65,19 +65,19 @@ class compras_factura extends fbase_controller
 
     /**
      *
-     * @var proveedor
+     * @var proveedor|bool
      */
     public $proveedor;
 
     /**
      *
-     * @var bool
+     * @var factura_proveedor|bool
      */
     public $rectificada;
 
     /**
      *
-     * @var bool
+     * @var factura_proveedor|bool
      */
     public $rectificativa;
 
@@ -332,11 +332,11 @@ class compras_factura extends fbase_controller
             $factura->codserie = $_POST['codserie'];
             $factura->set_fecha_hora($this->today(), $this->hour());
             $factura->observaciones = $_POST['motivo'];
-            $factura->neto = 0;
-            $factura->totalirpf = 0;
-            $factura->totaliva = 0;
-            $factura->totalrecargo = 0;
-            $factura->total = 0;
+            $factura->neto = 0.0;
+            $factura->totalirpf = 0.0;
+            $factura->totaliva = 0.0;
+            $factura->totalrecargo = 0.0;
+            $factura->total = 0.0;
 
             /// función auxiliar para implementar en los plugins que lo necesiten
             fs_generar_numproveedor($factura);

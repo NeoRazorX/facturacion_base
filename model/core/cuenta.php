@@ -167,7 +167,7 @@ class cuenta extends \fs_extended_model
             " AND codejercicio = " . $this->var2str($codejercicio) . ";";
 
         $data = $this->db->select($sql);
-        if ($data) {
+        if (!empty($data)) {
             return new \cuenta($data[0]);
         }
 
@@ -188,7 +188,7 @@ class cuenta extends \fs_extended_model
             " AND codejercicio = " . $this->var2str($codejercicio) . " ORDER BY codcuenta ASC;";
 
         $data = $this->db->select($sql);
-        if ($data) {
+        if (!empty($data)) {
             return new \cuenta($data[0]);
         }
 
@@ -246,7 +246,7 @@ class cuenta extends \fs_extended_model
     {
         $ejercicio_model = new \ejercicio();
         $subcuenta_model = new \subcuenta();
-        
+
         $ejercicio = $ejercicio_model->get($this->codejercicio);
         if (!$ejercicio) {
             return false;
@@ -342,7 +342,7 @@ class cuenta extends \fs_extended_model
     private function all_from_data(&$data)
     {
         $cuenlist = [];
-        if ($data) {
+        if (!empty($data)) {
             foreach ($data as $c) {
                 $cuenlist[] = new \cuenta($c);
             }

@@ -88,7 +88,7 @@ class asiento extends \fs_extended_model
 
     /**
      *
-     * @var float
+     * @var float|int
      */
     public $importe;
 

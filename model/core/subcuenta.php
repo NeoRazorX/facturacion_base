@@ -58,7 +58,7 @@ class subcuenta extends \fs_extended_model
 
     /**
      *
-     * @var float
+     * @var float|int
      */
     public $debe;
 
@@ -70,7 +70,7 @@ class subcuenta extends \fs_extended_model
 
     /**
      *
-     * @var float
+     * @var float|int
      */
     public $haber;
 
@@ -88,19 +88,19 @@ class subcuenta extends \fs_extended_model
 
     /**
      *
-     * @var float
+     * @var float|int
      */
     public $iva;
 
     /**
      *
-     * @var float
+     * @var float|int
      */
     public $recargo;
 
     /**
      *
-     * @var float
+     * @var float|int
      */
     public $saldo;
 

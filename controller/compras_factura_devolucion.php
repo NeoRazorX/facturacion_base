@@ -28,7 +28,7 @@ class compras_factura_devolucion extends fbase_controller
 
     /**
      *
-     * @var factura_proveedor
+     * @var factura_proveedor|bool
      */
     public $factura;
 
@@ -90,12 +90,12 @@ class compras_factura_devolucion extends fbase_controller
             $frec->observaciones = $_POST['motivo'];
             $frec->numdocs = NULL;
 
-            $frec->irpf = 0;
-            $frec->neto = 0;
-            $frec->total = 0;
-            $frec->totalirpf = 0;
-            $frec->totaliva = 0;
-            $frec->totalrecargo = 0;
+            $frec->irpf = 0.0;
+            $frec->neto = 0.0;
+            $frec->total = 0.0;
+            $frec->totalirpf = 0.0;
+            $frec->totaliva = 0.0;
+            $frec->totalrecargo = 0.0;
 
             $guardar = FALSE;
             foreach ($this->factura->get_lineas() as $value) {

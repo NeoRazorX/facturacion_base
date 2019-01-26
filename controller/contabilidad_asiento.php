@@ -1,7 +1,7 @@
 <?php
-/*
+/**
  * This file is part of facturacion_base
- * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2019 Carlos Garcia Gomez <neorazorx@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -10,24 +10,57 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Lesser General Public License for more details.
  * 
  * You should have received a copy of the GNU Lesser General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-
 require_once 'plugins/facturacion_base/extras/fbase_controller.php';
 
 class contabilidad_asiento extends fbase_controller
 {
 
+    /**
+     *
+     * @var asiento|bool
+     */
     public $asiento;
+
+    /**
+     *
+     * @var divisa
+     */
     public $divisa;
+
+    /**
+     *
+     * @var ejercicio
+     */
     public $ejercicio;
+
+    /**
+     *
+     * @var impuesto
+     */
     public $impuesto;
+
+    /**
+     *
+     * @var array
+     */
     public $lineas;
+
+    /**
+     *
+     * @var array
+     */
     public $resultados;
+
+    /**
+     *
+     * @var subcuenta
+     */
     public $subcuenta;
 
     public function __construct()
@@ -116,7 +149,7 @@ class contabilidad_asiento extends fbase_controller
 
                 $regiva0 = new regularizacion_iva();
                 $excluir = array($ejercicio->idasientoapertura, $ejercicio->idasientocierre, $ejercicio->idasientopyg);
-                if ($regiva0->get_fecha_inside($this->asiento->fecha) && ! in_array($this->asiento->idasiento, $excluir)) {
+                if ($regiva0->get_fecha_inside($this->asiento->fecha) && !in_array($this->asiento->idasiento, $excluir)) {
                     $this->asiento->editable = FALSE;
                     $this->new_error_msg('El asiento está dentro de una regularización de '
                         . FS_IVA . '. No se puede modificar.');
@@ -141,7 +174,7 @@ class contabilidad_asiento extends fbase_controller
             if ($ejercicio->abierto()) {
                 $regiva0 = new regularizacion_iva();
                 $excluir = array($ejercicio->idasientoapertura, $ejercicio->idasientocierre, $ejercicio->idasientopyg);
-                if ($regiva0->get_fecha_inside($this->asiento->fecha) && ! in_array($this->asiento->idasiento, $excluir)) {
+                if ($regiva0->get_fecha_inside($this->asiento->fecha) && !in_array($this->asiento->idasiento, $excluir)) {
                     $this->new_error_msg('El asiento está dentro de una regularización de '
                         . FS_IVA . '. No se puede modificar.');
                 } else {
@@ -186,7 +219,7 @@ class contabilidad_asiento extends fbase_controller
         /// obtenemos la divisa de las partidas
         $div0 = $this->divisa->get($_POST['divisa']);
 
-        if (!$eje0 || ! $div0) {
+        if (!$eje0 || !$div0) {
             $this->new_error_msg('Imposible modificar el asiento.');
         } else if ($this->asiento->save()) {
             $continuar = TRUE;

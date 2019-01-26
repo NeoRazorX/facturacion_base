@@ -1,7 +1,7 @@
 <?php
-/*
+/**
  * This file is part of facturacion_base
- * Copyright (C) 2014-2017  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2014-2019 Carlos Garcia Gomez <neorazorx@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -10,25 +10,58 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Lesser General Public License for more details.
  * 
  * You should have received a copy of the GNU Lesser General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-
 require_once 'plugins/facturacion_base/extras/fbase_controller.php';
 require_once 'plugins/facturacion_base/extras/libromayor.php';
 
 class contabilidad_subcuenta extends fbase_controller
 {
 
+    /**
+     *
+     * @var cuenta
+     */
     public $cuenta;
+
+    /**
+     *
+     * @var divisa
+     */
     public $divisa;
+
+    /**
+     *
+     * @var ejercicio
+     */
     public $ejercicio;
+
+    /**
+     *
+     * @var string
+     */
     public $pdf_libromayor;
+
+    /**
+     *
+     * @var array
+     */
     public $resultados;
+
+    /**
+     *
+     * @var subcuenta
+     */
     public $subcuenta;
+
+    /**
+     *
+     * @var int
+     */
     public $offset;
 
     public function __construct()
@@ -90,7 +123,7 @@ class contabilidad_subcuenta extends fbase_controller
         } else if ($this->subcuenta) {
             return $this->subcuenta->url();
         }
-        
+
         return $this->ppage->url();
     }
 

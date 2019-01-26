@@ -289,7 +289,7 @@ class admin_empresa extends fs_controller
 
     private function logo()
     {
-        $this->logo = FALSE;
+        $this->logo = '';
         if (file_exists(FS_MYDOCS . 'images/logo.png')) {
             $this->logo = 'images/logo.png';
         } else if (file_exists(FS_MYDOCS . 'images/logo.jpg')) {

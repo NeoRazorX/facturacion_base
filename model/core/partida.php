@@ -71,13 +71,13 @@ class partida extends \fs_extended_model
 
     /**
      *
-     * @var float
+     * @var float|int
      */
     public $debe;
 
     /**
      *
-     * @var float
+     * @var float|int
      */
     public $debeme;
 
@@ -89,7 +89,7 @@ class partida extends \fs_extended_model
 
     /**
      *
-     * @var int
+     * @var string
      */
     public $factura;
 
@@ -101,13 +101,13 @@ class partida extends \fs_extended_model
 
     /**
      *
-     * @var float
+     * @var float|int
      */
     public $haber;
 
     /**
      *
-     * @var float
+     * @var float|int
      */
     public $haberme;
 
@@ -143,13 +143,13 @@ class partida extends \fs_extended_model
 
     /**
      *
-     * @var float
+     * @var float|int
      */
     public $iva;
 
     /**
      *
-     * @var string
+     * @var string|int
      */
     public $numero;
 
@@ -161,13 +161,13 @@ class partida extends \fs_extended_model
 
     /**
      *
-     * @var float
+     * @var float|int
      */
     public $recargo;
 
     /**
      *
-     * @var float
+     * @var float|int
      */
     public $saldo;
     
@@ -179,19 +179,19 @@ class partida extends \fs_extended_model
 
     /**
      *
-     * @var float
+     * @var float|int
      */
     public $sum_debe;
 
     /**
      *
-     * @var float
+     * @var float|int
      */
     public $sum_haber;
 
     /**
      *
-     * @var float
+     * @var float|int
      */
     public $tasaconv;
 

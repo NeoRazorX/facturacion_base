@@ -47,7 +47,7 @@ class ventas_factura extends fbase_controller
 
     /**
      *
-     * @var cliente
+     * @var cliente|bool
      */
     public $cliente;
 
@@ -71,7 +71,7 @@ class ventas_factura extends fbase_controller
 
     /**
      *
-     * @var forma_pgo
+     * @var forma_pago
      */
     public $forma_pago;
 
@@ -89,13 +89,13 @@ class ventas_factura extends fbase_controller
 
     /**
      *
-     * @var bool
+     * @var factura_cliente|bool
      */
     public $rectificada;
 
     /**
      *
-     * @var bool
+     * @var factura_cliente|bool
      */
     public $rectificativa;
 

@@ -35,13 +35,13 @@ class tpv_recambios extends fbase_controller
 
     /**
      *
-     * @var articulo
+     * @var articulo|bool
      */
     public $articulo;
 
     /**
      *
-     * @var caja
+     * @var caja|bool
      */
     public $caja;
 
@@ -53,7 +53,7 @@ class tpv_recambios extends fbase_controller
 
     /**
      *
-     * @var cliente
+     * @var cliente|bool
      */
     public $cliente_s;
 
@@ -125,7 +125,7 @@ class tpv_recambios extends fbase_controller
 
     /**
      *
-     * @var terminal_caja
+     * @var terminal_caja|bool
      */
     public $terminal;
 

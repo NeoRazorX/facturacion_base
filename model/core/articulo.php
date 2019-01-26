@@ -1,7 +1,7 @@
 <?php
-/*
+/**
  * This file is part of facturacion_base
- * Copyright (C) 2012-2018  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2012-2019 Carlos Garcia Gomez <neorazorx@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -10,11 +10,11 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Lesser General Public License for more details.
  * 
  * You should have received a copy of the GNU Lesser General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 namespace FacturaScripts\model;
 
@@ -1090,13 +1090,15 @@ class articulo extends \fs_model
 
     /**
      * Devuelve un array con los artículos encontrados en base a la búsqueda.
+     *
      * @param string $query
-     * @param integer $offset
+     * @param int    $offset
      * @param string $codfamilia
-     * @param boolean $con_stock
+     * @param bool   $con_stock
      * @param string $codfabricante
-     * @param boolean $bloqueados
-     * @return \articulo
+     * @param bool   $bloqueados
+     *
+     * @return \articulo[]
      */
     public function search($query = '', $offset = 0, $codfamilia = '', $con_stock = FALSE, $codfabricante = '', $bloqueados = FALSE)
     {
@@ -1203,10 +1205,12 @@ class articulo extends \fs_model
 
     /**
      * Devuelve un array con los artículos que tengan $cod como código de barras.
+     *
      * @param string $cod
-     * @param integer $offset
-     * @param integer $limit
-     * @return \articulo
+     * @param int    $offset
+     * @param int    $limit
+     *
+     * @return \articulo[]
      */
     public function search_by_codbar($cod, $offset = 0, $limit = FS_ITEM_LIMIT)
     {
@@ -1219,9 +1223,11 @@ class articulo extends \fs_model
 
     /**
      * Devuelve el listado de artículos desde el resultado $offset hasta $offset+$limit.
+     *
      * @param integer $offset desde
      * @param integer $limit nº de elementos devuelto
-     * @return \articulo
+     *
+     * @return \articulo[]
      */
     public function all($offset = 0, $limit = FS_ITEM_LIMIT)
     {
@@ -1233,9 +1239,11 @@ class articulo extends \fs_model
 
     /**
      * Devuelve el listado de artículos públicos, desde $offset hasta $offset+$limit
+     *
      * @param integer $offset
      * @param integer $limit
-     * @return \articulo
+     *
+     * @return \articulo[]
      */
     public function all_publico($offset = 0, $limit = FS_ITEM_LIMIT)
     {
@@ -1247,10 +1255,12 @@ class articulo extends \fs_model
 
     /**
      * Devuelve los artículos de una familia.
-     * @param string $cod
+     *
+     * @param string  $cod
      * @param integer $offset
      * @param integer $limit
-     * @return \articulo
+     *
+     * @return \articulo[]
      */
     public function all_from_familia($cod, $offset = 0, $limit = FS_ITEM_LIMIT)
     {
@@ -1262,10 +1272,12 @@ class articulo extends \fs_model
 
     /**
      * Devuelve los artículos de un fabricante.
-     * @param string $cod
+     *
+     * @param string  $cod
      * @param integer $offset
      * @param integer $limit
-     * @return \articulo
+     *
+     * @return \articulo[]
      */
     public function all_from_fabricante($cod, $offset = 0, $limit = FS_ITEM_LIMIT)
     {
