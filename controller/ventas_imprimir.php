@@ -339,15 +339,14 @@ class ventas_imprimir extends compras_imprimir
     protected function generar_pdf_datos_cliente(&$pdf_doc, &$lppag)
     {
         $tipo_doc = ucfirst(FS_ALBARAN);
-        $width_campo1 = 90;
+        $width_campo1 = 110;
         $rectificativa = FALSE;
         if (get_class_name($this->documento) == 'factura_cliente') {
             if ($this->documento->idfacturarect) {
                 $tipo_doc = ucfirst(FS_FACTURA_RECTIFICATIVA);
                 $rectificativa = TRUE;
-                $width_campo1 = 110;
             } else {
-                $tipo_doc = 'Factura';
+                $tipo_doc = ucfirst(FS_FACTURA);
             }
         } else if (get_class_name($this->documento) == 'pedido_cliente') {
             $tipo_doc = ucfirst(FS_PEDIDO);

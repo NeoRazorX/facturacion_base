@@ -54,7 +54,7 @@ class contabilidad_subcuenta extends fbase_controller
 
     /**
      *
-     * @var subcuenta
+     * @var subcuenta|bool
      */
     public $subcuenta;
 
@@ -103,7 +103,7 @@ class contabilidad_subcuenta extends fbase_controller
                 $this->generar_libro_mayor();
             }
 
-            $this->pdf_libromayor = FALSE;
+            $this->pdf_libromayor = '';
             if (file_exists('tmp/' . FS_TMP_NAME . 'libro_mayor/' . $this->subcuenta->idsubcuenta . '.pdf')) {
                 $this->pdf_libromayor = 'tmp/' . FS_TMP_NAME . 'libro_mayor/' . $this->subcuenta->idsubcuenta . '.pdf';
             }
