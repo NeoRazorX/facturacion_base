@@ -170,7 +170,7 @@ class partida extends \fs_extended_model
      * @var float|int
      */
     public $saldo;
-    
+
     /**
      *
      * @var \subcuenta
@@ -213,8 +213,8 @@ class partida extends \fs_extended_model
         $this->saldo = 0.0;
         $this->sum_debe = 0.0;
         $this->sum_haber = 0.0;
-        
-        if(!isset(self::$subcuenta)) {
+
+        if (!isset(self::$subcuenta)) {
             self::$subcuenta = new \subcuenta();
         }
     }
@@ -537,19 +537,19 @@ class partida extends \fs_extended_model
     public function totales_from_subcuenta_fechas($id, $fechaini, $fechafin, $excluir = FALSE)
     {
         if ($excluir) {
-            $resultados = $this->db->select("SELECT COALESCE(SUM(p.debe), 0) as debe,
+            $sql = "SELECT COALESCE(SUM(p.debe), 0) as debe,
             COALESCE(SUM(p.haber), 0) as haber FROM co_partidas p, co_asientos a
             WHERE p.idasiento = a.idasiento AND p.idsubcuenta = " . $this->var2str($id) . "
                AND a.fecha BETWEEN " . $this->var2str($fechaini) . " AND " . $this->var2str($fechafin) . "
-               AND p.idasiento NOT IN ('" . implode("','", $excluir) . "');");
-        } else {
-            $resultados = $this->db->select("SELECT COALESCE(SUM(p.debe), 0) as debe,
-            COALESCE(SUM(p.haber), 0) as haber FROM co_partidas p, co_asientos a
-            WHERE p.idasiento = a.idasiento AND p.idsubcuenta = " . $this->var2str($id) . "
-               AND a.fecha BETWEEN " . $this->var2str($fechaini) . " AND " . $this->var2str($fechafin) . ";");
+               AND p.idasiento NOT IN ('" . implode("','", $excluir) . "');";
+            return $this->totales_aux($sql);
         }
 
-        return $this->totales_aux($resultados);
+        $sql = "SELECT COALESCE(SUM(p.debe), 0) as debe,
+            COALESCE(SUM(p.haber), 0) as haber FROM co_partidas p, co_asientos a
+            WHERE p.idasiento = a.idasiento AND p.idsubcuenta = " . $this->var2str($id) . "
+               AND a.fecha BETWEEN " . $this->var2str($fechaini) . " AND " . $this->var2str($fechafin) . ";";
+        return $this->totales_aux($sql);
     }
 
     /**
