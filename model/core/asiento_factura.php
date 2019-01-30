@@ -181,10 +181,10 @@ class asiento_factura extends \fbase_asiento_factura
 
             if ($nasientop->floatcmp(abs($par->debe), $importe, FS_NF0) || $nasientop->floatcmp(abs($par->debe), $importe2, FS_NF0)) {
                 $idpartida = $par->idpartida;
-                break;
+                /// sin break
             } else if ($nasientop->floatcmp(abs($par->haber), $importe, FS_NF0) || $nasientop->floatcmp(abs($par->haber), $importe2, FS_NF0)) {
                 $idpartida = $par->idpartida;
-                break;
+                /// sin break
             }
         }
 
