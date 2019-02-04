@@ -212,7 +212,7 @@ abstract class fbase_asiento_factura
                     return false;
                 }
 
-                $partidaA = $asiento->get_new_partida($subcart->codsubcuenta);
+                $partidaA = $asiento->get_new_partida($subcart->codsubcuenta, '');
                 $partidaA->debe = $lin->pvptotal * $tasaconv;
                 $partidaA->tasaconv = $tasaconv2;
             }
@@ -285,7 +285,7 @@ abstract class fbase_asiento_factura
                     return false;
                 }
 
-                $partidaA = $asiento->get_new_partida($subcart->codsubcuenta);
+                $partidaA = $asiento->get_new_partida($subcart->codsubcuenta, '');
                 $partidaA->haber = ($lin->pvptotal * $lin->irpf / 100) * $tasaconv;
                 $partidaA->tasaconv = $tasaconv2;
             }

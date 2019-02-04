@@ -457,7 +457,7 @@ class asiento extends \fs_extended_model
      *
      * @return \partida
      */
-    public function get_new_partida($codsubcuenta, $codcontrapartida)
+    public function get_new_partida($codsubcuenta = '', $codcontrapartida = '')
     {
         $partida = new \partida();
         $partida->coddivisa = $this->coddivisa();
