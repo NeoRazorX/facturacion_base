@@ -1,7 +1,7 @@
 <?php
-/*
+/**
  * This file is part of facturacion_base
- * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2019 Carlos Garcia Gomez <neorazorx@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -10,11 +10,11 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Lesser General Public License for more details.
  * 
  * You should have received a copy of the GNU Lesser General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 namespace FacturaScripts\model;
 
@@ -28,16 +28,28 @@ class familia extends \fs_model
 
     /**
      * Clave primaria.
+     *
      * @var string 
      */
     public $codfamilia;
+
+    /**
+     *
+     * @var string
+     */
     public $descripcion;
 
     /**
      * Código de la familia madre.
+     *
      * @var string 
      */
     public $madre;
+
+    /**
+     *
+     * @var string
+     */
     public $nivel;
 
     public function __construct($data = FALSE)
@@ -46,16 +58,8 @@ class familia extends \fs_model
         if ($data) {
             $this->codfamilia = $data['codfamilia'];
             $this->descripcion = $data['descripcion'];
-
-            $this->madre = NULL;
-            if (isset($data['madre'])) {
-                $this->madre = $data['madre'];
-            }
-
-            $this->nivel = '';
-            if (isset($data['nivel'])) {
-                $this->nivel = $data['nivel'];
-            }
+            $this->madre = isset($data['madre']) ? $data['madre'] : null;
+            $this->nivel = isset($data['nivel']) ? $data['nivel'] : '';
         } else {
             $this->codfamilia = NULL;
             $this->descripcion = '';
@@ -64,12 +68,20 @@ class familia extends \fs_model
         }
     }
 
+    /**
+     * 
+     * @return string
+     */
     protected function install()
     {
         $this->clean_cache();
         return "INSERT INTO " . $this->table_name . " (codfamilia,descripcion) VALUES ('VARI','VARIOS');";
     }
 
+    /**
+     * 
+     * @return string
+     */
     public function url()
     {
         if (is_null($this->codfamilia)) {
@@ -79,6 +91,12 @@ class familia extends \fs_model
         return "index.php?page=ventas_familia&cod=" . urlencode($this->codfamilia);
     }
 
+    /**
+     * 
+     * @param int $len
+     *
+     * @return string
+     */
     public function descripcion($len = 12)
     {
         if (mb_strlen($this->descripcion) > $len) {
@@ -86,15 +104,6 @@ class familia extends \fs_model
         }
 
         return $this->descripcion;
-    }
-
-    /**
-     * @deprecated since version 50
-     * @return boolean
-     */
-    public function is_default()
-    {
-        return FALSE;
     }
 
     public function get($cod)
@@ -113,6 +122,10 @@ class familia extends \fs_model
         return $articulo->all_from_familia($this->codfamilia, $offset, $limit);
     }
 
+    /**
+     * 
+     * @return bool
+     */
     public function exists()
     {
         if (is_null($this->codfamilia)) {
@@ -124,29 +137,29 @@ class familia extends \fs_model
 
     /**
      * Comprueba los datos de la familia, devuelve TRUE si son correctos
-     * @return boolean
+     *
+     * @return bool
      */
     public function test()
     {
-        $status = FALSE;
-
         $this->codfamilia = $this->no_html($this->codfamilia);
         $this->descripcion = $this->no_html($this->descripcion);
 
-        if (strlen($this->codfamilia) < 1 || strlen($this->codfamilia) > 8) {
+        if (mb_strlen($this->codfamilia) < 1 || mb_strlen($this->codfamilia) > 8) {
             $this->new_error_msg("Código de familia no válido. Deben ser entre 1 y 8 caracteres.");
-        } else if (strlen($this->descripcion) < 1 || strlen($this->descripcion) > 100) {
+        } elseif (mb_strlen($this->descripcion) < 1 || mb_strlen($this->descripcion) > 100) {
             $this->new_error_msg("Descripción de familia no válida.");
         } else {
-            $status = TRUE;
+            return true;
         }
 
-        return $status;
+        return false;
     }
 
     /**
      * Guarda los datos en la base de datos
-     * @return boolean
+     *
+     * @return bool
      */
     public function save()
     {
@@ -172,13 +185,15 @@ class familia extends \fs_model
 
     /**
      * Elimina la familia de la base de datos
-     * @return boolean
+     *
+     * @return bool
      */
     public function delete()
     {
         $this->clean_cache();
         $sql = "DELETE FROM " . $this->table_name . " WHERE codfamilia = " . $this->var2str($this->codfamilia) . ";"
-            . "UPDATE " . $this->table_name . " SET madre = " . $this->var2str($this->madre) . " WHERE madre = " . $this->var2str($this->codfamilia) . ";";
+            . " UPDATE " . $this->table_name . " SET madre = " . $this->var2str($this->madre)
+            . " WHERE madre = " . $this->var2str($this->codfamilia) . ";";
 
         return $this->db->exec($sql);
     }
@@ -193,7 +208,8 @@ class familia extends \fs_model
 
     /**
      * Devuelve un array con todas las familias
-     * @return \familia
+     *
+     * @return \familia[]
      */
     public function all()
     {
@@ -221,16 +237,17 @@ class familia extends \fs_model
     }
 
     /**
-     * Completa los datos de la lista de familias con el nivel
+     * Completa los datos de la lista de familias con el nivel.
+     *
      * @param array $familias
      * @param string $madre
      * @param string $nivel
+     *
      * @return \familia[]
      */
     private function aux_all(&$familias, $madre, $nivel)
     {
-        $subfamilias = array();
-
+        $subfamilias = [];
         foreach ($familias as $fam) {
             if ($fam['madre'] == $madre) {
                 $fam['nivel'] = $nivel;
@@ -246,7 +263,7 @@ class familia extends \fs_model
 
     private function all_from($sql)
     {
-        $famlist = array();
+        $famlist = [];
         $data = $this->db->select($sql);
         if ($data) {
             foreach ($data as $a) {

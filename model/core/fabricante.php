@@ -1,7 +1,7 @@
 <?php
-/*
+/**
  * This file is part of facturacion_base
- * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2019 Carlos Garcia Gomez <neorazorx@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -10,11 +10,11 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Lesser General Public License for more details.
  * 
  * You should have received a copy of the GNU Lesser General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 namespace FacturaScripts\model;
 
@@ -28,9 +28,15 @@ class fabricante extends \fs_model
 
     /**
      * Clave primaria.
+     *
      * @var string
      */
     public $codfabricante;
+
+    /**
+     *
+     * @var string
+     */
     public $nombre;
 
     public function __construct($data = FALSE)
@@ -45,12 +51,20 @@ class fabricante extends \fs_model
         }
     }
 
+    /**
+     * 
+     * @return string
+     */
     protected function install()
     {
         $this->clean_cache();
         return "INSERT INTO " . $this->table_name . " (codfabricante,nombre) VALUES ('OEM','OEM');";
     }
 
+    /**
+     * 
+     * @return string
+     */
     public function url()
     {
         if (is_null($this->codfabricante)) {
@@ -60,6 +74,12 @@ class fabricante extends \fs_model
         return "index.php?page=ventas_fabricante&cod=" . urlencode($this->codfabricante);
     }
 
+    /**
+     * 
+     * @param int $len
+     *
+     * @return string
+     */
     public function nombre($len = 12)
     {
         if (mb_strlen($this->nombre) > $len) {
@@ -85,6 +105,10 @@ class fabricante extends \fs_model
         return $articulo->all_from_fabricante($this->codfabricante, $offset, $limit);
     }
 
+    /**
+     * 
+     * @return bool
+     */
     public function exists()
     {
         if (is_null($this->codfabricante)) {
@@ -94,24 +118,30 @@ class fabricante extends \fs_model
         return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codfabricante = " . $this->var2str($this->codfabricante) . ";");
     }
 
+    /**
+     * 
+     * @return bool
+     */
     public function test()
     {
-        $status = FALSE;
-
         $this->codfabricante = $this->no_html($this->codfabricante);
         $this->nombre = $this->no_html($this->nombre);
 
-        if (strlen($this->codfabricante) < 1 || strlen($this->codfabricante) > 8) {
+        if (mb_strlen($this->codfabricante) < 1 || mb_strlen($this->codfabricante) > 8) {
             $this->new_error_msg("Código de fabricante no válido. Deben ser entre 1 y 8 caracteres.");
-        } else if (strlen($this->nombre) < 1 || strlen($this->nombre) > 100) {
+        } else if (mb_strlen($this->nombre) < 1 || mb_strlen($this->nombre) > 100) {
             $this->new_error_msg("Descripción de fabricante no válida.");
         } else {
-            $status = TRUE;
+            return true;
         }
 
-        return $status;
+        return false;
     }
 
+    /**
+     * 
+     * @return bool
+     */
     public function save()
     {
         if ($this->test()) {
@@ -132,6 +162,10 @@ class fabricante extends \fs_model
         return FALSE;
     }
 
+    /**
+     * 
+     * @return bool
+     */
     public function delete()
     {
         $this->clean_cache();
@@ -147,7 +181,8 @@ class fabricante extends \fs_model
 
     /**
      * Devuelve un array con todos los fabricantes
-     * @return \fabricante
+     *
+     * @return \fabricante[]
      */
     public function all()
     {
@@ -171,9 +206,8 @@ class fabricante extends \fs_model
 
     public function search($query)
     {
-        $fablist = array();
+        $fablist = [];
         $query = $this->no_html(mb_strtolower($query, 'UTF8'));
-
         $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE lower(nombre) LIKE '%" . $query . "%' ORDER BY nombre ASC;");
         if ($data) {
             foreach ($data as $f) {
