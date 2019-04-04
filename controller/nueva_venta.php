@@ -302,8 +302,11 @@ class nueva_venta extends fbase_controller
         $this->template = FALSE;
 
         $art0 = new articulo();
-        if ($_REQUEST['referencia'] != '') {
-            $art0->referencia = $_REQUEST['referencia'];
+        //limpiamos la referencia:
+        $referencia = trim($_REQUEST['referencia']);
+        
+        if ($referencia != '') {
+            $art0->referencia = $referencia;
         } else {
             $art0->referencia = $art0->get_new_referencia();
         }
