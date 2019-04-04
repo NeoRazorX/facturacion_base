@@ -269,4 +269,21 @@ class compras_trazabilidad extends fs_controller
 
         return $ok;
     }
+    
+    /**
+     * 
+     * @param type $ref
+     * @return string
+     */
+    public function descripcion($ref)
+    {
+        $art0 = new articulo();
+        $articulo = $art0->get($ref);
+        if ($articulo)
+        {
+            return $articulo->descripcion;
+        }
+        
+        return 'No hay descripción';
+    }
 }
