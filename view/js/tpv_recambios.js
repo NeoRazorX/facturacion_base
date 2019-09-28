@@ -1,6 +1,6 @@
 /*
  * This file is part of facturacion_base
- * Copyright (C) 2014-2017  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2014-2019 Carlos Garcia Gomez <neorazorx@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -296,7 +296,7 @@ function add_articulo(ref, desc, pvp, dto, codimpuesto, cantidad, codcombinacion
          <td class=\"text-right\"><div class=\"form-control\">" + iva + "</div></td>\n\
          <td class=\"text-right recargo\"><div class=\"form-control\">" + recargo + "</div></td>\n\
          <td class=\"text-right irpf\"><div class=\"form-control\">" + irpf + "</div></td>\n\
-         <td class=\"warning\" title=\"Cálculo aproximado del total de la linea\">\n\
+         <td class=\"warning\" title=\"Cálculo aproximado del total de la linea, sin redondeos.\">\n\
             <input type=\"text\" class=\"form-control text-right\" id=\"total_" + numlineas + "\" name=\"total_" + numlineas +
             "\" onchange=\"ajustar_total(" + numlineas + ")\" onclick=\"this.select()\" autocomplete=\"off\"/></td></tr>");
     recalcular();

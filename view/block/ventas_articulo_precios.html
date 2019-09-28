@@ -35,8 +35,8 @@
                     <div class="form-group">
                         Precio+{#FS_IVA#}:
                         <div class="input-group">
-                            <input type="text" class="form-control" id="pvpi" name="pvpiva" value="{$fsc->articulo->pvp_iva()}" autocomplete="off" onkeyup="cambiar_pvpi()" onclick="this.select()"/>
                             <span class="input-group-addon" title="precio redondeado">{$fsc->show_precio($fsc->articulo->pvp_iva(), FALSE, TRUE, FS_NF0_ART)}</span>
+                            <input type="text" class="form-control" id="pvpi" name="pvpiva" value="{$fsc->articulo->pvp_iva()}" autocomplete="off" onkeyup="cambiar_pvpi()" onclick="this.select()"/>
                         </div>
                         <p class="help-block">Último cambio de precio: {$fsc->articulo->factualizado}</p>
                     </div>

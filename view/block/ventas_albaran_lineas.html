@@ -21,7 +21,7 @@
                 <th class="text-right" width="115">{#FS_IVA#}</th>
                 <th class="text-right recargo" width="115">RE %</th>
                 <th class="text-right irpf" width="115">{#FS_IRPF#} %</th>
-                <th class="text-right" width="140">Total</th>
+                <th class="text-right warning" width="140" title="Cálculo aproximado del total de la linea, sin redondeos">Total*</th>
             </tr>
         </thead>
         <tbody id="lineas_doc" data-codigo="{$fsc->albaran->codigo}">
@@ -96,7 +96,7 @@
                     <input type="text" class="form-control text-right" id="irpf_{$counter}" name="irpf_{$counter}" value="{$value->irpf}"
                            onchange="recalcular()" onclick="this.select()" autocomplete="off"/>
                 </td>
-                <td class="warning" title="Cálculo aproximado del total de la linea">
+                <td class="warning" title="Cálculo aproximado del total de la linea, sin redondeos.">
                     <input type="text" class="form-control text-right" id="total_{$counter}" onchange="ajustar_total('{$counter}')" onclick="this.select()" autocomplete="off"/>
                 </td>
             </tr>

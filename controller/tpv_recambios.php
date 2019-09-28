@@ -409,6 +409,7 @@ class tpv_recambios extends fbase_controller
                     'desc' => base64_decode($_POST['desc']) . "\n" . $com->nombreatributo . ' - ' . $com->valor,
                     'pvp' => floatval($_POST['pvp']) + $com->impactoprecio,
                     'dto' => floatval($_POST['dto']),
+                    'codbarras' => $com->codbarras,
                     'codimpuesto' => $_POST['codimpuesto'],
                     'iva' => $iva,
                     'cantidad' => floatval($_POST['cantidad']),
