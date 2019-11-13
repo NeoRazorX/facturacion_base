@@ -65,7 +65,7 @@ class editar_balances extends fbase_controller
                 $this->eliminar_balance_cuenta($bc0);
             } else if (isset($_GET['rm_cuenta_a'])) {
                 $this->eliminar_balance_cuenta_abreviado($bca0);
-            } else if (isset($_POST['descripcion']) && ! isset($_POST['ncodbalance'])) {
+            } else if (isset($_POST['descripcion']) && !isset($_POST['ncodbalance'])) {
                 $this->editar_balance();
             }
 
