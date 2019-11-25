@@ -515,10 +515,9 @@
                             </div>
                         </div>
                     </form>
-                    {if="$fsc->anyo['ventas_neto']==0"}
-                    <a href="https://www.facturascripts.com/doc/2/primeros-pasos" target="_blank" class="btn btn-block btn-default">
-                        <i class="fa fa-info-circle fa-3x" aria-hidden="true"></i>
-                        <br/>Primeros pasos
+                    <a href="https://www.facturascripts.com/cursos/curso-basico-de-usuario-version-2017" target="_blank" class="btn btn-block btn-default">
+                        <i class="fa fa-graduation-cap fa-3x" aria-hidden="true"></i>
+                        <br/>Curso básico de usuario
                     </a>
                     <p class="help-block">
                         En la web de FacturaScripts encontrarás la documentación para resolver
@@ -526,7 +525,6 @@
                         <b>Recargo de equivalencia</b>, traducciones, configuración de decimales, etc...
                     </p>
                     <br/>
-                    {/if}
                     {if="!$fsc->empresa->can_send_mail()"}
                     <a href="index.php?page=admin_empresa#email" class="btn btn-block btn-warning">
                         <i class="fa fa-envelope fa-3x" aria-hidden="true"></i>
@@ -548,10 +546,19 @@
                         descargas del panel de control. Hay de todo, y con un desarrollo constante ;-)
                     </p>
                     <br/>
+                    <a href="https://www.facturascripts.com/doc/1/actualizar-desde-facturascripts-2017" target="_blank" class="btn btn-block btn-info">
+                        <i class="fa fa-cloud-upload fa-3x" aria-hidden="true"></i>
+                        <br/>Actualizar
+                    </a>
+                    <p class="help-block">
+                        FacturaScripts 2018 es un rediseño desde cero. Consulta esta guía para actualizar.
+                    </p>
+                    <br/>
                 </div>
                 <div class="col-sm-9">
                     {loop="$fsc->noticias"}
-                    <blockquote class="bg-info">
+                    {$bgClass=time()-strtotime($value->fecha)<432000?'bg-info':'bg-warning'}
+                    <blockquote class="{$bgClass}">
                         <div class="row">
                             <div class="col-sm-11">
                                 <p class="help-block">
