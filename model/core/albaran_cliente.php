@@ -555,7 +555,7 @@ class albaran_cliente extends \fs_model
          */
         $this->db->exec("UPDATE " . $this->table_name . " SET idfactura = NULL WHERE idfactura = 0;");
         $this->db->exec("UPDATE " . $this->table_name . " SET idfactura = NULL WHERE idfactura IS NOT NULL"
-            . " AND idfactura NOT IN (SELECT idfactura FROM facturascli);");
+            . " AND idfactura NOT IN (SELECT idfactura FROM facturascli WHERE facturascli.idfactura = " . $this->table_name . ".idfactura);");
 
         /// asignamos netosindto a neto a todos los que estén a 0
         $this->db->exec("UPDATE " . $this->table_name . " SET netosindto = neto WHERE netosindto = 0;");

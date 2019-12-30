@@ -498,6 +498,6 @@ class albaran_proveedor extends \fs_model
          */
         $this->db->exec("UPDATE " . $this->table_name . " SET idfactura = NULL WHERE idfactura = 0;");
         $this->db->exec("UPDATE " . $this->table_name . " SET idfactura = NULL WHERE idfactura IS NOT NULL"
-            . " AND idfactura NOT IN (SELECT idfactura FROM facturasprov);");
+            . " AND idfactura NOT IN (SELECT idfactura FROM facturasprov WHERE facturasprov.idfactura = " . $this->table_name . ".idfactura);");
     }
 }
