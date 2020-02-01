@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of facturacion_base
- * Copyright (C) 2015-2018 Carlos Garcia Gomez <neorazorx@gmail.com>
+ * Copyright (C) 2015-2020 Carlos Garcia Gomez <neorazorx@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -103,7 +103,7 @@ class base_wizard extends fs_controller
         if (FS_DEMO) {
             $this->new_advice('En el modo demo no se pueden hacer cambios en esta página.');
             $this->new_advice('Si te gusta FacturaScripts y quieres saber más, consulta la '
-                . '<a href="https://www.facturascripts.com/doc/2">documentación</a>.');
+                . '<a href="https://facturascripts.com/doc/2">documentación</a>.');
         } else if (isset($_POST['nombrecorto'])) {
             /// guardamos los datos de la empresa
             $this->save_step1();
