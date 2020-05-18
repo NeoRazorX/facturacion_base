@@ -1,8 +1,8 @@
 <?php
-/*
+/**
  * This file is part of facturacion_base
- * Copyright (C) 2013-2017    Carlos Garcia Gomez  neorazorx@gmail.com
- * Copyright (C) 2017         Francesc Pineda Segarra francesc.pìneda@x-netdigital.com
+ * Copyright (C) 2013-2020  Carlos Garcia Gomez     <neorazorx@gmail.com>
+ * Copyright (C) 2017       Francesc Pineda Segarra <francesc.pìneda@x-netdigital.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -17,7 +17,6 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 require_once 'plugins/facturacion_base/controller/informe_albaranes.php';
 
 /**
@@ -1000,10 +999,12 @@ class informe_facturas extends informe_albaranes
 
         if ($tipo == 'compra') {
             $tabla = $this->table_compras;
-            echo "serie,documento,num.proveedor,fecha,proveedor," . FS_CIFNIF . ",neto,tasa" . FS_IVA . "," . FS_IVA . ",re," . FS_IRPF . ",total\n";
+            echo "serie,documento,num.proveedor,fecha,proveedor," . FS_CIFNIF . ",neto,tasa" . FS_IVA
+            . "," . FS_IVA . ",tasare,re," . FS_IRPF . ",total\n";
         } else {
             $tabla = $this->table_ventas;
-            echo "serie,documento," . FS_NUMERO2 . ",fecha,cliente," . FS_CIFNIF . ",neto,tasa" . FS_IVA . "," . FS_IVA . ",re," . FS_IRPF . ",total\n";
+            echo "serie,documento," . FS_NUMERO2 . ",fecha,cliente," . FS_CIFNIF . ",neto,tasa" . FS_IVA
+            . "," . FS_IVA . ",tasare,re," . FS_IRPF . ",total\n";
         }
 
         foreach ($this->get_documentos($tabla) as $doc) {
