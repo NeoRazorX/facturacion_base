@@ -27,6 +27,7 @@ class dashboard extends fs_controller
 
     public $anterior;
     public $anyo;
+    public $hide_backup_warning;
     public $mes;
     public $neto;
     public $noticias;
@@ -37,11 +38,25 @@ class dashboard extends fs_controller
         parent::__construct(__CLASS__, 'Dashboard', 'informes', FALSE, TRUE, TRUE);
     }
 
+    /**
+     * 
+     * @return bool
+     */
+    public function show_backup_warning()
+    {
+        $fsvar = new fs_var();
+        return 'localhost' === $_SERVER['SERVER_NAME'] && $this->hide_backup_warning != 'true';
+    }
+
     protected function private_core()
     {
         /// cargamos la configuración
         $fsvar = new fs_var();
-        if (isset($_POST['anterior'])) {
+        $this->hide_backup_warning = $fsvar->simple_get('hidebackupw');
+        if (isset($_GET['hidebackupw'])) {
+            $this->hide_backup_warning = 'true';
+            $fsvar->simple_save('hidebackupw', $this->hide_backup_warning);
+        } elseif (isset($_POST['anterior'])) {
             $this->anterior = $_POST['anterior'];
             $fsvar->simple_save('dashboard_anterior', $this->anterior);
 

@@ -36,6 +36,28 @@
             {/if}
         </div>
     </div>
+    {if="$fsc->show_backup_warning()"}
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="panel panel-danger">
+                <div class="panel-heading">Recordatorio de seguridad</div>
+                <div class="panel-body">
+                    <p>
+                        Queremos recordarte que los datos de esta instalación de FacturaScripts están en tu PC,
+                        no en la nube. <b>Si pierdes el PC, pierdes los datos</b>. Te recomendamos que hagas
+                        <b>copia de seguridad</b> y la guardes en un lugar seguro.
+                    </p>
+                    <a class="btn btn-warning" href="https://facturascripts.com/plugin/backups" target="_blank">
+                        Copia de seguridad
+                    </a>
+                    <a class="btn btn-default" href="{$fsc->url()}&hidebackupw=true">
+                        Cerrar
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {/if}
     <div class="row">
         <div class="col-sm-12">
             <ul class="nav nav-tabs" role="tablist">
