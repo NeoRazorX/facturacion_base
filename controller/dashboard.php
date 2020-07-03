@@ -44,7 +44,6 @@ class dashboard extends fs_controller
      */
     public function show_backup_warning()
     {
-        $fsvar = new fs_var();
         return 'localhost' === $_SERVER['SERVER_NAME'] && $this->hide_backup_warning != 'true';
     }
 
