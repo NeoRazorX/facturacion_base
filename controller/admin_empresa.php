@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of facturacion_base
- * Copyright (C) 2013-2019 Carlos Garcia Gomez <neorazorx@gmail.com>
+ * Copyright (C) 2013-2020 Carlos Garcia Gomez <neorazorx@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -234,40 +234,40 @@ class admin_empresa extends fs_controller
 
     private function mail_test()
     {
-        if ($this->empresa->can_send_mail()) {
+        if (false === $this->empresa->can_send_mail()) {
             return;
         }
 
         /// Es imprescindible OpenSSL para enviar emails con los principales proveedores
-        if (!extension_loaded('openssl')) {
-            $this->new_error_msg('No se encuentra la extensión OpenSSL,'
-                . ' imprescindible para enviar emails.');
+        if (false === extension_loaded('openssl')) {
+            $this->new_error_msg('No se encuentra la extensión OpenSSL, imprescindible para enviar emails.');
             return;
         }
 
         $mail = $this->empresa->new_mail();
         $mail->Timeout = 3;
         $mail->FromName = $this->user->nick;
-
         $mail->Subject = 'TEST';
         $mail->AltBody = 'TEST';
         $mail->msgHTML('TEST');
         $mail->isHTML(TRUE);
 
-        if (!$this->empresa->mail_connect($mail)) {
-            $this->new_error_msg('No se ha podido conectar por email. ¿La contraseña es correcta?');
-
-            if ($mail->Host == 'smtp.gmail.com') {
-                $this->new_error_msg('Aunque la contraseña de gmail sea correcta, en ciertas '
-                    . 'situaciones los servidores de gmail bloquean la conexión. '
-                    . 'Para superar esta situación debes crear y usar una '
-                    . '<a href="https://support.google.com/accounts/answer/185833?hl=es" '
-                    . 'target="_blank">contraseña de aplicación</a>');
-            } else {
-                $this->new_error_msg("¿<a href='" . FS_COMMUNITY_URL . "/index.php?page=community_item&id=74'"
-                    . " target='_blank'>Necesitas ayuda</a>?");
-            }
+        if ($this->empresa->mail_connect($mail)) {
+            /// OK
+            return;
         }
+
+        $this->new_error_msg('No se ha podido conectar por email. ¿La contraseña es correcta?');
+        if ($mail->Host == 'smtp.gmail.com') {
+            $this->new_error_msg('Aunque la contraseña de gmail sea correcta, en ciertas '
+                . 'situaciones los servidores de gmail bloquean la conexión. '
+                . 'Para superar esta situación debes crear y usar una '
+                . '<a href="https://support.google.com/accounts/answer/185833?hl=es" '
+                . 'target="_blank">contraseña de aplicación</a>');
+            return;
+        }
+
+        $this->new_error_msg("¿<a href='" . FS_COMMUNITY_URL . "/contacto' target='_blank'>Necesitas ayuda</a>?");
     }
 
     private function fix_logo()
