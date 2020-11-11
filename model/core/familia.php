@@ -306,14 +306,12 @@ class familia extends \fs_model
     {
         /// comprobamos que las familias con madre, su madre exista.
         $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE madre IS NOT NULL;");
-        if ($data) {
-            foreach ($data as $d) {
-                $fam = $this->get($d['madre']);
-                if (!$fam) {
-                    /// si no existe, desvinculamos
-                    $this->db->exec("UPDATE " . $this->table_name . " SET madre = null WHERE codfamilia = "
-                        . $this->var2str($d['codfamilia']) . ":");
-                }
+        foreach ($data as $d) {
+            $fam = $this->get($d['madre']);
+            if (!$fam || $fam->codfamilia == $fam->madre) {
+                /// si la madre no existe, o es la propia familia, desvinculamos
+                $this->db->exec("UPDATE " . $this->table_name . " SET madre = null WHERE codfamilia = "
+                    . $this->var2str($d['codfamilia']) . ";");
             }
         }
     }
