@@ -1,7 +1,7 @@
 <?php
-/*
+/**
  * This file is part of facturacion_base
- * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2021 Carlos Garcia Gomez <neorazorx@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -20,29 +20,61 @@
 /**
  * Description of cierre_ejercicio
  *
- * @author carlos
+ * @author Carlos Garcia Gomez <neorazorx@gmail.com>
  */
 class cierre_ejercicio
 {
 
+    /**
+     * 
+     * @var fs_db2
+     */
+    private $database;
+
+    /**
+     * 
+     * @var ejercicio
+     */
     private $ejercicio;
+
+    /**
+     * 
+     * @var array
+     */
     private $errors;
 
+    /**
+     * 
+     * @param string $eje
+     */
     public function __construct($eje)
     {
+        $this->database = new fs_db2();
         $this->ejercicio = $eje;
     }
 
+    /**
+     * 
+     * @return array
+     */
     public function get_errors()
     {
         return $this->errors;
     }
 
+    /**
+     * 
+     * @param string $err
+     */
     private function new_error_msg($err)
     {
         $this->errors[] = $err;
     }
 
+    /**
+     * 
+     * @return bool
+     */
     public function paso1()
     {
         $asiento = new asiento();
@@ -145,6 +177,10 @@ class cierre_ejercicio
         return $continuar;
     }
 
+    /**
+     * 
+     * @return bool
+     */
     public function paso2()
     {
         $asiento = new asiento();
@@ -258,8 +294,9 @@ class cierre_ejercicio
 
                     if ($sc->codcuenta == $cuenta_pyg->codcuenta) {
                         $nsc = $subcuenta->get_by_codigo('1200000000', $siguiente_ejercicio->codejercicio, TRUE);
-                    } else
-                        $nsc = $subcuenta->get_by_codigo($sc->codsubcuenta, $siguiente_ejercicio->codejercicio, TRUE);
+                    } else {
+                        $nsc = $this->get_new_subcuenta($this->ejercicio->codejercicio, $sc->codsubcuenta, $siguiente_ejercicio->codejercicio);
+                    }
 
                     if ($nsc && $asiento !== FALSE) {
                         $paa = new partida();
@@ -332,8 +369,7 @@ class cierre_ejercicio
 
                     $npaa->save();
                     $asiento_apertura->fix();
-                }
-                else {
+                } else {
                     $continuar = FALSE;
                     $this->new_error_msg('Asiento de apertura descuadrado.');
                 }
@@ -372,5 +408,41 @@ class cierre_ejercicio
 
             return $continuar;
         }
+    }
+
+    /**
+     * 
+     * @param string $old_codejercicio
+     * @param string $codsubcuenta
+     * @param string $new_codejercicio
+     *
+     * @return subcuenta
+     */
+    private function get_new_subcuenta($old_codejercicio, $codsubcuenta, $new_codejercicio)
+    {
+        /// buscamos la subcuenta entre las relacionadas con clientes. Si la encontramos devolvemos la nueva subcuenta.
+        $sql_find_cli = "SELECT codcliente FROM co_subcuentascli WHERE codejercicio = '" . $old_codejercicio . "'"
+            . " AND codsubcuenta = '" . $codsubcuenta . "';";
+        foreach ($this->database->select($sql_find_cli) as $row) {
+            $cliente_model = new cliente();
+            $cliente = $cliente_model->get($row['codcliente']);
+            if ($cliente) {
+                return $cliente->get_subcuenta($new_codejercicio);
+            }
+        }
+
+        /// buscamos la subcuenta entre las relacionadas con proveedores. Si la encontramos devolvemos la nueva subcuenta.
+        $sql_find_prov = "SELECT codproveedor FROM co_subcuentasprov WHERE codejercicio = '" . $old_codejercicio . "'"
+            . " AND codsubcuenta = '" . $codsubcuenta . "';";
+        foreach ($this->database->select($sql_find_prov) as $row) {
+            $proveedor_model = new proveedor();
+            $proveedor = $proveedor_model->get($row['codproveedor']);
+            if ($proveedor) {
+                return $proveedor->get_subcuenta($new_codejercicio);
+            }
+        }
+
+        $subcuenta = new subcuenta();
+        return $subcuenta->get_by_codigo($codsubcuenta, $new_codejercicio, TRUE);
     }
 }

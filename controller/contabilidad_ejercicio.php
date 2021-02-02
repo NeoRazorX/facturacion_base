@@ -61,8 +61,7 @@ class contabilidad_ejercicio extends fbase_controller
                 } else
                     $this->new_error_msg('Imposible guardar los datos.');
             }
-        }
-        else if (isset($_GET['cod'])) {
+        } else if (isset($_GET['cod'])) {
             $eje0 = new ejercicio();
             $this->ejercicio = $eje0->get($_GET['cod']);
         }
@@ -78,8 +77,7 @@ class contabilidad_ejercicio extends fbase_controller
                         $this->new_error_msg('Petición duplicada. Evita hacer doble clic sobre los botones.');
                     } else
                         $this->cerrar_ejercicio();
-                }
-                else if (isset($_GET['cerrar2'])) {
+                } else if (isset($_GET['cerrar2'])) {
                     $this->cerrar_ejercicio2();
                 } else {
                     $this->ejercicio->full_test();
@@ -139,7 +137,7 @@ class contabilidad_ejercicio extends fbase_controller
         } else if ($this->ejercicio) {
             return $this->ejercicio->url();
         }
-        
+
         return parent::url();
     }
 
@@ -506,9 +504,9 @@ class contabilidad_ejercicio extends fbase_controller
                                 $subcuenta->descripcion = base64_decode($sc->descripcion);
 
                                 if (strlen($sc->codsubcuenta) != $this->ejercicio->longsubcuenta) {
-                                    $this->new_error_msg('La subcuenta tiene una longitud de ' . strlen($sc->codsubcuenta)
+                                    $this->new_error_msg('La subcuenta (' . $sc->codsubcuenta . ') tiene una longitud de ' . strlen($sc->codsubcuenta)
                                         . ', mientras que el ejercicio tiene definida una longitud de: ' . $this->ejercicio->longsubcuenta
-                                        . '. Debeas cambiarla para evitar problemas.');
+                                        . '. Debes cambiarla para evitar problemas.');
                                     $this->url_recarga = FALSE;
                                     break;
                                 } else if (!$subcuenta->save()) {
