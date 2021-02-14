@@ -47,9 +47,10 @@
                 <table class="table table-hover">
                     <thead>
                         <tr>
-                            <th>Referencia</th>
-                            <th>Número de serie</th>
-                            <th>Lote</th>
+                            <th style="width: 10%">Referencia</th>
+                            <th style="width: 40%">Descripción</th>
+                            <th style="width: 25%">Número de serie</th>
+                            <th style="width: 25%">Lote</th>
                             <th></th>
                         </tr>
                     </thead>
@@ -58,6 +59,9 @@
                         <td>
                             <input type="hidden" name="id_{$value->id}" value="{$value->id}"/>
                             <input type="text" name="ref_{$value->id}" value="{$value->referencia}" class="form-control" readonly=""/>
+                        </td>
+                         <td>
+                             <input type="text" value="{$fsc->descripcion($value->referencia)}" class="form-control" readonly=""/>
                         </td>
                         <td>
                             <input type="text" name="numserie_{$value->id}" value="{$value->numserie}" class="form-control" placeholder="opcional" maxlength="50" autocomplete="off"/>

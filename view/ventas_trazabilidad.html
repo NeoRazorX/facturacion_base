@@ -27,7 +27,7 @@
                 {loop="$fsc->disponibles"}
                 <div class="panel panel-default">
                     <div class="panel-heading">
-                        Selecciona <b>{$value1['cantidad']} unidades</b> para la referencia <b>{$key1}</b>
+                        Selecciona <b>{$value1['cantidad']} unidades</b> para la referencia <b>{$key1} | {$fsc->descripcion($key1)}</b>
                     </div>
                     <div class="table-responsive">
                         <table class="table table-hover">
