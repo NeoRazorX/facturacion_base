@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of facturacion_base
- * Copyright (C) 2017-2019 Carlos Garcia Gomez <neorazorx@gmail.com>
+ * Copyright (C) 2017-2021 Carlos Garcia Gomez <neorazorx@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -301,7 +301,7 @@ class fbase_controller extends fs_controller
         $continuar = TRUE;
 
         $factura = new factura_cliente();
-        $factura->codagente = $this->user->codagente;
+        $factura->codagente = empty($albaranes[0]->codagente) ? $this->user->codagente : $albaranes[0]->codagente;
         $factura->codalmacen = $albaranes[0]->codalmacen;
         $factura->coddivisa = $albaranes[0]->coddivisa;
         $factura->tasaconv = $albaranes[0]->tasaconv;
@@ -503,7 +503,7 @@ class fbase_controller extends fs_controller
         $continuar = TRUE;
 
         $factura = new factura_proveedor();
-        $factura->codagente = $this->user->codagente;
+        $factura->codagente = empty($albaranes[0]->codagente) ? $this->user->codagente : $albaranes[0]->codagente;
         $factura->codalmacen = $albaranes[0]->codalmacen;
         $factura->coddivisa = $albaranes[0]->coddivisa;
         $factura->tasaconv = $albaranes[0]->tasaconv;
