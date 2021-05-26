@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of facturacion_base
- * Copyright (C) 2014-2018    Carlos Garcia Gomez     neorazorx@gmail.com
+ * Copyright (C) 2014-2021    Carlos Garcia Gomez     neorazorx@gmail.com
  * Copyright (C) 2017         Francesc Pineda Segarra shawe.ewahs@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
@@ -708,7 +708,9 @@ class ventas_imprimir extends compras_imprimir
                 $cuenta_banco = $cb0->get($forma_pago->codcuenta);
                 if ($cuenta_banco) {
                     if ($cuenta_banco->iban) {
-                        $texto_pago .= "\n<b>IBAN</b>: " . $cuenta_banco->iban(TRUE);
+                        $iban = $cuenta_banco->iban(TRUE);
+                        $blocks = explode(' ', $iban);
+                        $texto_pago .= "\n<b>IBAN</b>: " . $iban . ' (último bloque ' . end($blocks) . ')';
                     }
 
                     if ($cuenta_banco->swift) {
